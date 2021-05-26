@@ -16,10 +16,18 @@ export default class SendMoney extends Command {
       name: 'sendMoney',
       description: 'sends NEAR or NEP-141 tokens on NEAR testnet',
       category: 'Utility',
-      usage: `${client.settings.prefix}send [amount in yoctoNear] [asset (optional, defaults to 'NEAR')]  [recipient]`,
+      usage: `${client.settings.prefix}sendMoney [amount of fungible token or NFT] [asset, i.e. NEAR, Berries, EventBadges] to [recipient]`,
       cooldown: 1000,
       requiredPermissions: [],
     });
+  }
+
+  private extractArgs(content: string): string[] | null {
+    const rx = /^\%sendMoney (.*) (.*) to (.*)$/g;
+    const matched = rx.exec(content);
+    if (!matched) return null;
+    // The first element of the match is the whole string if it matched
+    return matched.length < 2 ? null : matched.slice(1);
   }
 
   public async run(message: Message): Promise<void> {
@@ -27,34 +35,37 @@ export default class SendMoney extends Command {
     if (!content) {
       throw Error('message content is empty!');
     }
+    const args = this.extractArgs(content);
 
-    const params = content.split(' ');
-    if (params.length < 3 || params.length > 4) {
+    if (!args) {
       await super.respond(
         message.channel,
-        `expected 2 parameters, got ${params.length - 1}.\n\`usage: ${
+        `Invalid command, \n\`usage: ${this.conf.usage}\``
+      );
+      return;
+    } else if (args.length !== 2 && args.length !== 3) {
+      await super.respond(
+        message.channel,
+        `expected 2 parameters, got ${args.length - 1}.\n\`usage: ${
           this.conf.usage
         }\``
       );
       return;
     }
-
-    let amount = parseInt(params[1]);
-    if (Number.isNaN(amount)) {
+   
+    // If there are only two arguments, assume that the user is sending an NFT
+    const sendingOne = args.length === 2 ? 0 : 1;
+    const amount = sendingOne ? 1 : parseInt(args[0]);
+    if (Number.isNaN(amount) || amount < 0) {
       await super.respond(
         message.channel,
-        '❌ invalid amount ❌: amount must be a number!'
+        '❌ invalid amount ❌: amount must be a nonnegative number!'
       );
       return;
     }
-    let asset = params[2];
-    let recipient: string;
-    if (params.length === 4) {
-      asset = params[2];
-      recipient = params[3];
-    } else {
-      recipient = params[2];
-    }
+    const asset = args[sendingOne];
+    const recipient: string = args[1 + sendingOne];
+
 
     // Recipient should look like <@86890631690977280>
     let recipientParsed: string;
@@ -91,6 +102,7 @@ export default class SendMoney extends Command {
         environment.BASE_WALLET_URL,
         tx
       );
+      console.log(link)
 
       await super.respond(
         message.channel,

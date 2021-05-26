@@ -39,7 +39,7 @@ class _TokenInfo {
   @jsonMember
   public symbol: string;
   @jsonMember
-  public type: 'COIN';
+  public type: 'COIN' | 'NFT';
   @jsonMember
   public decimals: number;
   @jsonMember
