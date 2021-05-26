@@ -326,7 +326,7 @@
         "serve": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
-            "command": "cd apps/frontend && $(npm bin)/cross-env NODE_ENV=development $(npm bin)/webpack serve"
+            "command": "cd apps/frontend && $(npm bin)/cross-env NODE_ENV=developm#!/bin/shent $(npm bin)/webpack serve"
           }
         },
         "serve+api": {
