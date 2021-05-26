@@ -1,0 +1,36 @@
+{
+  "implicitDependencies": {
+    "workspace.json": "*",
+    "package.json": { "dependencies": "*", "devDependencies": "*" },
+    "tsconfig.base.json": "*",
+    "tslint.json": "*",
+    ".eslintrc.json": "*",
+    "nx.json": "*"
+  },
+  "affected": { "defaultBase": "master" },
+  "npmScope": "baf-wallet",
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@nrwl/workspace/tasks-runners/default",
+      "options": { "cacheableOperations": ["build", "lint", "test", "e2e"] }
+    }
+  },
+  "projects": {
+    "frontend-e2e": { "tags": [], "implicitDependencies": ["frontend"] },
+    "api": { "tags": [] },
+    "api-client": { "tags": [] },
+    "bot": { "tags": [] },
+    "multi-chain": { "tags": [] },
+    "redirect-generator": { "tags": [] },
+    "interfaces": { "tags": [] },
+    "chain-info": { "tags": [] },
+    "frontend": { "tags": [] },
+    "near": { "tags": [] },
+    "utils": { "tags": [] },
+    "torus": { "tags": [] },
+    "baf-contract": { "tags": [] },
+    "crypto": { "tags": [] },
+    "base-components": { "tags": [] },
+    "errors": { "tags": [] }
+  }
+}
