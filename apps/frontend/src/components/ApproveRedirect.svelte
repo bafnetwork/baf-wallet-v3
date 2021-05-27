@@ -1,7 +1,7 @@
 <script lang="ts">
   import Card, { Content, ActionButton, Actions } from '@smui/card';
   import Button from '@smui/button';
-  import { Icon} from '@smui/common';
+  import { Icon } from '@smui/common';
   import AmountFormatter from '@baf-wallet/base-components/AmountFormatter.svelte';
   import { BafError } from '@baf-wallet/errors';
   import Spinner from 'svelte-spinner';
@@ -109,6 +109,7 @@
     }
     isLoading = false;
   }
+
 </script>
 
 {#await init()}
@@ -137,6 +138,11 @@
                 {tokenInfo}
               /> to {recipientUser} for contract
               {action.contractAddress}
+            </p>
+          {:else if action.type === GenericTxSupportedActions.TRANSFER_NFT}
+            <p>
+              Transfer {action.amount || 1}
+              {action.tokenId} to {recipientUser} for contract {action.contractAddress}
             </p>
           {:else}
             An error occured, an unsupported action type was passed in!
