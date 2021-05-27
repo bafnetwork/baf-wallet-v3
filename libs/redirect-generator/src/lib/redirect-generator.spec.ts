@@ -27,7 +27,7 @@ describe('frontend', () => {
       // TODO: better placement
       join(
         __dirname,
-        '../../../../scripts/testing-contracts/near/neardev-nft/dev-account'
+        '../../../../testing-configs/neardev-nft/dev-account'
       )
     );
     const sendURL = createApproveRedirectURL(
