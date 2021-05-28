@@ -108,6 +108,7 @@
       explorerUrl = ret.snd;
       txSuccess = true;
     } catch (e) {
+      console.error(e)
       error = e;
     }
     isLoading = false;
