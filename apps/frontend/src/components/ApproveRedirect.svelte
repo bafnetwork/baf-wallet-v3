@@ -74,7 +74,7 @@
       else if (
         action.type === GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN
       ) {
-        console.log(action.contractAddress, $ChainStores[chain].constants)
+        console.log(action.contractAddress, $ChainStores[chain].constants);
         return (
           $ChainStores[chain].constants.tokens[action.contractAddress]?.() ??
           null
@@ -146,6 +146,11 @@
             {:else}
               An error occured, an unsupported contract token was passed in!
             {/if}
+          {:else if action.type === GenericTxSupportedActions.TRANSFER_NFT}
+            <p>
+              Transfer {action.amount || 1}
+              {action.tokenId} to {recipientUser} for contract {action.contractAddress}
+            </p>
           {:else}
             An error occured, an unsupported action type was passed in!
           {/if}
