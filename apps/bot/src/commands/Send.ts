@@ -15,6 +15,7 @@ import {
 } from '@baf-wallet/interfaces';
 import { strToChain } from '@baf-wallet/utils';
 import { getNearChain } from '@baf-wallet/global-state';
+import { getContractTokenInfoFromSymbol } from '@baf-wallet/chain-info';
 
 export default class SendMoney extends Command {
   constructor(protected client: BotClient) {
@@ -44,9 +45,9 @@ export default class SendMoney extends Command {
     recipientUserReadable: string
   ): Promise<GenericTxParams | null> {
     let actions: GenericTxAction[];
-    const nearConstants = getNearChain().getConstants(environment.env);
+    const nearConstants = getNearChain().constants;
     // assume that we are on NEAR for now
-    if (asset === nearConstants.nativeTokenSymbol) {
+    if (asset === (await nearConstants.nativeTokenInfo()).symbol) {
       actions = [
         {
           type: GenericTxSupportedActions.TRANSFER,
@@ -54,10 +55,11 @@ export default class SendMoney extends Command {
         },
       ];
     } else {
-      const tokenIndex = nearConstants.tokens
-        .map((token) => token.tokenSymbol)
-        .indexOf(asset);
-      if (tokenIndex === -1) {
+      const tokenInfoRet = await getContractTokenInfoFromSymbol(
+        asset,
+        nearConstants.tokens
+      );
+      if (!tokenInfoRet) {
         await super.respond(
           message.channel,
           `❌ invalid asset ❌: ${asset} is currently not supported`
@@ -67,10 +69,10 @@ export default class SendMoney extends Command {
       actions = [
         {
           type: GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN,
-          contractAddress: nearConstants.tokens[tokenIndex].contractAddress,
+          contractAddress: tokenInfoRet.contract,
           amount: formatTokenAmountToIndivisibleUnit(
             amount,
-            nearConstants.tokens[tokenIndex].decimals
+            tokenInfoRet.tokenInfo.decimals
           ),
         },
       ];

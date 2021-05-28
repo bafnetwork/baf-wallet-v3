@@ -11,11 +11,15 @@ import {
 
 let nearChain: WrappedNearChainInterface;
 let init = false;
+const supportedContractTokens = {
+  near: ['ft.levtester.testnet'],
+};
+
 export async function initChains(chainParams: ChainInitParams) {
-  nearChain = await getWrappedInterface<NearChainInterface>(
-    Chain.NEAR,
-    chainParams[Chain.NEAR]
-  );
+  nearChain = await getWrappedInterface<NearChainInterface>(Chain.NEAR, {
+    ...chainParams[Chain.NEAR],
+    supportedContractTokens: supportedContractTokens[Chain.NEAR],
+  });
   init = true;
 }
 

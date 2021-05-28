@@ -5,3 +5,10 @@ export type Pair<T, U> = {
 
 export const getEnumValues = (enumObj: any) =>
   Object.keys(enumObj).map((key) => enumObj[key]);
+
+export const arrayToObject = (array: { key: string; val: any }[]): any => {
+  return array.reduce((prev, v) => {
+    prev[v.key] = v.val;
+    return prev;
+  }, {});
+};
