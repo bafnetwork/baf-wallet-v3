@@ -13,6 +13,7 @@
     getNearNetworkID,
     NearChainInterface,
     NearInitParams,
+    nearSupportedContractTokens,
     WrappedNearChainInterface,
   } from '@baf-wallet/near';
   import { getWrappedInterface } from '@baf-wallet/multi-chain';
@@ -34,11 +35,11 @@
 
   export const ChainStores = writable<ChainsState | null>(null);
 
-  export async function initChains(keys: KeyState) : Promise<ChainsState> {
+  export async function initChains(keys: KeyState): Promise<ChainsState> {
     const nearAccountInfo = await apiClient.getAccountInfo({
       secpPubkeyB58: keys.secpPK.format(Encoding.BS58),
     });
-    let chainInfos: ChainsState = {}
+    let chainInfos: ChainsState = {};
     if (nearAccountInfo.nearId && nearAccountInfo.nearId !== '') {
       const nearWrapped: WrappedNearChainInterface = await getWrappedInterface<NearChainInterface>(
         Chain.NEAR,
@@ -46,12 +47,13 @@
           networkID: getNearNetworkID(environment.env),
           masterAccountID: nearAccountInfo.nearId,
           keyPair: keyPairFromSk(keys.edSK),
-        } as NearInitParams
+          supportedContractTokens: nearSupportedContractTokens,
+        }
       );
-      chainInfos[Chain.NEAR] = nearWrapped
- 
+      chainInfos[Chain.NEAR] = nearWrapped;
     }
-   ChainStores.set(chainInfos);
-   return chainInfos
+    ChainStores.set(chainInfos);
+    return chainInfos;
   }
+
 </script>

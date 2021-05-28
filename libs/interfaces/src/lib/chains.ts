@@ -105,6 +105,7 @@ export interface ContractTokensConstant {
 export interface ChainConstants {
   nativeTokenInfo: () => Promise<TokenInfo>;
   tokens: ContractTokensConstant;
+  supportedContractTokenContracts: string[];
 }
 
 export interface AccountsInterface<Account, LookupParams, CreateParams> {

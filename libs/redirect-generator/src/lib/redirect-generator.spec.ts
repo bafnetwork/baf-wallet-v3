@@ -12,7 +12,7 @@ describe('frontend', () => {
         actions: [
           {
             type: GenericTxSupportedActions.TRANSFER,
-            amount: '10000',
+            amount: '1000000000000000000000',
           },
         ],
         oauthProvider: 'discord',

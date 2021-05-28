@@ -1,6 +1,6 @@
 import { Chain, ChainConstants } from '@baf-wallet/interfaces';
 import { getTokenInfo } from '@baf-wallet/chain-info';
-import thunky from 'thunky';
+import thunky from 'thunky/promise';
 import { arrayToObject } from '@baf-wallet/utils';
 
 export async function initChainConstants(
@@ -16,5 +16,6 @@ export async function initChainConstants(
   return {
     nativeTokenInfo: thunky(() => getTokenInfo(chain)),
     tokens: arrayToObject(tokens),
+    supportedContractTokenContracts: tokenContracts,
   };
 }

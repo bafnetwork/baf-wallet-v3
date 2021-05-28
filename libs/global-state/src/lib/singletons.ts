@@ -6,19 +6,17 @@ import { BafError } from '@baf-wallet/errors';
 import { ChainInitParams, getWrappedInterface } from '@baf-wallet/multi-chain';
 import {
   NearChainInterface,
+  nearSupportedContractTokens,
   WrappedNearChainInterface,
 } from '@baf-wallet/near';
 
 let nearChain: WrappedNearChainInterface;
 let init = false;
-const supportedContractTokens = {
-  near: ['ft.levtester.testnet'],
-};
 
 export async function initChains(chainParams: ChainInitParams) {
   nearChain = await getWrappedInterface<NearChainInterface>(Chain.NEAR, {
     ...chainParams[Chain.NEAR],
-    supportedContractTokens: supportedContractTokens[Chain.NEAR],
+    supportedContractTokens: nearSupportedContractTokens,
   });
   init = true;
 }

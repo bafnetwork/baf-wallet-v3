@@ -21,11 +21,11 @@
     GenericTxAction,
     GenericTxParams,
     GenericTxSupportedActions,
+    TokenInfo,
   } from '@baf-wallet/interfaces';
   import { getTorusPublicAddress } from '@baf-wallet/torus';
   import { keyPairFromSk } from '@baf-wallet/crypto';
   import BN from 'bn.js';
-  import { getTokenInfo, TokenInfo } from '@baf-wallet/chain-info';
 
   export let params = {} as any;
   export let chain: Chain = params ? params.chain : null;
@@ -70,18 +70,24 @@
   async function initTokenInfos() {
     const tokenInfoProms = txParams.actions.map((action) => {
       if (action.type === GenericTxSupportedActions.TRANSFER)
-        return getTokenInfo(chain);
+        return $ChainStores[chain].constants.nativeTokenInfo();
       else if (
         action.type === GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN
-      )
-        return getTokenInfo(chain, action.contractAddress);
-      else null;
+      ) {
+        console.log(action.contractAddress, $ChainStores[chain].constants)
+        return (
+          $ChainStores[chain].constants.tokens[action.contractAddress]?.() ??
+          null
+        );
+      } else null;
     });
     tokenInfos = await Promise.all(tokenInfoProms);
   }
 
   async function init() {
     if (!checkChainInit($ChainStores, chain)) {
+      // TODO: redirect to login
+      // See Github issue: https://github.com/bafnetwork/baf-wallet-v3/issues/6
       throw BafError.UninitChain(chain);
     }
     txParams = deserializeTxParams(params.txParams);
@@ -93,12 +99,12 @@
     attemptedApprove = true;
     isLoading = true;
     try {
-      const signed = await $ChainStores[Chain.NEAR].tx.sign(
+      const signed = await $ChainStores[chain].tx.sign(
         tx,
         keyPairFromSk($SiteKeyStore.edSK)
       );
       BN.prototype.toString = undefined;
-      const ret = await $ChainStores[Chain.NEAR].tx.send(signed);
+      const ret = await $ChainStores[chain].tx.send(signed);
       explorerUrl = ret.snd;
       txSuccess = true;
     } catch (e) {
@@ -127,15 +133,19 @@
               to {recipientUser}
             </p>
           {:else if action.type === GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN}
-            <p>
-              transfer <AmountFormatter
-                bal={action.amount}
-                {chain}
-                isNativeToken={false}
-                tokenInfo={tokenInfos[i]}
-              /> to {recipientUser} for contract
-              {action.contractAddress}
-            </p>
+            {#if $ChainStores[chain].constants.supportedContractTokenContracts.includes(action.contractAddress)}
+              <p>
+                transfer <AmountFormatter
+                  bal={action.amount}
+                  {chain}
+                  isNativeToken={false}
+                  tokenInfo={tokenInfos[i]}
+                /> to {recipientUser} for contract
+                {action.contractAddress}
+              </p>
+            {:else}
+              An error occured, an unsupported contract token was passed in!
+            {/if}
           {:else}
             An error occured, an unsupported action type was passed in!
           {/if}
