@@ -40,9 +40,13 @@ export namespace BafError {
   };
   export const UnknownNetworkIdent = (identifier: string) =>
     emitError(`Unknown network identifier ${identifier}`);
+  export const InvalidChainTokenListJSON = (err: any) =>
+    emitError(
+      `Received invalid tokenlist.json: ${err}. See \`ChainInfo\` in chain-info/src/lib/chain-info.ts for more information`
+    );
   export const InvalidChainInfoJSON = (err: any) =>
     emitError(
-      `Received invalid info.json: ${err}. See \`ChainInfo\` in chain-info/src/lib/index.ts for more information`
+      `Received invalid info.json: ${err}. See \`ChainInfo\` in chain-info/src/lib/chain-info.ts for more information`
     );
   export const UnsupportedEncoding = (fmt: any) =>
     emitError(`Encoding for format ${fmt} is unsupported`);

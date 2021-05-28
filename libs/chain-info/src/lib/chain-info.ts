@@ -21,6 +21,28 @@ export class SocialMediaInfo {
 }
 
 @jsonObject
+class TokenListItem {
+  @jsonMember
+  public type: string;
+  @jsonMember
+  public address: string;
+  @jsonMember
+  public name: string;
+  @jsonMember
+  public symbol: string;
+}
+
+@jsonObject
+export class TokenList {
+  @jsonMember
+  public name: string; // platform
+  @jsonMember
+  public timestamp: string;
+  @jsonArrayMember(TokenListItem)
+  public tokens: TokenListItem[];
+}
+
+@jsonObject
 class _TokenInfo {
   @jsonMember
   public name: string;
@@ -133,6 +155,25 @@ export async function getContractAddresses(
   } catch (err) {
     console.error(`could not fetch addresses: ${err}`);
     return null;
+  }
+}
+
+export async function getChainsTokens(chain: Chain): Promise<TokenList> {
+  const url = `${baseRawUrl}/blockchains/${chain}/tokenlist.json`;
+  try {
+    const res = await axios.get(url);
+    const { data } = res;
+    const serializer = new TypedJSON(TokenList);
+    const tokenList = serializer.parse(data);
+    return tokenList;
+  } catch (err) {
+    if (err.isAxiosError) {
+      console.error(
+        `Chain not found: only chains in ${baseRawUrl} are supported.`
+      );
+      return null;
+    }
+    throw BafError.InvalidChainTokenListJSON(err);
   }
 }
 

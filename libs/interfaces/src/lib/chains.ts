@@ -96,8 +96,11 @@ export interface ChainInterface<
 
 export interface ChainContractTokenConstant {
   contractAddress: string;
+  tokenSymbol: string;
+  decimals: number;
 }
 export interface ChainConstants {
+  nativeTokenSymbol: string;
   tokens: ChainContractTokenConstant[];
 }
 
