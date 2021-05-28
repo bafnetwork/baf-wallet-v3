@@ -60,7 +60,7 @@ export default class SendMoney extends Command {
       if (tokenIndex === -1) {
         await super.respond(
           message.channel,
-          '❌ invalid amount ❌: amount must be a nonnegative number!'
+          `❌ invalid asset ❌: ${asset} is currently not supported`
         );
         return null;
       }

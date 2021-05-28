@@ -1,7 +1,7 @@
 <script lang="ts">
   import Card, { Content, ActionButton, Actions } from '@smui/card';
   import Button from '@smui/button';
-  import { Icon} from '@smui/common';
+  import { Icon } from '@smui/common';
   import AmountFormatter from '@baf-wallet/base-components/AmountFormatter.svelte';
   import { BafError } from '@baf-wallet/errors';
   import Spinner from 'svelte-spinner';
@@ -28,12 +28,10 @@
   import { getTokenInfo, TokenInfo } from '@baf-wallet/chain-info';
 
   export let params = {} as any;
-  export let isGenericTx = true;
-  export let txInUrl = true;
   export let chain: Chain = params ? params.chain : null;
-  export let txParams: GenericTxParams | any;
+  export let txParams: GenericTxParams;
   export let recipientUser: string;
-  export let tokenInfo: TokenInfo;
+  export let tokenInfos: (TokenInfo | null)[];
   export let onCancel = () => window.close();
 
   let tx: any;
@@ -45,7 +43,6 @@
   let txSuccess = false;
 
   async function initGenericTx() {
-    txParams = deserializeTxParams(params.txParams);
     if (
       !txParams.recipientUserId ||
       !txParams.oauthProvider ||
@@ -69,27 +66,27 @@
     actions = txParams.actions;
     tx = await $ChainStores[Chain.NEAR].tx.build(nearTxParams);
   }
-  async function initChainSpecificTx() {
-    actions = $ChainStores[chain].tx.extractGenericActionsFromTx(txParams);
-    tx = await $ChainStores[chain].tx.build(txParams);
+
+  async function initTokenInfos() {
+    const tokenInfoProms = txParams.actions.map((action) => {
+      if (action.type === GenericTxSupportedActions.TRANSFER)
+        return getTokenInfo(chain);
+      else if (
+        action.type === GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN
+      )
+        return getTokenInfo(chain, action.contractAddress);
+      else null;
+    });
+    tokenInfos = await Promise.all(tokenInfoProms);
   }
 
   async function init() {
-    if (!txInUrl && !txParams) {
-      throw BafError.InvalidTransactionApproveRedirect();
-    } else if (!isGenericTx && txInUrl) {
-      throw BafError.Unimplemented();
-    } else if (txInUrl) {
-      tokenInfo = await getTokenInfo(chain);
-    }
     if (!checkChainInit($ChainStores, chain)) {
       throw BafError.UninitChain(chain);
     }
-    if (isGenericTx) {
-      await initGenericTx();
-    } else {
-      await initChainSpecificTx();
-    }
+    txParams = deserializeTxParams(params.txParams);
+    await initTokenInfos();
+    await initGenericTx();
   }
 
   async function onApprove() {
@@ -109,6 +106,7 @@
     }
     isLoading = false;
   }
+
 </script>
 
 {#await init()}
@@ -124,7 +122,7 @@
               transfer <AmountFormatter
                 bal={action.amount}
                 {chain}
-                {tokenInfo}
+                tokenInfo={tokenInfos[i]}
               />
               to {recipientUser}
             </p>
@@ -134,7 +132,7 @@
                 bal={action.amount}
                 {chain}
                 isNativeToken={false}
-                {tokenInfo}
+                tokenInfo={tokenInfos[i]}
               /> to {recipientUser} for contract
               {action.contractAddress}
             </p>
