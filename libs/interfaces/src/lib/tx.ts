@@ -4,7 +4,7 @@ import { PLATFORM } from './platforms';
 export enum GenericTxSupportedActions {
   TRANSFER = 'transfer',
   TRANSFER_CONTRACT_TOKEN = 'transfer contract token',
-  TRANSFER_NFT = 'transfer nft'
+  TRANSFER_NFT = 'transfer nft',
 }
 
 export interface GenericTxParams {
@@ -25,8 +25,7 @@ export interface GenericTxActionTransfer extends GenericTxActionBase {
 }
 
 // An NFT connotes an ERC721 NFT, NEP 4 NFT, etc
-export interface GenericTxActionTransferNFT
-  extends GenericTxActionBase {
+export interface GenericTxActionTransferNFT extends GenericTxActionBase {
   type: GenericTxSupportedActions.TRANSFER_NFT;
   // The token's id
   tokenId: string;
@@ -39,7 +38,7 @@ export interface GenericTxActionTransferNFT
   memo?: string;
   // An optional string which is used with approval management standards which some chains have
   // like Near
-  approvalId?: string
+  approvalId?: string;
 }
 // A contract token connotes an ERC21 token, SPL token,  NEP 141 token etc
 export interface GenericTxActionTransferContractToken
@@ -57,11 +56,8 @@ export interface GenericTxActionTransferContractToken
 export type GenericTxAction =
   | GenericTxActionTransfer
   | GenericTxActionTransferContractToken
-  | GenericTxActionTransferNFT
+  | GenericTxActionTransferNFT;
 
-/**
- * TODO: add NFT Support
- */
 export enum SupportedTransferTypes {
   NativeToken = 'Native Token',
   ContractToken = 'Contract Token',
