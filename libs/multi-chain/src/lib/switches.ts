@@ -7,6 +7,7 @@ import {
   InferInitParams,
 } from '@baf-wallet/interfaces';
 import { nearChainInterface } from '@baf-wallet/near';
+import { initChainConstants } from './constants';
 
 // these are kind of ugly, but the ugly should be limited to here, all in the pursuit of typed-ness and editor completions
 
@@ -16,7 +17,7 @@ export async function getWrappedInterface<T>(
   initParams: InferInitParams<T>
 ): Promise<InferWrapChainInterface<T>> {
   const chainInterface = getChainInterface<T>(chain);
-  return await wrapChainInterface(chainInterface, initParams);
+  return await wrapChainInterface(chainInterface, initParams, chain);
 }
 
 // NOTE: This will return the wrong type if you put in a type paramter that conflicts with the 'chain' argument
@@ -31,7 +32,8 @@ export function getChainInterface<T>(chain: Chain): InferChainInterface<T> {
 
 export async function wrapChainInterface<T>(
   unwrapped: InferChainInterface<T>,
-  initParams: InferInitParams<T>
+  initParams: InferInitParams<T>,
+  chain: Chain
 ): Promise<InferWrapChainInterface<T>> {
   const innerSdk = await (unwrapped.init(initParams) as Promise<InferInner<T>>);
 
@@ -40,8 +42,10 @@ export async function wrapChainInterface<T>(
     tx: unwrapped.tx(innerSdk),
     accounts: unwrapped.accounts(innerSdk),
     convert: unwrapped.convert,
-    getConstants: unwrapped.getConstants,
-    getContract: (address: string) => unwrapped.getContract(innerSdk, address),
+    constants: await initChainConstants(
+      chain,
+      initParams.supportedContractTokens
+    ),
 
     // Note: in the future, some chainInterfaces might want to do stuff in this fn
     getInner: () => innerSdk,
