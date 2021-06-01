@@ -1,5 +1,8 @@
 # BafWallet
 
+## Find the spec
+Find [the spec](https://docs.google.com/document/d/1B8sOlv2MAYtm4aQOHPaRFx_jYyNaqKKS2CMfJtr-lFU/edit?usp=sharing)
+
 ## Setup
 
 In order to get up and running with this projects, first install dependencies.
