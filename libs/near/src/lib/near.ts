@@ -18,7 +18,7 @@ import {
 } from 'near-api-js';
 
 import { NearBuildTxParams, NearSignTxOpts, nearTx } from './tx';
-import { getConstants } from './constants';
+import { getNearConstants } from './constants';
 import {
   initContract,
   NearInitContractParams,
@@ -77,7 +77,7 @@ export const nearChainInterface: NearChainInterface = {
   tx: nearTx,
   convert: nearConverter,
   rpc: nearRpc,
-  getConstants,
+  getConstants: getNearConstants,
   init,
   getContract,
 };

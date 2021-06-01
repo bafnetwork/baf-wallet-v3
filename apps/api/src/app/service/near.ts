@@ -7,7 +7,7 @@ import {
 import { getBafContract } from '@baf-wallet/baf-contract';
 import { createUserVerifyMessage, encodeBytes } from '@baf-wallet/utils';
 import { verifySignature } from '@baf-wallet/crypto';
-import { getNearChain } from '../chains/singletons';
+import { getNearChain } from '@baf-wallet/global-state';
 import { BafError } from '@baf-wallet/errors';
 
 export interface NearAccountInfo {

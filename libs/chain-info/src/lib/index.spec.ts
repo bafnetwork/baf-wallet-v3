@@ -1,37 +1,38 @@
-import { getChainInfo, getChainLogoUrl, getDappLogoUrl } from '.';
+import { getTokenInfo } from './chain-info';
+import { Chain } from '@baf-wallet/interfaces';
 describe('getChainInfo', () => {
   it('retrieves correct values for ethereum', () =>
-    getChainInfo('ethereum').then((info) => {
+    getTokenInfo(Chain.NEAR).then((info) => {
       expect(info).not.toBeUndefined();
       expect(info).not.toBeNull();
-      expect(info.name).toBe('Ethereum');
-      expect(info.website).toBe('https://ethereum.org/');
-      expect(info.source_code).toBe('https://github.com/ethereum');
+      expect(info.name).toBe('NEAR Protocol');
+      expect(info.website).toBe('https://near.org');
+      expect(info.source_code).toBe('https://github.com/nearprotocol/nearcore');
       expect(info.white_paper).toBe(
-        'https://github.com/ethereum/wiki/wiki/White-Paper'
+        'https://near.org/papers/the-official-near-white-paper'
       );
       expect(info.description).toBe(
-        'Open source platform to write and distribute decentralized applications.'
+        'NEAR is an open source platform that accelerates the development of decentralized applications.'
       );
       expect(info.socials).toEqual([
         {
           name: 'Twitter',
-          url: 'https://twitter.com/ethereum',
-          handle: 'ethereum',
+          url: 'https://twitter.com/nearprotocol',
+          handle: 'nearprotocol',
         },
         {
           name: 'Reddit',
-          url: 'https://www.reddit.com/r/ethereum',
-          handle: 'ethereum',
+          url: 'https://www.reddit.com/r/nearprotocol/',
+          handle: 'nearprotocol',
         },
       ]);
-      expect(info.explorer).toBe('https://etherscan.io/');
+      expect(info.explorer).toBe('https://explorer.near.org/');
 
       // make sure binance shill was removed
       expect((info as any).research).toBeUndefined();
-      expect(info.symbol).toBe('ETH');
+      expect(info.symbol).toBe('NEAR');
       expect(info.type).toBe('COIN');
-      expect(info.decimals).toBe(18);
+      expect(info.decimals).toBe(24);
       expect(info.status).toBe('active');
     }));
 });

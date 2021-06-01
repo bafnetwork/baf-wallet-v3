@@ -1,14 +1,20 @@
 import { Message } from 'discord.js';
 import { Command } from '../Command';
 import { BotClient } from '../types';
-import { formatNativeTokenAmountToIndivisibleUnit } from '@baf-wallet/multi-chain';
+import {
+  formatNativeTokenAmountToIndivisibleUnit,
+  formatTokenAmountToIndivisibleUnit,
+} from '@baf-wallet/multi-chain';
 import { createApproveRedirectURL } from '@baf-wallet/redirect-generator';
 import { environment } from '../environments/environment';
 import {
   Chain,
+  GenericTxAction,
   GenericTxParams,
   GenericTxSupportedActions,
 } from '@baf-wallet/interfaces';
+import { strToChain } from '@baf-wallet/utils';
+import { getNearChain } from '@baf-wallet/global-state';
 
 export default class SendMoney extends Command {
   constructor(protected client: BotClient) {
@@ -16,10 +22,67 @@ export default class SendMoney extends Command {
       name: 'sendMoney',
       description: 'sends NEAR or NEP-141 tokens on NEAR testnet',
       category: 'Utility',
-      usage: `${client.settings.prefix}send [amount in yoctoNear] [asset (optional, defaults to 'NEAR')]  [recipient]`,
+      usage: `${client.settings.prefix}sendMoney [amount of fungible token] [asset, i.e. NEAR, Berries, etc.] to [recipient]`,
       cooldown: 1000,
       requiredPermissions: [],
     });
+  }
+
+  private extractArgs(content: string): string[] | null {
+    const rx = /^\%sendMoney (.*) (.*) to (.*)$/g;
+    const matched = rx.exec(content);
+    if (!matched) return null;
+    // The first element of the match is the whole string if it matched
+    return matched.length < 3 ? null : matched.slice(1);
+  }
+
+  private async buildGenericTx(
+    message: Message,
+    asset: string,
+    amount: number,
+    recipientParsed: string,
+    recipientUserReadable: string
+  ): Promise<GenericTxParams | null> {
+    let actions: GenericTxAction[];
+    const nearConstants = getNearChain().getConstants(environment.env);
+    // assume that we are on NEAR for now
+    if (asset === nearConstants.nativeTokenSymbol) {
+      actions = [
+        {
+          type: GenericTxSupportedActions.TRANSFER,
+          amount: formatNativeTokenAmountToIndivisibleUnit(amount, Chain.NEAR),
+        },
+      ];
+    } else {
+      const tokenIndex = nearConstants.tokens
+        .map((token) => token.tokenSymbol)
+        .indexOf(asset);
+      if (tokenIndex === -1) {
+        await super.respond(
+          message.channel,
+          `❌ invalid asset ❌: ${asset} is currently not supported`
+        );
+        return null;
+      }
+      actions = [
+        {
+          type: GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN,
+          contractAddress: nearConstants.tokens[tokenIndex].contractAddress,
+          amount: formatTokenAmountToIndivisibleUnit(
+            amount,
+            nearConstants.tokens[tokenIndex].decimals
+          ),
+        },
+      ];
+    }
+
+    const tx: GenericTxParams = {
+      recipientUserId: recipientParsed,
+      recipientUserIdReadable: recipientUserReadable,
+      actions,
+      oauthProvider: 'discord',
+    };
+    return tx;
   }
 
   public async run(message: Message): Promise<void> {
@@ -27,34 +90,35 @@ export default class SendMoney extends Command {
     if (!content) {
       throw Error('message content is empty!');
     }
+    const args = this.extractArgs(content);
 
-    const params = content.split(' ');
-    if (params.length < 3 || params.length > 4) {
+    if (!args) {
       await super.respond(
         message.channel,
-        `expected 2 parameters, got ${params.length - 1}.\n\`usage: ${
+        `Invalid command, \n\`usage: ${this.conf.usage}\``
+      );
+      return;
+    } else if (args.length !== 3) {
+      await super.respond(
+        message.channel,
+        `expected 3 parameters, got ${args.length - 1}.\n\`usage: ${
           this.conf.usage
         }\``
       );
       return;
     }
 
-    let amount = parseInt(params[1]);
-    if (Number.isNaN(amount)) {
+    // If there are only two arguments, assume that the user is sending an NFT
+    const amount = parseInt(args[0]);
+    if (Number.isNaN(amount) || amount < 0) {
       await super.respond(
         message.channel,
-        '❌ invalid amount ❌: amount must be a number!'
+        '❌ invalid amount ❌: amount must be a nonnegative number!'
       );
       return;
     }
-    let asset = params[2];
-    let recipient: string;
-    if (params.length === 4) {
-      asset = params[2];
-      recipient = params[3];
-    } else {
-      recipient = params[2];
-    }
+    const asset = args[1];
+    const recipient: string = args[2];
 
     // Recipient should look like <@86890631690977280>
     let recipientParsed: string;
@@ -72,20 +136,14 @@ export default class SendMoney extends Command {
     const recipientUserReadable = `${recipientUser.username}#${recipientUser.discriminator}`;
 
     try {
-      const tx: GenericTxParams = {
-        recipientUserId: recipientParsed,
-        recipientUserIdReadable: recipientUserReadable,
-        actions: [
-          {
-            type: GenericTxSupportedActions.TRANSFER,
-            amount: formatNativeTokenAmountToIndivisibleUnit(
-              amount,
-              Chain.NEAR
-            ),
-          },
-        ],
-        oauthProvider: 'discord',
-      };
+      const tx = await this.buildGenericTx(
+        message,
+        asset,
+        amount,
+        recipientParsed,
+        recipientUserReadable
+      );
+      if (!tx) return;
       const link = createApproveRedirectURL(
         Chain.NEAR,
         environment.BASE_WALLET_URL,
