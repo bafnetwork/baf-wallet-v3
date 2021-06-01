@@ -11,6 +11,7 @@ import {
   GenericTxActionTransfer,
   GenericTxActionTransferContractToken,
   Chain,
+  GenericTxActionTransferNFT,
 } from '@baf-wallet/interfaces';
 import { Pair, getEnumValues } from '@baf-wallet/utils';
 import { sha256 } from '@baf-wallet/crypto';
@@ -72,17 +73,31 @@ function buildNativeAction(
         new BN((action as GenericTxActionTransfer).amount, 10)
       );
     case GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN:
-      const params = action as GenericTxActionTransferContractToken;
+      const paramsTransfer = action as GenericTxActionTransferContractToken;
       return transactions.functionCall(
         'ft_transfer',
         {
           receiver_id: receiverId,
-          amount: params.amount,
-          memo: params.memo,
+          amount: paramsTransfer.amount,
+          memo: paramsTransfer.memo ?? null,
         },
         // TODO: maximum gas fees per chain: see https://github.com/bafnetwork/baf-wallet-v2/issues/68
         new BN(10000000000000), // Maximum gas fee
         new BN(1) // A deposit associated with the ft_transfer action
+      );
+    case GenericTxSupportedActions.TRANSFER_NFT:
+      const paramsNFT = action as GenericTxActionTransferNFT;
+      return transactions.functionCall(
+        'nft_transfer',
+        {
+          receiver_id: receiverId,
+          token_id: paramsNFT.tokenId,
+          approval_id: paramsNFT.approvalId ?? null,
+          memo: paramsNFT.memo ?? null,
+        },
+        // TODO: maximum gas fees per chain: see https://github.com/bafnetwork/baf-wallet-v2/issues/68
+        new BN(10000000000000), // Maximum gas fee
+        new BN(1)
       );
     default:
       throw `Action of type ${actionType} is unsupported`;
@@ -111,7 +126,8 @@ const checkAllContractActions = (actions: NearAction[]) => {
 };
 
 const isContractCall = (action: NearAction) =>
-  action.type === GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN;
+  action.type === GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN ||
+  action.type === GenericTxSupportedActions.TRANSFER_NFT;
 
 export const extractGenericActionsFromTx = (
   txParams: NearBuildTxParams

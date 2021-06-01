@@ -136,6 +136,11 @@
               /> to {recipientUser} for contract
               {action.contractAddress}
             </p>
+          {:else if action.type === GenericTxSupportedActions.TRANSFER_NFT}
+            <p>
+              Transfer {action.amount || 1}
+              {action.tokenId} to {recipientUser} for contract {action.contractAddress}
+            </p>
           {:else}
             An error occured, an unsupported action type was passed in!
           {/if}
