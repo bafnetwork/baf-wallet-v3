@@ -50,7 +50,6 @@
     {#if $AccountStore.loggedIn}
       <Router {routes} />
     {:else}
-      <!-- TODO: redirect -->
       <Login />
     {/if}
   </Modal>
