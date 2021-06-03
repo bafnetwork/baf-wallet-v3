@@ -10,27 +10,32 @@ import { environment } from '../environments/environment';
 import {
   Chain,
   GenericTxAction,
+  GenericTxActionTransferNFT,
   GenericTxParams,
   GenericTxSupportedActions,
 } from '@baf-wallet/interfaces';
-import { createDiscordErrMsg, parseDiscordRecipient, strToChain } from '@baf-wallet/utils';
+import {
+  createDiscordErrMsg,
+  parseDiscordRecipient,
+  strToChain,
+} from '@baf-wallet/utils';
 import { getNearChain } from '@baf-wallet/global-state';
 import { getContractTokenInfoFromSymbol } from '@baf-wallet/chain-info';
 
-export default class SendMoney extends Command {
+export default class SendNFT extends Command {
   constructor(protected client: BotClient) {
     super(client, {
-      name: 'sendMoney',
-      description: 'sends NEAR or NEP-141 tokens on NEAR testnet',
+      name: 'sendNFT',
+      description: 'sends NEP171 compatible NFTs',
       category: 'Utility',
-      usage: `${client.settings.prefix}sendMoney [amount of fungible token] [asset, i.e. NEAR, Berries, etc.] to [recipient]`,
+      usage: `${client.settings.prefix}sendNFT [NFT ID] from [NFT Contract] to [recipient]`,
       cooldown: 1000,
       requiredPermissions: [],
     });
   }
 
   private extractArgs(content: string): string[] | null {
-    const rx = /^\%sendMoney (.*) (.*) to (.*)$/g;
+    const rx = /^\%sendNFT (.*) from (.*) to (.*)$/g;
     const matched = rx.exec(content);
     if (!matched) return null;
     // The first element of the match is the whole string if it matched
@@ -39,49 +44,21 @@ export default class SendMoney extends Command {
 
   private async buildGenericTx(
     message: Message,
-    asset: string,
-    amount: number,
+    contractAddress: string,
+    tokenId: string,
     recipientParsed: string,
     recipientUserReadable: string
   ): Promise<GenericTxParams | null> {
-    let actions: GenericTxAction[];
-    const nearConstants = getNearChain().constants;
-    // assume that we are on NEAR for now
-    if (asset === (await nearConstants.nativeTokenInfo()).symbol) {
-      actions = [
-        {
-          type: GenericTxSupportedActions.TRANSFER,
-          amount: formatNativeTokenAmountToIndivisibleUnit(amount, Chain.NEAR),
-        },
-      ];
-    } else {
-      const tokenInfoRet = await getContractTokenInfoFromSymbol(
-        asset,
-        nearConstants.tokens
-      );
-      if (!tokenInfoRet) {
-        await super.respond(
-          message.channel,
-          `❌ invalid asset ❌: ${asset} is currently not supported`
-        );
-        return null;
-      }
-      actions = [
-        {
-          type: GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN,
-          contractAddress: tokenInfoRet.contract,
-          amount: formatTokenAmountToIndivisibleUnit(
-            amount,
-            tokenInfoRet.tokenInfo.decimals
-          ),
-        },
-      ];
-    }
+    const action: GenericTxActionTransferNFT = {
+      type: GenericTxSupportedActions.TRANSFER_NFT,
+      tokenId,
+      contractAddress,
+    };
 
     const tx: GenericTxParams = {
       recipientUserId: recipientParsed,
       recipientUserIdReadable: recipientUserReadable,
-      actions,
+      actions: [action],
       oauthProvider: 'discord',
     };
     return tx;
@@ -110,16 +87,8 @@ export default class SendMoney extends Command {
       return;
     }
 
-    // If there are only two arguments, assume that the user is sending an NFT
-    const amount = parseInt(args[0]);
-    if (Number.isNaN(amount) || amount < 0) {
-      await super.respond(
-        message.channel,
-        '❌ invalid amount ❌: amount must be a nonnegative number!'
-      );
-      return;
-    }
-    const asset = args[1];
+    const tokenId = args[0];
+    const contractAddress = args[1];
     const recipient: string = args[2];
 
     const recipientParsed = parseDiscordRecipient(recipient);
@@ -131,14 +100,15 @@ export default class SendMoney extends Command {
       );
       return;
     }
+
     const recipientUser = this.client.users.resolve(recipientParsed);
     const recipientUserReadable = `${recipientUser.username}#${recipientUser.discriminator}`;
 
     try {
       const tx = await this.buildGenericTx(
         message,
-        asset,
-        amount,
+        contractAddress,
+        tokenId,
         recipientParsed,
         recipientUserReadable
       );
@@ -154,7 +124,7 @@ export default class SendMoney extends Command {
         "Please check your DM's for a link to approve the transaction!"
       );
       await message.author.send(
-        `To open BAF Wallet and approve your transfer, please open this link: ${link}`
+        `To open BAF Wallet and approve your NFT transfer, please open this link: ${link}`
       );
     } catch (err) {
       console.error(err);

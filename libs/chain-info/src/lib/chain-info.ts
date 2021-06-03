@@ -2,7 +2,12 @@ import axios from 'axios';
 import { BafError } from '@baf-wallet/errors';
 import 'reflect-metadata';
 import { jsonObject, jsonMember, TypedJSON, jsonArrayMember } from 'typedjson';
-import { Chain } from '@baf-wallet/interfaces';
+import {
+  Chain,
+  ContractTokensConstant,
+  TokenInfo,
+  TokenInfoAssets,
+} from '@baf-wallet/interfaces';
 
 const baseRawUrl = 'https://raw.githubusercontent.com/bafnetwork/assets/master';
 const contentsApiUrl =
@@ -10,47 +15,6 @@ const contentsApiUrl =
 
 // typed JSON objects for parsing info.json's from trustwallet's assets repo
 // e.g. https://github.com/trustwallet/assets/blob/master/blockchains/bitcoin/info/info.json
-@jsonObject
-export class SocialMediaInfo {
-  @jsonMember
-  public name: string; // platform
-  @jsonMember
-  public url: string;
-  @jsonMember
-  public handle: string;
-}
-
-@jsonObject
-class _TokenInfo {
-  @jsonMember
-  public name: string;
-  @jsonMember
-  public website?: string;
-  @jsonMember
-  public source_code?: string;
-  @jsonMember
-  public white_paper?: string;
-  @jsonMember
-  public description: string;
-  @jsonArrayMember(SocialMediaInfo)
-  public socials?: SocialMediaInfo[];
-  @jsonMember
-  public explorer: string;
-  @jsonMember
-  public symbol: string;
-  @jsonMember
-  public type: 'COIN';
-  @jsonMember
-  public decimals: number;
-  @jsonMember
-  public status: 'active' | 'abandoned';
-  @jsonArrayMember(String)
-  public tags?: string[];
-}
-
-export interface TokenInfo extends _TokenInfo {
-  chain: Chain;
-}
 
 // TODO: have some intelligent way to get the rest
 export type DappUrl =
@@ -153,7 +117,7 @@ export async function getTokenInfo(
       delete data.research;
     }
 
-    const serializer = new TypedJSON(_TokenInfo);
+    const serializer = new TypedJSON(TokenInfoAssets);
     const _tokInfo = serializer.parse(data);
     return {
       ..._tokInfo,
@@ -168,4 +132,16 @@ export async function getTokenInfo(
     }
     throw BafError.InvalidChainInfoJSON(err);
   }
+}
+
+export async function getContractTokenInfoFromSymbol(
+  symbol: string,
+  contractTokens: ContractTokensConstant
+): Promise<{ tokenInfo: TokenInfo; contract: string } | null> {
+  const contracts = Object.keys(contractTokens);
+  const tokenProms = contracts.map((contract) => contractTokens[contract]());
+  const tokenInfos = await Promise.all(tokenProms);
+  const ind = tokenInfos.map((tokenInfo) => tokenInfo.symbol).indexOf(symbol);
+  if (ind === -1) return null;
+  return { tokenInfo: tokenInfos[ind], contract: contracts[ind] };
 }

@@ -3,6 +3,7 @@ import { Pair } from '@baf-wallet/utils';
 import { Account as NearAccount } from 'near-api-js';
 import { GenericTxAction, GenericTxParams } from './tx';
 import { Env } from './configs';
+import { TokenInfo } from '..';
 
 export enum Chain {
   NEAR = 'near',
@@ -16,6 +17,10 @@ export type Balance = string;
 export interface ChainBalance {
   chain: Chain;
   balance: Balance;
+}
+
+export interface CommonInitParams {
+  supportedContractTokens: string[];
 }
 
 export type ExplorerLink = string;
@@ -46,7 +51,7 @@ export interface WrappedChainInterface<
     AccountCreateParams
   >;
   convert: Converter<PK, SK, KP>;
-  getConstants: (env: Env) => ChainConstants;
+  constants?: ChainConstants;
   getInner: () => Inner;
   getContract: <Contract, ContractInitParams, ContractInitParamsBase>(
     address: string
@@ -65,7 +70,7 @@ export interface ChainInterface<
   PK,
   SK,
   KP,
-  InitParams,
+  InitParams extends CommonInitParams,
   Inner,
   Tx,
   BuildTxParams,
@@ -87,18 +92,20 @@ export interface ChainInterface<
     innerSdk: Inner
   ) => AccountsInterface<Account, AccountLookupParams, AccountCreateParams>;
   convert: Converter<PK, SK, KP>;
-  getConstants: (env: Env) => ChainConstants;
+  constants?: ChainConstants;
   getContract: <Contract, ContractInitParams extends ContractInitParamsBase>(
     innerSdk: Inner,
     address: string
   ) => ContractInterface<Contract, ContractInitParams>;
 }
 
-export interface ChainContractTokenConstant {
-  contractAddress: string;
+export interface ContractTokensConstant {
+  [contractAddress: string]: () => Promise<TokenInfo>;
 }
 export interface ChainConstants {
-  tokens: ChainContractTokenConstant[];
+  nativeTokenInfo: () => Promise<TokenInfo>;
+  tokens: ContractTokensConstant;
+  supportedContractTokenContracts: string[];
 }
 
 export interface AccountsInterface<Account, LookupParams, CreateParams> {

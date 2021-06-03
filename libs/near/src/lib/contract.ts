@@ -1,4 +1,5 @@
 import { ContractInterface } from '@baf-wallet/interfaces';
+import BN from 'bn.js';
 import {
   Account,
   Account as NearAccount,
@@ -8,6 +9,11 @@ import {
 import { NearAccountID } from './accounts';
 
 import { NearState } from './near';
+
+interface NearNFTToken {
+  id: string;
+  owner_id: string;
+}
 
 /**
  * The following are definitions for standard Near Contracts
@@ -27,6 +33,31 @@ export interface NEP141Contract extends NearContract {
     gas: string,
     attachedDeposit: string
   ) => Promise<void>;
+}
+
+export interface NEP171Contract extends NearContract {
+  nft_transfer: (
+    args: {
+      receiver_id: NearAccountID;
+      token_id: string;
+      approval_id: BN | null;
+      memo?: string;
+    },
+    gas: string,
+    attachedDeposit: string
+  ) => Promise<void>;
+  nft_transfer_call: (
+    args: {
+      receiver_id: NearAccountID;
+      token_id: string;
+      approval_id: BN | null;
+      memo?: string;
+      msg: string;
+    },
+    gas: string,
+    attachedDeposit: string
+  ) => Promise<void>;
+  nft_token: (args: { token_id: string }) => Promise<NearNFTToken>;
 }
 
 type contractViewMethod = (args: any) => Promise<any>;

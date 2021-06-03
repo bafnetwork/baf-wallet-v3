@@ -29,7 +29,7 @@ import {
   NearState,
   WrappedNearChainInterface,
 } from '@baf-wallet/near';
-import { getNearChain, initChains } from '../chains/singletons';
+import { getNearChain, initChains } from '@baf-wallet/global-state';
 
 (global as any).window = {
   name: 'nodejs',
@@ -76,7 +76,7 @@ describe('createAccount', () => {
   let masterAccount: Account;
 
   beforeAll(async () => {
-    await initChains();
+    await initChains(constants.chainParams);
     near = await getWrappedInterface<NearChainInterface>(Chain.NEAR, {
       ...constants.chainParams[Chain.NEAR],
     });

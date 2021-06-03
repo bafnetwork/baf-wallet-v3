@@ -1,3 +1,4 @@
 import Ping from './Ping';
 import Send from './Send';
-export default [Ping, Send];
+import SendNFT from './SendNFT';
+export default [Ping, Send, SendNFT];

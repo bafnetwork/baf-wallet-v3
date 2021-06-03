@@ -1,5 +1,6 @@
 import {
   ChainInterface,
+  CommonInitParams,
   ed25519,
   Encoding,
   InferWrapChainInterface,
@@ -18,7 +19,6 @@ import {
 } from 'near-api-js';
 
 import { NearBuildTxParams, NearSignTxOpts, nearTx } from './tx';
-import { getConstants } from './constants';
 import {
   initContract,
   NearInitContractParams,
@@ -50,7 +50,7 @@ export type NearChainInterface = ChainInterface<
   NearUtils.PublicKey,
   Buffer,
   NearKeyPair,
-  NearInitParams,
+  NearInitParams & CommonInitParams,
   NearState,
   transactions.Transaction,
   NearBuildTxParams,
@@ -77,7 +77,6 @@ export const nearChainInterface: NearChainInterface = {
   tx: nearTx,
   convert: nearConverter,
   rpc: nearRpc,
-  getConstants,
   init,
   getContract,
 };
