@@ -65,40 +65,64 @@ function buildNativeAction(
   receiverId: string,
   action: NearAction,
   innerSdk: NearState
-): NearNativeAction {
+): NearNativeAction[] {
   const actionType = action.type;
   switch (actionType) {
     case GenericTxSupportedActions.TRANSFER:
-      return transactions.transfer(
-        new BN((action as GenericTxActionTransfer).amount, 10)
-      );
+      return [
+        transactions.transfer(
+          new BN((action as GenericTxActionTransfer).amount, 10)
+        )
+      ]
+
     case GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN:
       const paramsTransfer = action as GenericTxActionTransferContractToken;
-      return transactions.functionCall(
-        'ft_transfer',
-        {
-          receiver_id: receiverId,
-          amount: paramsTransfer.amount,
-          memo: paramsTransfer.memo ?? null,
-        },
-        // TODO: maximum gas fees per chain: see https://github.com/bafnetwork/baf-wallet-v2/issues/68
-        new BN(10000000000000), // Maximum gas fee
-        new BN(1) // A deposit associated with the ft_transfer action
-      );
+      return [
+          transactions.functionCall(
+          'ft_transfer',
+          {
+            receiver_id: receiverId,
+            amount: paramsTransfer.amount,
+            memo: paramsTransfer.memo ?? null,
+          },
+          // TODO: maximum gas fees per chain: see https://github.com/bafnetwork/baf-wallet-v2/issues/68
+          new BN(10000000000000), // Maximum gas fee
+          new BN(1) // A deposit associated with the ft_transfer action
+        )
+      ];
+
     case GenericTxSupportedActions.TRANSFER_NFT:
       const paramsNFT = action as GenericTxActionTransferNFT;
-      return transactions.functionCall(
-        'nft_transfer',
-        {
-          receiver_id: receiverId,
-          token_id: paramsNFT.tokenId,
-          approval_id: paramsNFT.approvalId ?? null,
-          memo: paramsNFT.memo ?? null,
-        },
-        // TODO: maximum gas fees per chain: see https://github.com/bafnetwork/baf-wallet-v2/issues/68
-        new BN(10000000000000), // Maximum gas fee
-        new BN(1)
-      );
+      return [
+        transactions.functionCall(
+          'nft_transfer',
+          {
+            receiver_id: receiverId,
+            token_id: paramsNFT.tokenId,
+            approval_id: paramsNFT.approvalId ?? null,
+            memo: paramsNFT.memo ?? null,
+          },
+          // TODO: maximum gas fees per chain: see https://github.com/bafnetwork/baf-wallet-v2/issues/68
+          new BN(10000000000000), // Maximum gas fee
+          new BN(1)
+        )
+      ];
+
+    case GenericTxSupportedActions.CREATE_ACCOUNT:
+      if (action.amount && parseInt(action.amount) > 0) {
+        const transferAction: GenericTxActionTransfer = {
+          type: GenericTxSupportedActions.TRANSFER,
+          amount: action.amount
+        };
+
+        return [
+          transactions.createAccount(),
+          ...buildNativeAction(GenericTxSupportedActions.TRANSFER, transferAction, innerSdk),
+        ]
+      } else {
+        transactions.createAccount()
+      }
+      
     default:
       throw `Action of type ${actionType} is unsupported`;
   }
@@ -145,6 +169,7 @@ export const buildParamsFromGenericTx = (innerSdk: NearState) => async (
   if (!recipientAccountID) {
     throw BafError.SecpPKNotAssociatedWithAccount(Chain.NEAR);
   }
+  
   const nearTxParams: NearBuildTxParams = {
     actions: txParams.actions,
     senderPk: senderPk,
@@ -160,9 +185,11 @@ export const buildNearTx = (innerSdk: NearState) => async ({
   senderAccountID,
   recipientAccountID,
 }: NearBuildTxParams): Promise<Transaction> => {
+
   if (actions.some(isContractCall) && !checkAllContractActions(actions)) {
     throw BafError.NonuniformTxActionRecipients(Chain.NEAR);
   }
+
   const nearSenderPk = nearConverter.pkFromUnified(senderPk);
   const accessKey = await innerSdk.rpcProvider.query(
     `access_key/${senderAccountID}/${nearSenderPk.toString()}`,
@@ -171,7 +198,7 @@ export const buildNearTx = (innerSdk: NearState) => async ({
 
   const nonce = ++accessKey.nonce;
   const recentBlockHash = utils.serialize.base_decode(accessKey.block_hash);
-  const nativeActions = actions.map((action) =>
+  const nativeActions = actions.flatMap((action) =>
     buildNativeAction(recipientAccountID, action, innerSdk)
   );
 
