@@ -1,4 +1,5 @@
 use crate::contract_core::CommunityContract;
+use crate::env::predecessor_account_id;
 use crate::errors::throw_error;
 use std::convert::TryInto;
 
@@ -46,14 +47,13 @@ impl AccountInfos for Community {
         if !is_valid_account_id(new_account_id.as_bytes()) {
             throw_error(crate::errors::INVALID_ACCOUNT_ID);
         }
-        // TODO: we have to consider if we want to allow just anybody to interact with
-        // with the map or if we should have a control access list
-        if false {
-            let signer = signer_account_id();
-            if signer != new_account_id && signer != current_account_id() {
-                throw_error(crate::errors::UNAUTHORIZED);
-            }
+
+        if !(predecessor_account_id() == new_account_id
+            || self.admins.contains(&predecessor_account_id()))
+        {
+            throw_error(crate::errors::UNAUTHORIZED);
         }
+
         let (secp_pk_internal, nonce) = self.verify_sig(user_id, secp_pk, secp_sig_s);
         self.account_infos.insert(
             &secp_pk_internal,
@@ -189,6 +189,18 @@ mod tests {
         sign_and_set_account(msg_str, "John".to_string(), &mut contract, nonce, &sk, &pk);
         let set_account_id = contract.get_account_id(pk.serialize().to_vec()).unwrap();
         assert_eq!(set_account_id, alice());
+    }
+
+    #[test]
+    #[should_panic(expected = "This action requires admin privileges")]
+    fn test_requires_admin_panics() {
+        let context = get_context(alice());
+        testing_env!(context);
+        let mut contract = Community::new();
+        testing_env!(get_context(bob()));
+        let sk = secp256k1::SecretKey::default();
+        let pk = secp256k1::PublicKey::from_secret_key(&sk);
+        sign_and_set_account("John:{}".to_string(), "John".to_string(), &mut contract, 0, &sk, &pk)
     }
 
     #[test]
