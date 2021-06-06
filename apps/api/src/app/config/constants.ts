@@ -14,6 +14,7 @@ export const constants = {
       ),
       networkID: getNearNetworkID(environment.env),
       masterAccountID: process.env.NEAR_MASTER_ACCOUNT_ID,
+      supportedContractTokens: [],
     } as NearInitParams,
   },
   discord: {

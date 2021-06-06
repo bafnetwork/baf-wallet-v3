@@ -36,7 +36,7 @@ Prerequisites: have `npm` and `near-cli` installed.
 - For `TORUS_VERIFIER_NAME`, use `baf wallet-discord-testnet`
 - For the client-secret, you will need to ask Lev or Sebastien. We still have yet to set up a painless way to manage these environment variables so that everyone can use their own Discord OAuth endpoint.
 
-5. repeat steps 3-4 for `libs/baf-contract/env`
+5. repeat steps 3-4 for `libs/community-contract/env`
 6. `npx nx serve+api frontend`.
 
 For more information about the project, it's code structure / philosophy, it's various libraries and applications, and how to contribute, see the relevant section on the sidebar.

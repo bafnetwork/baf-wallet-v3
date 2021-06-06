@@ -81,7 +81,7 @@ export const nearChainInterface: NearChainInterface = {
   getContract,
 };
 
-export interface NearInitParams {
+export interface NearInitParams extends CommonInitParams {
   networkID: NearNetworkID;
   masterAccountID: NearAccountID;
   keyPath?: string;

@@ -23,9 +23,9 @@ export namespace BafError {
   export const UnsupportedKeyCurve = (supportedCurve: string) =>
     emitError(`Only ${supportedCurve} keys are supported`);
   export const BlockedByCors = () => emitError('Not allowed by CORS policy');
-  export const UnintBafContract = () =>
+  export const UnintCommunityContract = () =>
     emitError(
-      'BAF Contract is not initialized yet, please call setBafContract'
+      'BAF Contract is not initialized yet, please call setCommunityContract'
     );
   export const UnsupportedToken = (tokenName: string) =>
     emitError(`Unsupported token ${tokenName}`);
