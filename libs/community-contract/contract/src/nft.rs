@@ -1,3 +1,4 @@
+use crate::errors::throw_error;
 use crate::env::predecessor_account_id;
 use std::convert::TryInto;
 
@@ -19,7 +20,7 @@ pub trait NFTFunc {
 impl NFTFunc for Community {
     fn set_default_nft_contract(&mut self, nft_contract: AccountId) {
         if !self.admins.contains(&predecessor_account_id()) {
-            panic!("This action requires admin privileges");
+            throw_error(crate::errors::UNAUTHORIZED);
         }
         self.default_nft_contract = Some(nft_contract);
     }
@@ -77,7 +78,10 @@ mod tests {
         let mut contract = Community::new();
         assert_eq!(contract.get_default_nft_contract(), &None);
         contract.set_default_nft_contract("AAA".to_string());
-        assert_eq!(contract.get_default_nft_contract(), &Some("AAA".to_string()));
+        assert_eq!(
+            contract.get_default_nft_contract(),
+            &Some("AAA".to_string())
+        );
     }
 
     #[test]

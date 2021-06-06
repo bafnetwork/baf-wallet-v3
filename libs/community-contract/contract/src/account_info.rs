@@ -1,4 +1,5 @@
 use crate::contract_core::CommunityContract;
+use crate::errors::throw_error;
 use std::convert::TryInto;
 
 use near_sdk::{
@@ -43,14 +44,14 @@ impl AccountInfos for Community {
         new_account_id: AccountId,
     ) {
         if !is_valid_account_id(new_account_id.as_bytes()) {
-            panic!("new account id is invalid!");
+            throw_error(crate::errors::INVALID_ACCOUNT_ID);
         }
         // TODO: we have to consider if we want to allow just anybody to interact with
         // with the map or if we should have a control access list
         if false {
             let signer = signer_account_id();
             if signer != new_account_id && signer != current_account_id() {
-                panic!("signer must own either new account id or the contract itself!");
+                throw_error(crate::errors::UNAUTHORIZED);
             }
         }
         let (secp_pk_internal, nonce) = self.verify_sig(user_id, secp_pk, secp_sig_s);
@@ -107,7 +108,7 @@ impl Community {
             .map_err(|e| "Error parsing pk")
             .unwrap();
         if !secp256k1::verify(&secp256k1::Message::parse(&hash), sig, &pubkey) {
-            panic!("The signature is incorrect for message {}", msg_str);
+            throw_error(crate::errors::INCORRECT_SIGNATURE);
         }
         return (secp_pk_internal, nonce);
     }

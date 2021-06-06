@@ -1,3 +1,4 @@
+use crate::errors::throw_error;
 use crate::env::predecessor_account_id;
 use crate::contract_core::CommunityContract;
 use std::convert::TryInto;
@@ -20,7 +21,7 @@ pub trait Admin {
 impl Admin for Community {
     fn add_admins(&mut self, new_admins: Vec<AccountId>) {
         if !self.admins.contains(&predecessor_account_id()) {
-            panic!("This action requires admin privileges");
+            throw_error(crate::errors::UNAUTHORIZED);
         }
         for admin in new_admins {
             self.admins.insert(&admin);
@@ -29,7 +30,7 @@ impl Admin for Community {
 
     fn remove_admins(&mut self, admins: Vec<AccountId>) {
         if !self.admins.contains(&predecessor_account_id()) {
-            panic!("This action requires admin privileges");
+            throw_error(crate::errors::UNAUTHORIZED);
         }
         for admin in admins {
             self.admins.remove(&admin);

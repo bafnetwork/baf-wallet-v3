@@ -2,6 +2,7 @@ pub mod account_info;
 pub mod admin;
 pub mod contract_core;
 pub mod nft;
+pub mod errors;
 
 use contract_core::Community;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
