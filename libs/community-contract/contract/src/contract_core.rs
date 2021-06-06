@@ -1,3 +1,4 @@
+use crate::env::predecessor_account_id;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::UnorderedSet;
 use near_sdk::env::{current_account_id, is_valid_account_id, keccak256, signer_account_id};
@@ -28,7 +29,7 @@ impl Community {
     #[init]
     pub fn new() -> Self {
         let mut default_admins: UnorderedSet<AccountId> = UnorderedSet::new("admin-set".as_bytes());
-        default_admins.insert(&signer_account_id());
+        default_admins.insert(&predecessor_account_id());
         Self {
             admins: default_admins,
             account_infos: UnorderedMap::new("account-infos-map".as_bytes()),
