@@ -11,7 +11,7 @@ export const settings: BotSettings = {
       type: 'WATCHING',
     },
   },
-  prefix: '%%',
+  prefix: '%',
 };
 
 export const constants = {
