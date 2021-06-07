@@ -73,13 +73,13 @@ function buildNativeAction(
       return [
         transactions.transfer(
           new BN((action as GenericTxActionTransfer).amount, 10)
-        )
-      ]
+        ),
+      ];
 
     case GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN:
       const paramsTransfer = action as GenericTxActionTransferContractToken;
       return [
-          transactions.functionCall(
+        transactions.functionCall(
           'ft_transfer',
           {
             receiver_id: receiverId,
@@ -89,7 +89,7 @@ function buildNativeAction(
           // TODO: maximum gas fees per chain: see https://github.com/bafnetwork/baf-wallet-v2/issues/68
           new BN(10000000000000), // Maximum gas fee
           new BN(1) // A deposit associated with the ft_transfer action
-        )
+        ),
       ];
 
     case GenericTxSupportedActions.TRANSFER_NFT:
@@ -106,24 +106,28 @@ function buildNativeAction(
           // TODO: maximum gas fees per chain: see https://github.com/bafnetwork/baf-wallet-v2/issues/68
           new BN(10000000000000), // Maximum gas fee
           new BN(1)
-        )
+        ),
       ];
 
     case GenericTxSupportedActions.CREATE_ACCOUNT:
       if (action.amount && parseInt(action.amount) > 0) {
         const transferAction: GenericTxActionTransfer = {
           type: GenericTxSupportedActions.TRANSFER,
-          amount: action.amount
+          amount: action.amount,
         };
 
         return [
           transactions.createAccount(),
-          ...buildNativeAction(GenericTxSupportedActions.TRANSFER, transferAction, innerSdk),
-        ]
+          ...buildNativeAction(
+            GenericTxSupportedActions.TRANSFER,
+            transferAction,
+            innerSdk
+          ),
+        ];
       } else {
-        transactions.createAccount()
+        transactions.createAccount();
       }
-      
+
     default:
       throw `Action of type ${actionType} is unsupported`;
   }
@@ -169,14 +173,16 @@ export const buildParamsFromGenericTx = (innerSdk: NearState) => async (
   let recipientAccountID = await getBafContract().getAccountId(recipientPk);
 
   if (!recipientAccountID) {
-    let createAccountAction = txParams.actions.find(action => action.type === GenericTxSupportedActions.CREATE_ACCOUNT) as GenericTxActionCreateAccount;
+    let createAccountAction = txParams.actions.find(
+      (action) => action.type === GenericTxSupportedActions.CREATE_ACCOUNT
+    ) as GenericTxActionCreateAccount;
     recipientAccountID = createAccountAction?.accountID;
   }
 
   if (!recipientAccountID) {
     throw BafError.SecpPKNotAssociatedWithAccount(Chain.NEAR);
   }
-  
+
   const nearTxParams: NearBuildTxParams = {
     actions: txParams.actions,
     senderPk: senderPk,
@@ -192,7 +198,6 @@ export const buildNearTx = (innerSdk: NearState) => async ({
   senderAccountID,
   recipientAccountID,
 }: NearBuildTxParams): Promise<Transaction> => {
-
   if (actions.some(isContractCall) && !checkAllContractActions(actions)) {
     throw BafError.NonuniformTxActionRecipients(Chain.NEAR);
   }

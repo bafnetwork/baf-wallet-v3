@@ -5,7 +5,7 @@ export enum GenericTxSupportedActions {
   TRANSFER = 'transfer',
   TRANSFER_CONTRACT_TOKEN = 'transfer contract token',
   TRANSFER_NFT = 'transfer nft',
-  CREATE_ACCOUNT = 'create account'
+  CREATE_ACCOUNT = 'create account',
 }
 
 export interface GenericTxParams {

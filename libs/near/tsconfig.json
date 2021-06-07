@@ -3,7 +3,7 @@
   "files": [],
   "include": [],
   "compilerOptions": {
-    "types": ["node", "express"],
+    "types": ["node", "express"]
   },
   "references": [
     {

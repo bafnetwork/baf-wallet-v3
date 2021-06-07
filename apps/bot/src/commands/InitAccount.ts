@@ -17,14 +17,15 @@ export default class InitAccount extends Command {
   constructor(protected client: BotClient) {
     super(client, {
       name: 'initAccount',
-      description: 'initializes a newly-created account with 1.1 NEAR + extra (optional)',
+      description:
+        'initializes a newly-created account with 1.1 NEAR + extra (optional)',
       category: 'Admin',
       usage: `${client.settings.prefix}initAccount [new account ID] [tag discord user whose account it is] [additional NEAR to start them off with (optional)]`,
       cooldown: 1000,
       requiredPermissions: [],
     });
   }
-  
+
   private buildGenericTx(
     amount: number,
     recipientUserId: string,
@@ -35,7 +36,7 @@ export default class InitAccount extends Command {
     actions = [
       {
         type: GenericTxSupportedActions.CREATE_ACCOUNT,
-        accountID: newAccountId, 
+        accountID: newAccountId,
         amount: formatNativeTokenAmountToIndivisibleUnit(amount, Chain.NEAR),
       },
     ];
@@ -70,7 +71,7 @@ export default class InitAccount extends Command {
     const newAccountId = params[1];
     const recipientTag = params[2];
     const recipientParsed = parseDiscordRecipient(recipientTag);
-    
+
     if (!recipientParsed) {
       await super.respond(
         message.channel,
@@ -84,17 +85,16 @@ export default class InitAccount extends Command {
     let amountExtra = 0;
 
     if (params.length > 3) {
-        const amount = parseInt(params[3])
-        if (Number.isNaN(amount)) {
-            await super.respond(
-                message.channel,
-                '❌ invalid amount ❌: amount must be a number!'
-            );
-            return;
-        }
-        amountExtra = amount;
+      const amount = parseInt(params[3]);
+      if (Number.isNaN(amount)) {
+        await super.respond(
+          message.channel,
+          '❌ invalid amount ❌: amount must be a number!'
+        );
+        return;
+      }
+      amountExtra = amount;
     }
-
 
     try {
       await super.respond(
@@ -102,7 +102,12 @@ export default class InitAccount extends Command {
         "Please check your DM's for a link to approve the transaction!"
       );
 
-      const tx = this.buildGenericTx(amountExtra + 1, recipientUser.id, newAccountId, recipientUserReadable);
+      const tx = this.buildGenericTx(
+        amountExtra + 1,
+        recipientUser.id,
+        newAccountId,
+        recipientUserReadable
+      );
 
       const link = createApproveRedirectURL(
         Chain.NEAR,
@@ -113,7 +118,6 @@ export default class InitAccount extends Command {
       await message.author.send(
         `To create the new user's account, please open this link: ${link}`
       );
-
     } catch (err) {
       console.error(err);
       await super.respond(
@@ -125,4 +129,3 @@ export default class InitAccount extends Command {
     }
   }
 }
-
