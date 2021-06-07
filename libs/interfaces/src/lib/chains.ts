@@ -153,7 +153,7 @@ export interface TxInterface<
     params: GenericTxParams,
     recipientPk: PublicKey<secp256k1>,
     senderPkSecp: PublicKey<secp256k1>,
-    senderPkEd: PublicKey<ed25519>
+    senderPkEd: PublicKey<ed25519>,
   ) => Promise<BuildTxParams>;
   extractGenericActionsFromTx: (params: BuildTxParams) => GenericTxAction[];
 }

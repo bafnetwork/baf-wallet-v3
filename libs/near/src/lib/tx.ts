@@ -12,6 +12,7 @@ import {
   GenericTxActionTransferContractToken,
   Chain,
   GenericTxActionTransferNFT,
+  GenericTxActionCreateAccount,
 } from '@baf-wallet/interfaces';
 import { Pair, getEnumValues } from '@baf-wallet/utils';
 import { sha256 } from '@baf-wallet/crypto';
@@ -165,7 +166,13 @@ export const buildParamsFromGenericTx = (innerSdk: NearState) => async (
   _senderPk: PublicKey<secp256k1>,
   senderPk: PublicKey<ed25519>
 ): Promise<NearBuildTxParams> => {
-  const recipientAccountID = await getBafContract().getAccountId(recipientPk);
+  let recipientAccountID = await getBafContract().getAccountId(recipientPk);
+
+  if (!recipientAccountID) {
+    let createAccountAction = txParams.actions.find(action => action.type === GenericTxSupportedActions.CREATE_ACCOUNT) as GenericTxActionCreateAccount;
+    recipientAccountID = createAccountAction?.accountID;
+  }
+
   if (!recipientAccountID) {
     throw BafError.SecpPKNotAssociatedWithAccount(Chain.NEAR);
   }

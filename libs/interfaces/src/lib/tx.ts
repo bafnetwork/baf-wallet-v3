@@ -55,6 +55,7 @@ export interface GenericTxActionTransferContractToken
 
 export interface GenericTxActionCreateAccount extends GenericTxActionBase {
   type: GenericTxSupportedActions.CREATE_ACCOUNT;
+  accountID?: string;
   amount?: string;
 }
 

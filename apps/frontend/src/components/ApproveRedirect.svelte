@@ -21,6 +21,7 @@
     GenericTxAction,
     GenericTxParams,
     GenericTxSupportedActions,
+    secp256k1,
     TokenInfo,
   } from '@baf-wallet/interfaces';
   import { getTorusPublicAddress } from '@baf-wallet/torus';
@@ -55,16 +56,19 @@
       txParams.oauthProvider
     );
     recipientUser = txParams.recipientUserIdReadable;
+   
+    
     const nearTxParams = await $ChainStores[
       Chain.NEAR
     ].tx.buildParamsFromGenericTx(
       txParams,
       recipientPubkey,
       $SiteKeyStore.secpPK,
-      $SiteKeyStore.edPK
+      $SiteKeyStore.edPK,
     );
     actions = txParams.actions;
     tx = await $ChainStores[Chain.NEAR].tx.build(nearTxParams);
+
   }
 
   async function initTokenInfos() {
@@ -152,6 +156,8 @@
               Transfer {action.amount || 1}
               {action.tokenId} to {recipientUser} for contract {action.contractAddress}
             </p>
+          {:else if action.type === GenericTxSupportedActions.CREATE_ACCOUNT}
+            <p>Create account {recipientUser} for {txParams.recipientUserIdReadable}</p>
           {:else}
             An error occured, an unsupported action type was passed in!
           {/if}
