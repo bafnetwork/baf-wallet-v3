@@ -157,7 +157,7 @@
               {action.tokenId} to {recipientUser} for contract {action.contractAddress}
             </p>
           {:else if action.type === GenericTxSupportedActions.CREATE_ACCOUNT}
-            <p>Create account {recipientUser} for {txParams.recipientUserIdReadable}</p>
+            <p>Create account {action.accountID} for {txParams.recipientUserIdReadable}</p>
           {:else}
             An error occured, an unsupported action type was passed in!
           {/if}
