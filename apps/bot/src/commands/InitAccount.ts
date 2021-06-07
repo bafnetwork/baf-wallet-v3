@@ -1,15 +1,17 @@
-
 import { Message } from 'discord.js';
 import { Command } from '../Command';
 import { BotClient } from '../types';
 import { formatNativeTokenAmountToIndivisibleUnit } from '@baf-wallet/multi-chain';
 import { createApproveRedirectURL } from '@baf-wallet/redirect-generator';
 import { environment } from '../environments/environment';
+import { getNearChain } from '@baf-wallet/global-state';
 import {
   Chain,
+  GenericTxAction,
   GenericTxParams,
   GenericTxSupportedActions,
 } from '@baf-wallet/interfaces';
+import { parseDiscordRecipient } from '@baf-wallet/utils';
 
 export default class InitAccount extends Command {
   constructor(protected client: BotClient) {
@@ -17,20 +19,44 @@ export default class InitAccount extends Command {
       name: 'initAccount',
       description: 'initializes a newly-created account with 1.1 NEAR + extra (optional)',
       category: 'Admin',
-      usage: `${client.settings.prefix}initAccount [accountID of account to initialize] [associated discord username with 4-digit descriminator (e.g. sladuca#4629)] [additional NEAR to start them off with (optional)]`,
+      usage: `${client.settings.prefix}initAccount [tag user] [additional NEAR to start them off with (optional)]`,
       cooldown: 1000,
       requiredPermissions: [],
     });
   }
+  
+  private buildGenericTx(
+    amount: number,
+    recipientAccountID: string,
+    recipientUsername: string
+  ): GenericTxParams {
+    let actions: GenericTxAction[];
+    actions = [
+      {
+        type: GenericTxSupportedActions.CREATE_ACCOUNT,
+        amount: formatNativeTokenAmountToIndivisibleUnit(amount, Chain.NEAR),
+      },
+    ];
+
+    const tx: GenericTxParams = {
+      recipientUserId: recipientAccountID,
+      recipientUserIdReadable: recipientUsername,
+      actions,
+      oauthProvider: 'discord',
+    };
+
+    return tx;
+  }
 
   public async run(message: Message): Promise<void> {
     const content = message.content;
+    console.log(content);
     if (!content) {
       throw Error('message content is empty!');
     }
 
     const params = content.split(' ');
-    if (params.length < 2 || params.length > 4) {
+    if (params.length < 2 || params.length > 3) {
       await super.respond(
         message.channel,
         `expected at least 1 parameter, got ${params.length - 1}.\n\`usage: ${
@@ -40,14 +66,23 @@ export default class InitAccount extends Command {
       return;
     }
 
-    const accountID = parseInt(params[1]);
-
-    const usernameWithDescriminator = params[2];
+    const recipientTag = params[1];
+    const recipientParsed = parseDiscordRecipient(recipientTag);
+    
+    if (!recipientParsed) {
+      await super.respond(
+        message.channel,
+        '❌ invalid user ❌: the user must be tagged!'
+      );
+      return;
+    }
+    const recipientUser = this.client.users.resolve(recipientParsed);
+    const recipientUserReadable = `${recipientUser.username}#${recipientUser.discriminator}`;
 
     let amountExtra = 0;
 
     if (params.length > 3) {
-        const amount = parseInt(params[3])
+        const amount = parseInt(params[2])
         if (Number.isNaN(amount)) {
             await super.respond(
                 message.channel,
@@ -58,30 +93,14 @@ export default class InitAccount extends Command {
         amountExtra = amount;
     }
 
-    const accountOwnerID = this.client.users.cache.find(u => u.tag === usernameWithDescriminator);
-    if (accountOwnerID === undefined) {
-        await super.respond(
-            message.channel,
-            `❌ user ${accountOwnerID} not found ❌`
-        );
-    }
-
 
     try {
-      const tx: GenericTxParams = {
-        recipientUserId: usernameWithDescriminator,
-        recipientUserIdReadable: usernameWithDescriminator,
-        actions: [
-          {
-            type: GenericTxSupportedActions.TRANSFER,
-            amount: formatNativeTokenAmountToIndivisibleUnit(
-              1 + amountExtra,
-              Chain.NEAR
-            ),
-          },
-        ],
-        oauthProvider: 'discord',
-      };
+      await super.respond(
+        message.channel,
+        "Please check your DM's for a link to approve the transaction!"
+      );
+
+      const tx = this.buildGenericTx(amountExtra + 1, recipientUser.id, recipientUserReadable);
 
       const link = createApproveRedirectURL(
         Chain.NEAR,
@@ -89,13 +108,10 @@ export default class InitAccount extends Command {
         tx
       );
 
-      await super.respond(
-        message.channel,
-        "Please check your DM's for a link to approve the transaction!"
-      );
       await message.author.send(
-        `To open BAF Wallet and approve your transaction, please open this link: ${link}`
+        `To create the new user's account, please open this link: ${link}`
       );
+
     } catch (err) {
       console.error(err);
       await super.respond(

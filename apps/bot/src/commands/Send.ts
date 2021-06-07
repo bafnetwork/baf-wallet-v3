@@ -143,6 +143,7 @@ export default class SendMoney extends Command {
         recipientUserReadable
       );
       if (!tx) return;
+
       const link = createApproveRedirectURL(
         Chain.NEAR,
         environment.BASE_WALLET_URL,
