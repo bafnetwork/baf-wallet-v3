@@ -78,7 +78,6 @@
       else if (
         action.type === GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN
       ) {
-        console.log(action.contractAddress, $ChainStores[chain].constants);
         return (
           $ChainStores[chain].constants.tokens[action.contractAddress]?.() ??
           null

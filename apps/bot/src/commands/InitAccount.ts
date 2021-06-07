@@ -52,7 +52,6 @@ export default class InitAccount extends Command {
 
   public async run(message: Message): Promise<void> {
     const content = message.content;
-    console.log(content);
     if (!content) {
       throw Error('message content is empty!');
     }

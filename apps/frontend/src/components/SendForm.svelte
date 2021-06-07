@@ -39,7 +39,6 @@
 
   export const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    console.log(chainSendFormPart);
     createTX = chainSendFormPart.createTX;
     if (postSubmitHook !== undefined) {
       postSubmitHook();
