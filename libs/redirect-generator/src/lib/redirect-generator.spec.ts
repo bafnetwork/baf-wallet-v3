@@ -22,13 +22,28 @@ describe('frontend', () => {
     );
     console.log(sendURL);
   });
+  it('Create a url for changing the default NFT contract', () => {
+    const url = createApproveRedirectURL(Chain.NEAR, 'http://localhost:8080', {
+      recipientUserId: 'community-contract',
+      recipientUserIdReadable: 'Community Contract',
+      actions: [
+        {
+          type: GenericTxSupportedActions.CONTRACT_CALL,
+          functionName: 'set_default_nft_contract',
+          functionArgs: {
+            nft_contract: 'nft.levtester.near',
+          },
+          deposit: '1',
+        },
+      ],
+      oauthProvider: 'discord'
+    });
+    console.log('Change NFT Contract', url);
+  });
   it('Create a url to send a test NFT (NEP171) to sladuca#4629', () => {
     const nftAddress = fs.readFileSync(
       // TODO: better placement
-      join(
-        __dirname,
-        '../../../../testing-configs/neardev-nft/dev-account'
-      )
+      join(__dirname, '../../../../testing-configs/neardev-nft/dev-account')
     );
     const sendURL = createApproveRedirectURL(
       Chain.NEAR,

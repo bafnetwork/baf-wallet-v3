@@ -110,10 +110,11 @@ function buildNativeAction(
       ];
 
     case GenericTxSupportedActions.CREATE_ACCOUNT:
-      if (action.amount && parseInt(action.amount) > 0) {
+      const params = action as GenericTxActionCreateAccount
+      if (params.amount && parseInt(params.amount) > 0) {
         const transferAction: GenericTxActionTransfer = {
           type: GenericTxSupportedActions.TRANSFER,
-          amount: action.amount,
+          amount: params.amount,
         };
 
         return [

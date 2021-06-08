@@ -6,10 +6,11 @@ export enum GenericTxSupportedActions {
   TRANSFER_CONTRACT_TOKEN = 'transfer contract token',
   TRANSFER_NFT = 'transfer nft',
   CREATE_ACCOUNT = 'create account',
+  CONTRACT_CALL = 'contract call',
 }
 
 export interface GenericTxParams {
-  recipientUserId?: string;
+  recipientUserId?: string | 'community-contract';
   recipientUserIdReadable?: string;
   oauthProvider?: PLATFORM;
   actions: GenericTxAction[];
@@ -23,6 +24,16 @@ export interface GenericTxActionTransfer extends GenericTxActionBase {
   type: GenericTxSupportedActions.TRANSFER;
   // Amount is the quantity of the minimal sendable unit for a currency
   amount: string;
+}
+
+export interface GenericTxActionContractCall extends GenericTxActionBase {
+  type: GenericTxSupportedActions.CONTRACT_CALL;
+  functionName: string;
+  functionArgs: any;
+  // a number in string form
+  gasFee?: string;
+  // a number in string form
+  deposit?: string;
 }
 
 // An NFT connotes an ERC721 NFT, NEP 4 NFT, etc
@@ -64,7 +75,8 @@ export type GenericTxAction =
   | GenericTxActionTransfer
   | GenericTxActionTransferContractToken
   | GenericTxActionTransferNFT
-  | GenericTxActionCreateAccount;
+  | GenericTxActionCreateAccount
+  | GenericTxActionContractCall;
 
 export enum SupportedTransferTypes {
   NativeToken = 'Native Token',
