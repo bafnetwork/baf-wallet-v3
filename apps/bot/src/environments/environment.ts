@@ -7,5 +7,5 @@ export const environment = {
   production: false,
   DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN,
   BASE_WALLET_URL: process.env.BASE_WALLET_URL ?? 'https://localhost:4200',
-  env: Env.DEV
+  env: Env.DEV,
 };

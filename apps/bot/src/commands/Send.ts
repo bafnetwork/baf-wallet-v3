@@ -13,7 +13,11 @@ import {
   GenericTxParams,
   GenericTxSupportedActions,
 } from '@baf-wallet/interfaces';
-import { createDiscordErrMsg, parseDiscordRecipient, strToChain } from '@baf-wallet/utils';
+import {
+  createDiscordErrMsg,
+  parseDiscordRecipient,
+  strToChain,
+} from '@baf-wallet/utils';
 import { getNearChain } from '@baf-wallet/global-state';
 import { getContractTokenInfoFromSymbol } from '@baf-wallet/chain-info';
 
@@ -143,6 +147,7 @@ export default class SendMoney extends Command {
         recipientUserReadable
       );
       if (!tx) return;
+
       const link = createApproveRedirectURL(
         Chain.NEAR,
         environment.BASE_WALLET_URL,
