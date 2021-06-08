@@ -56,7 +56,6 @@
       txParams.oauthProvider
     );
     recipientUser = txParams.recipientUserIdReadable;
-   
     
     const nearTxParams = await $ChainStores[
       Chain.NEAR
@@ -68,7 +67,6 @@
     );
     actions = txParams.actions;
     tx = await $ChainStores[Chain.NEAR].tx.build(nearTxParams);
-
   }
 
   async function initTokenInfos() {
