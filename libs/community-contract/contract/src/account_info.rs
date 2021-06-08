@@ -1,29 +1,16 @@
-use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::env::{current_account_id, is_valid_account_id, keccak256, signer_account_id};
-use near_sdk::AccountId;
-use near_sdk::PanicOnDefault;
-use near_sdk::{collections::UnorderedMap, env, near_bindgen};
+use crate::CommunityContract;
+use crate::env::predecessor_account_id;
+use crate::errors::throw_error;
 use std::convert::TryInto;
 
-#[global_allocator]
-static ALLOC: near_sdk::wee_alloc::WeeAlloc = near_sdk::wee_alloc::WeeAlloc::INIT;
+use near_sdk::{
+    env::{current_account_id, is_valid_account_id, keccak256, signer_account_id},
+    near_bindgen, AccountId,
+};
 
-type SecpPK = Vec<u8>;
+use crate::{AccountInfo, Community, SecpPK, SecpPKInternal};
 
-type SecpPKInternal = [u8; 65];
-
-#[derive(BorshSerialize, BorshDeserialize)]
-pub struct AccountInfo {
-    account_id: AccountId,
-    nonce: i32,
-}
-
-#[near_bindgen]
-#[derive(PanicOnDefault, BorshDeserialize, BorshSerialize)]
-pub struct BafWalletPK {
-    account_infos: UnorderedMap<SecpPKInternal, AccountInfo>,
-}
-
+/// The functionality which connects public keys to a near address
 pub trait AccountInfos {
     fn get_account_id(&self, secp_pk: SecpPK) -> Option<AccountId>;
     fn get_account_nonce(&self, secp_pk: SecpPK) -> i32;
@@ -38,7 +25,7 @@ pub trait AccountInfos {
 }
 
 #[near_bindgen]
-impl AccountInfos for BafWalletPK {
+impl AccountInfos for Community {
     fn get_account_nonce(&self, secp_pk: SecpPK) -> i32 {
         self.get_account_info(secp_pk)
             .map(|account_info| account_info.nonce)
@@ -58,16 +45,15 @@ impl AccountInfos for BafWalletPK {
         new_account_id: AccountId,
     ) {
         if !is_valid_account_id(new_account_id.as_bytes()) {
-            panic!("new account id is invalid!");
+            throw_error(crate::errors::INVALID_ACCOUNT_ID);
         }
-        // TODO: we have to consider if we want to allow just anybody to interact with
-        // with the map or if we should have a control access list
-        if false {
-            let signer = signer_account_id();
-            if signer != new_account_id && signer != current_account_id() {
-                panic!("signer must own either new account id or the contract itself!");
-            }
+
+        if !(predecessor_account_id() == new_account_id
+            || self.admins.contains(&predecessor_account_id()))
+        {
+            throw_error(crate::errors::UNAUTHORIZED);
         }
+
         let (secp_pk_internal, nonce) = self.verify_sig(user_id, secp_pk, secp_sig_s);
         self.account_infos.insert(
             &secp_pk_internal,
@@ -84,11 +70,9 @@ impl AccountInfos for BafWalletPK {
         // The nonce resets to 0. Please see https://github.com/bafnetwork/baf-wallet-v2/issues/32
         self.account_infos.remove(&secp_pk_internal);
     }
-
-    /******** Private helper functions ************/
 }
 
-impl BafWalletPK {
+impl Community {
     fn get_account_nonce_internal(&self, secp_pk: &SecpPKInternal) -> i32 {
         self.get_account_info_internal(secp_pk)
             .map(|account_info| account_info.nonce)
@@ -99,7 +83,7 @@ impl BafWalletPK {
     }
 
     fn get_account_info(&self, secp_pk: SecpPK) -> Option<AccountInfo> {
-        let secp_pk_internal = BafWalletPK::parse_secp_pk(secp_pk).unwrap();
+        let secp_pk_internal = Community::parse_secp_pk(secp_pk).unwrap();
         self.account_infos.get(&secp_pk_internal)
     }
 
@@ -109,7 +93,7 @@ impl BafWalletPK {
         secp_pk: SecpPK,
         secp_sig_s: Vec<u8>,
     ) -> (SecpPKInternal, i32) {
-        let secp_pk_internal = BafWalletPK::parse_secp_pk(secp_pk).unwrap();
+        let secp_pk_internal = Community::parse_secp_pk(secp_pk).unwrap();
         let nonce = self.get_account_nonce_internal(&secp_pk_internal);
         let msg_str = format!("{}:{}", user_id, nonce);
         let msg_prehash = msg_str.as_bytes();
@@ -124,24 +108,9 @@ impl BafWalletPK {
             .map_err(|e| "Error parsing pk")
             .unwrap();
         if !secp256k1::verify(&secp256k1::Message::parse(&hash), sig, &pubkey) {
-            panic!("The signature is incorrect for message {}", msg_str);
+            throw_error(crate::errors::INCORRECT_SIGNATURE);
         }
         return (secp_pk_internal, nonce);
-    }
-}
-
-#[near_bindgen]
-impl BafWalletPK {
-    #[init]
-    pub fn new() -> Self {
-        Self {
-            account_infos: UnorderedMap::new("account-infos-map".as_bytes()),
-        }
-    }
-    fn parse_secp_pk(secp_pk: SecpPK) -> Result<SecpPKInternal, String> {
-        secp_pk
-            .try_into()
-            .map_err(|e| "Incorrect public key format".to_string())
     }
 }
 
@@ -190,7 +159,7 @@ mod tests {
     fn sign_and_set_account(
         msg_str: String,
         user_id: String,
-        contract: &mut BafWalletPK,
+        contract: &mut Community,
         nonce: i32,
         sk: &SecretKey,
         pk: &PublicKey,
@@ -212,7 +181,7 @@ mod tests {
     fn test_update_account_id() {
         let context = get_context(alice());
         testing_env!(context);
-        let mut contract = BafWalletPK::new();
+        let mut contract = Community::new();
         let sk = secp256k1::SecretKey::default();
         let pk = secp256k1::PublicKey::from_secret_key(&sk);
         let nonce = 0;
@@ -223,11 +192,23 @@ mod tests {
     }
 
     #[test]
+    #[should_panic(expected = "This action requires admin privileges")]
+    fn test_requires_admin_panics() {
+        let context = get_context(alice());
+        testing_env!(context);
+        let mut contract = Community::new();
+        testing_env!(get_context(bob()));
+        let sk = secp256k1::SecretKey::default();
+        let pk = secp256k1::PublicKey::from_secret_key(&sk);
+        sign_and_set_account("John:{}".to_string(), "John".to_string(), &mut contract, 0, &sk, &pk)
+    }
+
+    #[test]
     #[should_panic(expected = "The signature is incorrect")]
     fn test_invalid_signature() {
         let context = get_context(alice());
         testing_env!(context);
-        let mut contract = BafWalletPK::new();
+        let mut contract = Community::new();
         let sk = secp256k1::SecretKey::default();
         let pk = secp256k1::PublicKey::from_secret_key(&sk);
         let bad_nonce = 1;
@@ -240,7 +221,7 @@ mod tests {
     fn test_invalid_signature_format() {
         let context = get_context(alice());
         testing_env!(context);
-        let mut contract = BafWalletPK::new();
+        let mut contract = Community::new();
         let sk = secp256k1::SecretKey::default();
         let pk = secp256k1::PublicKey::from_secret_key(&sk);
         let nonce = 0;
@@ -265,7 +246,7 @@ mod tests {
     fn test_invalid_public_key_format() {
         let context = get_context(alice());
         testing_env!(context);
-        let mut contract = BafWalletPK::new();
+        let mut contract = Community::new();
         let sk = secp256k1::SecretKey::default();
         let pk = secp256k1::PublicKey::from_secret_key(&sk);
         let nonce = 1;

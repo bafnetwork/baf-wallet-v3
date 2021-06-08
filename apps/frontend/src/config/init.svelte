@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import { setBafContract } from '@baf-wallet/baf-contract';
+  import { setCommunityContract } from '@baf-wallet/community-contract';
   import { Chain } from '@baf-wallet/interfaces';
   import { initAccount } from '../state/accounts.svelte';
   import { checkChainInit } from '../state/chains.svelte';
@@ -12,7 +12,7 @@
   export async function initApp() {
     const { chainsState } = await initAccount();
     if (checkChainInit(chainsState, Chain.NEAR))
-      await setBafContract(
+      await setCommunityContract(
         chainsState[Chain.NEAR].getInner().nearMasterAccount
       );
   }

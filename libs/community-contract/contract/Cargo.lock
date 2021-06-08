@@ -34,14 +34,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
-name = "baf-wallet-pk-helper"
-version = "0.1.0"
-dependencies = [
- "libsecp256k1",
- "near-sdk",
-]
-
-[[package]]
 name = "base64"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -158,6 +150,14 @@ name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
+
+[[package]]
+name = "community-contract"
+version = "0.1.0"
+dependencies = [
+ "libsecp256k1",
+ "near-sdk",
+]
 
 [[package]]
 name = "convert_case"

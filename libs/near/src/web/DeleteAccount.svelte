@@ -1,8 +1,8 @@
 <script lang="ts">
   import {
-    getBafContract,
-    bafContractConstants,
-  } from '@baf-wallet/baf-contract';
+    getCommunityContract,
+    CommunityContractConstants,
+  } from '@baf-wallet/community-contract';
   import Button from '@smui/button';
   import {
     AccountState,
@@ -42,21 +42,21 @@
     const nonce = await apiClient.getAccountNonce({
       secpPubkeyB58: keyState.secpPK.format(Encoding.BS58),
     });
-    const secpSigBafContractEncoded = signMsg(
+    const secpSigCommunityContractEncoded = signMsg(
       keyState.secpSK,
       createUserVerifyMessage(userId, nonce),
       true
     );
 
-    await getBafContract().deleteAccountInfo(
+    await getCommunityContract().deleteAccountInfo(
       keyState.secpPK,
       userId,
-      secpSigBafContractEncoded
+      secpSigCommunityContractEncoded
     );
     // Deleteing the account must come after whiping it from the contract
     await chainInterface
       .getInner()
-      .nearMasterAccount.deleteAccount(bafContractConstants.beneficiaryId);
+      .nearMasterAccount.deleteAccount(CommunityContractConstants.beneficiaryId);
     isLoading = false;
     alert('Your account was deleted');
     cb();
