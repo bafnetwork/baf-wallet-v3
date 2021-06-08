@@ -7,7 +7,7 @@ use near_sdk::{
     near_bindgen, AccountId,
 };
 
-use crate::contract_core::{AccountInfo, Community, CommunityContract, SecpPK, SecpPKInternal};
+use crate::{AccountInfo, Community, CommunityContract, SecpPK, SecpPKInternal};
 
 /// The functionality which works with NFT related functionality such as setting
 /// default NFT addresses

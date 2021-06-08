@@ -1,4 +1,4 @@
-use crate::contract_core::CommunityContract;
+use crate::CommunityContract;
 use crate::env::predecessor_account_id;
 use crate::errors::throw_error;
 use std::convert::TryInto;
@@ -8,7 +8,7 @@ use near_sdk::{
     near_bindgen, AccountId,
 };
 
-use crate::contract_core::{AccountInfo, Community, SecpPK, SecpPKInternal};
+use crate::{AccountInfo, Community, SecpPK, SecpPKInternal};
 
 /// The functionality which connects public keys to a near address
 pub trait AccountInfos {

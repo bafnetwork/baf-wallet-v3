@@ -1,6 +1,6 @@
 use crate::errors::throw_error;
 use crate::env::predecessor_account_id;
-use crate::contract_core::CommunityContract;
+use crate::CommunityContract;
 use std::convert::TryInto;
 
 use near_sdk::{
@@ -8,7 +8,7 @@ use near_sdk::{
     near_bindgen, AccountId,
 };
 
-use crate::contract_core::{AccountInfo, Community, SecpPK, SecpPKInternal};
+use crate::{AccountInfo, Community, SecpPK, SecpPKInternal};
 
 /// The functionality which works with admin related code
 pub trait Admin {
