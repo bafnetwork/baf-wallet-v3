@@ -480,26 +480,26 @@
         }
       }
     },
-    "baf-contract": {
-      "root": "libs/baf-contract",
-      "sourceRoot": "libs/baf-contract/src",
+    "community-contract": {
+      "root": "libs/community-contract",
+      "sourceRoot": "libs/community-contract/src",
       "projectType": "library",
       "targets": {
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": [
-              "libs/baf-contract/**/*.ts"
+              "libs/community-contract/**/*.ts"
             ]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
           "outputs": [
-            "coverage/libs/baf-contract"
+            "coverage/libs/community-contract"
           ],
           "options": {
-            "jestConfig": "libs/baf-contract/jest.config.js",
+            "jestConfig": "libs/community-contract/jest.config.js",
             "passWithNoTests": true
           }
         }

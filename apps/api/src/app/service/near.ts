@@ -4,7 +4,7 @@ import {
   PublicKey,
   secp256k1,
 } from '@baf-wallet/interfaces';
-import { getBafContract } from '@baf-wallet/baf-contract';
+import { getCommunityContract } from '@baf-wallet/community-contract';
 import { createUserVerifyMessage, encodeBytes } from '@baf-wallet/utils';
 import { verifySignature } from '@baf-wallet/crypto';
 import { getNearChain } from '@baf-wallet/global-state';
@@ -41,8 +41,8 @@ export async function createNearAccount(
     newAccountPk: edPK,
   });
 
-  const bafContract = await getBafContract();
-  await bafContract.setAccountInfo(
+  const CommunityContract = await getCommunityContract();
+  await CommunityContract.setAccountInfo(
     secpPK,
     userId,
     encodeBytes(rustEncodedSecpSig, Encoding.HEX),
@@ -53,13 +53,13 @@ export async function createNearAccount(
 export async function getAccountNonce(
   pk: PublicKey<secp256k1>
 ): Promise<string> {
-  return await getBafContract().getAccountNonce(pk);
+  return await getCommunityContract().getAccountNonce(pk);
 }
 
 export async function getAccountInfoFromSecpPK(
   pk: PublicKey<secp256k1>
 ): Promise<NearAccountInfo> {
   return {
-    near_id: await getBafContract().getAccountId(pk),
+    near_id: await getCommunityContract().getAccountId(pk),
   };
 }

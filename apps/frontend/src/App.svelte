@@ -11,19 +11,16 @@
   import { AccountStore } from './state/accounts.svelte';
   import { initApp } from './config/init.svelte';
 
-  const routesLoggedIn = {
+  const routes = {
     '/': Account,
     '/approve-redirect/:chain/:txParams': ApproveRedirect,
     '/settings': Settings,
     '/login': Login,
     '/*': NotFound404,
   };
-  const routesLoggedOut = {
-    '/': Login,
-    '/:attemptedRoute': Login,
-  };
 
   const initProm = initApp();
+
 </script>
 
 <link
@@ -51,9 +48,9 @@
 {:then ret}
   <Modal>
     {#if $AccountStore.loggedIn}
-      <Router routes={routesLoggedIn} />
+      <Router {routes} />
     {:else}
-      <Router routes={routesLoggedOut} />
+      <Login />
     {/if}
   </Modal>
 {:catch error}

@@ -10,7 +10,7 @@ import {
 import { NearAccountID } from '@baf-wallet/near';
 import { pkToArray } from '@baf-wallet/crypto';
 
-interface BafContract {
+interface CommunityContract {
   getAccountId: (pk: PublicKey<secp256k1>) => Promise<NearAccountID | null>;
   getAccountNonce: (secp_pk: PublicKey<secp256k1>) => Promise<string>;
   setAccountInfo: (
@@ -26,24 +26,45 @@ interface BafContract {
   ) => Promise<void>;
 }
 
-let bafContract: BafContract;
+let communityContract: CommunityContract;
 
-export async function setBafContract(account: Account): Promise<BafContract> {
-  bafContract = await buildBafContract(account);
-  return bafContract;
+export async function setCommunityContract(
+  account: Account
+): Promise<CommunityContract> {
+  communityContract = await buildCommunityContract(account);
+  return communityContract;
 }
 
-export function getBafContract(): BafContract {
-  if (bafContract) return bafContract;
-  throw BafError.UnintBafContract();
+export function getCommunityContract(): CommunityContract {
+  if (communityContract) return communityContract;
+  throw BafError.UnintCommunityContract();
 }
 
-async function buildBafContract(account: Account): Promise<BafContract> {
+async function buildCommunityContract(
+  account: Account
+): Promise<CommunityContract> {
   const contract = new Contract(account, ContractConfig.contractName, {
-    viewMethods: ['get_account_id', 'get_account_nonce'],
-    changeMethods: ['set_account_info', 'delete_account_info'],
+    viewMethods: [
+      'get_account_id',
+      'get_account_nonce',
+      'get_admins',
+      'get_default_nft_contract',
+    ],
+    changeMethods: [
+      'set_account_info',
+      'delete_account_info',
+      'add_admins',
+      'remove_admins',
+      'set_default_nft_contract',
+    ],
   });
+
   return {
+    ...contract,
+    /**
+     * Below are override functions for the calls
+     * Find the contract code in libs/community-contract/contract
+     */
     getAccountId: async (pk) => {
       const ret = await (contract as any).get_account_id({
         secp_pk: pkToArray(pk),

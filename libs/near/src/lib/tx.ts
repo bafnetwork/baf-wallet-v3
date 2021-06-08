@@ -29,7 +29,7 @@ import {
   SignedTransaction,
   Transaction,
 } from 'near-api-js/lib/transaction';
-import { getBafContract } from '@baf-wallet/baf-contract';
+import { getCommunityContract } from '@baf-wallet/community-contract';
 import { BafError } from '@baf-wallet/errors';
 
 export type NearTxInterface = TxInterface<
@@ -170,7 +170,7 @@ export const buildParamsFromGenericTx = (innerSdk: NearState) => async (
   _senderPk: PublicKey<secp256k1>,
   senderPk: PublicKey<ed25519>
 ): Promise<NearBuildTxParams> => {
-  let recipientAccountID = await getBafContract().getAccountId(recipientPk);
+  let recipientAccountID = await getCommunityContract().getAccountId(recipientPk);
 
   if (!recipientAccountID) {
     let createAccountAction = txParams.actions.find(
