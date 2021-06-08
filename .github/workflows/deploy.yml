@@ -2,7 +2,7 @@ name: DeployCI
 
 on:
   push:
-    branches: [ main, deploy-work ]
+    branches: [ master, deploy-work ]
 
   workflow_dispatch:
 
