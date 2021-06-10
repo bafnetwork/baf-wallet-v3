@@ -136,7 +136,7 @@ function buildNativeAction(
           paramsContractCall.functionName,
           paramsContractCall.functionArgs,
           new BN(10000000000000), // Maximum gas fee
-          new BN(0)
+          new BN(paramsContractCall.deposit || 0)
         ),
       ];
     default:

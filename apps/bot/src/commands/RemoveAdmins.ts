@@ -13,13 +13,13 @@ import {
 import { createDiscordErrMsg, parseDiscordRecipient } from '@baf-wallet/utils';
 import { constants } from '../config/config';
 
-export default class setDefaultNFT extends Command {
+export default class RemoveAdmins extends Command {
   constructor(protected client: BotClient) {
     super(client, {
-      name: 'setDefaultNFT',
-      description: 'Set the default NFT contract for this Discord',
+      name: 'removeAdmins',
+      description: 'Remove admin Near Accounts from the contract',
       category: 'Utility',
-      usage: `${client.settings.prefix}setDefaultNFT [NFT Contract]`,
+      usage: `${client.settings.prefix}removeAdmins adminAccount1, adminAccount2, adminAccount3...`,
       cooldown: 1000,
       requiredPermissions: [],
     });
@@ -27,15 +27,15 @@ export default class setDefaultNFT extends Command {
 
   private buildGenericTx(
     contractAddress: string,
-    nftContractAddress: string
+    admins: string[]
   ): GenericTxParams {
     let actions: GenericTxAction[];
     actions = [
       {
         type: GenericTxSupportedActions.CONTRACT_CALL,
-        functionName: 'set_default_nft_contract',
+        functionName: 'remove_admins',
         functionArgs: {
-          nft_contract: nftContractAddress,
+          admins,
         },
         deposit: '0',
       },
@@ -52,7 +52,7 @@ export default class setDefaultNFT extends Command {
   }
 
   private extractArgs(content: string): string[] | null {
-    const rx = /^\%setDefaultNFT (.*)$/g;
+    const rx = /^\%removeAdmins (.*)$/g;
     const matched = rx.exec(content);
     if (!matched) return null;
     // The first element of the match is the whole string if it matched
@@ -82,12 +82,12 @@ export default class setDefaultNFT extends Command {
       return;
     }
 
-    const defaultNFTContract = args[0];
+    const admins = args[0].split(', ');
 
     try {
       const tx = await this.buildGenericTx(
         constants.communityContractAddr,
-        defaultNFTContract
+        admins
       );
       if (!tx) return;
       const link = createApproveRedirectURL(
@@ -101,7 +101,7 @@ export default class setDefaultNFT extends Command {
         "Please check your DM's for a link to approve the transaction!"
       );
       await message.author.send(
-        `To open BAF Wallet and approve changing the default NFT contract to ${defaultNFTContract}, please open this link: ${link}`
+        `To open BAF Wallet and remove ${JSON.stringify(admins)} as admins, please open this link: ${link}`
       );
     } catch (err) {
       console.error(err);
