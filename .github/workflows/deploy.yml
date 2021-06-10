@@ -10,11 +10,9 @@ jobs:
   build-api:
     runs-on: ubuntu-latest
 
-
     steps:
       - uses: actions/checkout@main
       - run: |
-          sudo apt-get -y install nodejs npm
           npm i
           npm run client-gen
           npx nx run api:build:test
@@ -34,7 +32,6 @@ jobs:
     steps:
       - uses: actions/checkout@main
       - run: |
-          sudo apt-get -y install nodejs npm
           npm i
           npx nx run bot:build:test
           node scripts/create-dist-bot-package-json.js
