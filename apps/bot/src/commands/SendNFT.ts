@@ -9,10 +9,8 @@ import {
   GenericTxParams,
   GenericTxSupportedActions,
 } from '@baf-wallet/interfaces';
-import {
-  createDiscordErrMsg,
-  parseDiscordRecipient,
-} from '@baf-wallet/utils';
+import { createDiscordErrMsg, parseDiscordRecipient } from '@baf-wallet/utils';
+import { getCommunityContract } from '@baf-wallet/community-contract';
 
 export default class SendNFT extends Command {
   constructor(protected client: BotClient) {
@@ -20,18 +18,18 @@ export default class SendNFT extends Command {
       name: 'sendNFT',
       description: 'sends NEP171 compatible NFTs',
       category: 'Utility',
-      usage: `${client.settings.prefix}sendNFT [NFT ID] from [NFT Contract] to [recipient]`,
+      usage: `You can do either \`${client.settings.prefix}sendNFT [NFT ID] to [recipient]\` to send from the default NFT contract or \`[NFT ID] from [NFT Contract] to [recipient]\``,
       cooldown: 1000,
       requiredPermissions: [],
     });
   }
 
   private extractArgs(content: string): string[] | null {
-    const rx = /^\%sendNFT (.*) from (.*) to (.*)$/g;
-    const matched = rx.exec(content);
+    const rx = /^\%sendNFT ((.*) from (.*) to (.*)|(.*) to (.*))$/g;
+    const matched = rx.exec(content).filter((elem) => elem !== undefined);
     if (!matched) return null;
-    // The first element of the match is the whole string if it matched
-    return matched.length < 3 ? null : matched.slice(1);
+    // The first element of the match is the whole string if it matched, the second is the chunk of the or clause
+    return matched.length < 2 ? null : matched.slice(2);
   }
 
   private async buildGenericTx(
@@ -69,10 +67,10 @@ export default class SendNFT extends Command {
         `Invalid command, \n\`usage: ${this.conf.usage}\``
       );
       return;
-    } else if (args.length !== 3) {
+    } else if (args.length !== 2 && args.length !== 3) {
       await super.respond(
         message.channel,
-        `expected 3 parameters, got ${args.length - 1}.\n\`usage: ${
+        `expected 2 or 3 parameters, got ${args.length - 1}.\n\`usage: ${
           this.conf.usage
         }\``
       );
@@ -80,8 +78,12 @@ export default class SendNFT extends Command {
     }
 
     const tokenId = args[0];
-    const contractAddress = args[1];
-    const recipient: string = args[2];
+    const argsOffset = args.length === 3 ? 1 : 0;
+    const contractAddress =
+      args.length === 3
+        ? args[argsOffset]
+        : await getCommunityContract().get_default_nft_contract();
+    const recipient: string = args[1 + argsOffset];
 
     const recipientParsed = parseDiscordRecipient(recipient);
 

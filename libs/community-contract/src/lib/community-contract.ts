@@ -24,6 +24,7 @@ interface CommunityContract {
     user_id: string,
     secp_sig_s: RustEncodedSecpSig
   ) => Promise<void>;
+  get_default_nft_contract: () => Promise<string>;
 }
 
 let communityContract: CommunityContract;
@@ -60,7 +61,7 @@ async function buildCommunityContract(
   });
 
   return {
-    ...contract,
+    ...(contract as any),
     /**
      * Below are override functions for the calls
      * Find the contract code in libs/community-contract/contract
