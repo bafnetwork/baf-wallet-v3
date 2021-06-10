@@ -84,19 +84,14 @@ contractAddress: string
       return;
     }
 
-    const defaultNFTContract = args[0
-
+    const defaultNFTContract = args[0]
 
     const recipientUser = this.client.users.resolve(recipientParsed);
     const recipientUserReadable = `${recipientUser.username}#${recipientUser.discriminator}`;
 
     try {
       const tx = await this.buildGenericTx(
-        message,
         contractAddress,
-        tokenId,
-        recipientParsed,
-        recipientUserReadable
       );
       if (!tx) return;
       const link = createApproveRedirectURL(

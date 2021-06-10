@@ -151,7 +151,7 @@ export interface TxInterface<
   ) => Promise<Pair<SendResult, ExplorerLink>>;
   buildParamsFromGenericTx: (
     params: GenericTxParams,
-    recipientPk: PublicKey<secp256k1>,
+    recipientPk: PublicKey<secp256k1> | null,
     senderPkSecp: PublicKey<secp256k1>,
     senderPkEd: PublicKey<ed25519>
   ) => Promise<BuildTxParams>;

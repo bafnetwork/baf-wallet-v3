@@ -9,8 +9,12 @@ export enum GenericTxSupportedActions {
   CONTRACT_CALL = 'contract call',
 }
 
+/**
+ * Either the recipientUserId or recipientAddress has to be provided 
+ */ 
 export interface GenericTxParams {
-  recipientUserId?: string | 'community-contract';
+  recipientUserId?: string;
+  recipientAddress?: string;
   recipientUserIdReadable?: string;
   oauthProvider?: PLATFORM;
   actions: GenericTxAction[];

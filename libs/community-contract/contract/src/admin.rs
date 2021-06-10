@@ -17,31 +17,6 @@ pub trait Admin {
     fn get_admins(&self) -> Vec<AccountId>;
 }
 
-#[near_bindgen]
-impl Admin for Community {
-    fn add_admins(&mut self, new_admins: Vec<AccountId>) {
-        if !self.admins.contains(&predecessor_account_id()) {
-            throw_error(crate::errors::UNAUTHORIZED);
-        }
-        for admin in new_admins {
-            self.admins.insert(&admin);
-        }
-    }
-
-    fn remove_admins(&mut self, admins: Vec<AccountId>) {
-        if !self.admins.contains(&predecessor_account_id()) {
-            throw_error(crate::errors::UNAUTHORIZED);
-        }
-        for admin in admins {
-            self.admins.remove(&admin);
-        }
-    }
-
-    fn get_admins(&self) -> Vec<AccountId> {
-        self.admins.to_vec()
-    }
-}
-
 #[cfg(not(target_arch = "wasm32"))]
 #[cfg(test)]
 mod tests {

@@ -1,4 +1,9 @@
-import { Chain, GenericTxSupportedActions } from '@baf-wallet/interfaces';
+import {
+  Chain,
+  GenericTxAction,
+  GenericTxParams,
+  GenericTxSupportedActions,
+} from '@baf-wallet/interfaces';
 import { createApproveRedirectURL } from './redirect-generator';
 import * as fs from 'fs';
 import { join } from 'path';
@@ -9,7 +14,6 @@ describe('frontend', () => {
       Chain.NEAR,
       'http://localhost:8080',
       {
-        recipientUserId: '473198585890996224',
         recipientUserIdReadable: 'lev_s#7844',
         actions: [
           {
@@ -23,8 +27,11 @@ describe('frontend', () => {
     console.log(sendURL);
   });
   it('Create a url for changing the default NFT contract', () => {
+    const nftAddress = require('../../../community-contract/config.json')
+      .contractName;
     const url = createApproveRedirectURL(Chain.NEAR, 'http://localhost:8080', {
-      recipientUserId: 'community-contract',
+      // TODO: add an option for if recipientUserId is a TorusTarget or not
+      recipientAddress: nftAddress.toString(),
       recipientUserIdReadable: 'Community Contract',
       actions: [
         {
@@ -36,15 +43,13 @@ describe('frontend', () => {
           deposit: '1',
         },
       ],
-      oauthProvider: 'discord'
-    });
+      oauthProvider: 'discord',
+    } as GenericTxParams);
     console.log('Change NFT Contract', url);
   });
   it('Create a url to send a test NFT (NEP171) to sladuca#4629', () => {
-    const nftAddress = fs.readFileSync(
-      // TODO: better placement
-      join(__dirname, '../../../../testing-configs/neardev-nft/dev-account')
-    );
+    const nftAddress = require('../../../community-contract/config.json')
+      .contractName;
     const sendURL = createApproveRedirectURL(
       Chain.NEAR,
       'http://localhost:8080',

@@ -13,6 +13,7 @@ import {
   Chain,
   GenericTxActionTransferNFT,
   GenericTxActionCreateAccount,
+  GenericTxActionContractCall,
 } from '@baf-wallet/interfaces';
 import { Pair, getEnumValues } from '@baf-wallet/utils';
 import { sha256 } from '@baf-wallet/crypto';
@@ -110,7 +111,7 @@ function buildNativeAction(
       ];
 
     case GenericTxSupportedActions.CREATE_ACCOUNT:
-      const params = action as GenericTxActionCreateAccount
+      const params = action as GenericTxActionCreateAccount;
       if (params.amount && parseInt(params.amount) > 0) {
         const transferAction: GenericTxActionTransfer = {
           type: GenericTxSupportedActions.TRANSFER,
@@ -128,7 +129,16 @@ function buildNativeAction(
       } else {
         transactions.createAccount();
       }
-
+    case GenericTxSupportedActions.CONTRACT_CALL:
+      const paramsContractCall = action as GenericTxActionContractCall;
+      return [
+        transactions.functionCall(
+          paramsContractCall.functionName,
+          paramsContractCall.functionArgs,
+          new BN(10000000000000), // Maximum gas fee
+          new BN(0)
+        ),
+      ];
     default:
       throw `Action of type ${actionType} is unsupported`;
   }
@@ -171,7 +181,9 @@ export const buildParamsFromGenericTx = (innerSdk: NearState) => async (
   _senderPk: PublicKey<secp256k1>,
   senderPk: PublicKey<ed25519>
 ): Promise<NearBuildTxParams> => {
-  let recipientAccountID = await getCommunityContract().getAccountId(recipientPk);
+  let recipientAccountID = txParams.recipientAddress
+    ? txParams.recipientAddress
+    : await getCommunityContract().getAccountId(recipientPk);
 
   if (!recipientAccountID) {
     let createAccountAction = txParams.actions.find(
