@@ -10,12 +10,9 @@ import {
   GenericTxParams,
   GenericTxSupportedActions,
 } from '@baf-wallet/interfaces';
-import {
-  createDiscordErrMsg,
-  parseDiscordRecipient,
-} from '@baf-wallet/utils';
+import { createDiscordErrMsg, parseDiscordRecipient } from '@baf-wallet/utils';
 
-export default class SendNFT extends Command {
+export default class setDefaultNFT extends Command {
   constructor(protected client: BotClient) {
     super(client, {
       name: 'setDefaultNFT',
@@ -28,7 +25,8 @@ export default class SendNFT extends Command {
   }
 
   private buildGenericTx(
-contractAddress: string
+    contractAddress: string,
+    nftContractAddress: string
   ): GenericTxParams {
     let actions: GenericTxAction[];
     actions = [
@@ -36,14 +34,14 @@ contractAddress: string
         type: GenericTxSupportedActions.CONTRACT_CALL,
         functionName: 'set_default_nft_contract',
         functionArgs: {
-          nft_contract: contractAddress
+          nft_contract: nftContractAddress,
         },
-        deposit: "1"
+        deposit: '1',
       },
     ];
 
     const tx: GenericTxParams = {
-      recipientUserId: 'community-contract',
+      recipientAddress: contractAddress,
       recipientUserIdReadable: 'Community Contract',
       actions,
       oauthProvider: 'discord',
@@ -52,9 +50,9 @@ contractAddress: string
     return tx;
   }
 
-
   private extractArgs(content: string): string[] | null {
-    const rx = /^\%sendNFT (.*) from (.*) to (.*)$/g;
+    console.log(content)
+    const rx = /^\%setDefaultNFT (.*)$/g;
     const matched = rx.exec(content);
     if (!matched) return null;
     // The first element of the match is the whole string if it matched
@@ -84,14 +82,15 @@ contractAddress: string
       return;
     }
 
-    const defaultNFTContract = args[0]
+    const defaultNFTContract = args[0];
 
-    const recipientUser = this.client.users.resolve(recipientParsed);
-    const recipientUserReadable = `${recipientUser.username}#${recipientUser.discriminator}`;
+    // const recipientUser = this.client.users.resolve(recipientParsed);
+    // const recipientUserReadable = `${recipientUser.username}#${recipientUser.discriminator}`;
 
     try {
       const tx = await this.buildGenericTx(
-        contractAddress,
+        require('../../../../libs/community-contract/config.json').contractName,
+        defaultNFTContract
       );
       if (!tx) return;
       const link = createApproveRedirectURL(
