@@ -78,7 +78,7 @@ jobs:
           branch: main
           github_token: "${{ secrets.GITHUB_TOKEN  }}"
           github_pat: "${{ secrets.GH_PAT }}"
-          source_folder: apps/frontend/public
+          source_folder: dist/apps/frontend
 
       - uses: seanmiddleditch/gha-publish-to-git@master
         with:
