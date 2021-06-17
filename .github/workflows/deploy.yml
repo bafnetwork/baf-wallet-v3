@@ -60,7 +60,8 @@ jobs:
             ${{ runner.os }}-
 
       # Frontend and bot build
-      - run: |
+      - name: 'Dep and install'
+        run: |
           npm i
           npm run client-gen
           npx nx run api:build:test
