@@ -24,54 +24,6 @@ pub trait AccountInfos {
     fn delete_account_info(&mut self, user_id: String, secp_pk: SecpPK, secp_sig_s: Vec<u8>);
 }
 
-#[near_bindgen]
-impl AccountInfos for Community {
-    fn get_account_nonce(&self, secp_pk: SecpPK) -> i32 {
-        self.get_account_info(secp_pk)
-            .map(|account_info| account_info.nonce)
-            .unwrap_or(0)
-    }
-
-    fn get_account_id(&self, secp_pk: SecpPK) -> Option<AccountId> {
-        self.get_account_info(secp_pk)
-            .map(|account_info| account_info.account_id)
-    }
-
-    fn set_account_info(
-        &mut self,
-        user_id: String,
-        secp_pk: SecpPK,
-        secp_sig_s: Vec<u8>,
-        new_account_id: AccountId,
-    ) {
-        if !is_valid_account_id(new_account_id.as_bytes()) {
-            throw_error(crate::errors::INVALID_ACCOUNT_ID);
-        }
-
-        if !(predecessor_account_id() == new_account_id
-            || self.admins.contains(&predecessor_account_id()))
-        {
-            throw_error(crate::errors::UNAUTHORIZED);
-        }
-
-        let (secp_pk_internal, nonce) = self.verify_sig(user_id, secp_pk, secp_sig_s);
-        self.account_infos.insert(
-            &secp_pk_internal,
-            &AccountInfo {
-                account_id: new_account_id,
-                nonce: nonce + 1,
-            },
-        );
-    }
-
-    fn delete_account_info(&mut self, user_id: String, secp_pk: SecpPK, secp_sig_s: Vec<u8>) {
-        let (secp_pk_internal, _) = self.verify_sig(user_id, secp_pk, secp_sig_s);
-        // TODO: this leaves vulnrebaility to replay attacks. If an account is made, deleted, and made again,
-        // The nonce resets to 0. Please see https://github.com/bafnetwork/baf-wallet-v2/issues/32
-        self.account_infos.remove(&secp_pk_internal);
-    }
-}
-
 impl Community {
     fn get_account_nonce_internal(&self, secp_pk: &SecpPKInternal) -> i32 {
         self.get_account_info_internal(secp_pk)
@@ -82,12 +34,12 @@ impl Community {
         self.account_infos.get(secp_pk)
     }
 
-    fn get_account_info(&self, secp_pk: SecpPK) -> Option<AccountInfo> {
+    pub(crate) fn get_account_info(&self, secp_pk: SecpPK) -> Option<AccountInfo> {
         let secp_pk_internal = Community::parse_secp_pk(secp_pk).unwrap();
         self.account_infos.get(&secp_pk_internal)
     }
 
-    fn verify_sig(
+    pub(crate) fn verify_sig(
         &mut self,
         user_id: String,
         secp_pk: SecpPK,

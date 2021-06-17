@@ -45,25 +45,27 @@
 
   async function initGenericTx() {
     if (
-      !txParams.recipientUserId ||
+      (!txParams.recipientUserId && !txParams.recipientAddress) ||
       !txParams.oauthProvider ||
       !txParams.recipientUserIdReadable
     ) {
       throw BafError.GenericTxRequiresOauthInfo();
     }
-    const recipientPubkey = await getTorusPublicAddress(
-      txParams.recipientUserId,
-      txParams.oauthProvider
-    );
+    const recipientPubkey = txParams.recipientUserId
+      ? await getTorusPublicAddress(
+          txParams.recipientUserId,
+          txParams.oauthProvider
+        )
+      : null;
     recipientUser = txParams.recipientUserIdReadable;
-    
+
     const nearTxParams = await $ChainStores[
       Chain.NEAR
     ].tx.buildParamsFromGenericTx(
       txParams,
       recipientPubkey,
       $SiteKeyStore.secpPK,
-      $SiteKeyStore.edPK,
+      $SiteKeyStore.edPK
     );
     actions = txParams.actions;
     tx = await $ChainStores[Chain.NEAR].tx.build(nearTxParams);
@@ -109,7 +111,7 @@
       explorerUrl = ret.snd;
       txSuccess = true;
     } catch (e) {
-      console.error(e)
+      console.error(e);
       error = e;
     }
     isLoading = false;
@@ -154,7 +156,14 @@
               {action.tokenId} to {recipientUser} for contract {action.contractAddress}
             </p>
           {:else if action.type === GenericTxSupportedActions.CREATE_ACCOUNT}
-            <p>Create account {action.accountID} for {txParams.recipientUserIdReadable}</p>
+            <p>
+              Create account {action.accountID} for {txParams.recipientUserIdReadable}
+            </p>
+          {:else if action.type === GenericTxSupportedActions.CONTRACT_CALL}
+            <p>
+              Call action {action.functionName} for contract {txParams.recipientUserIdReadable}
+              with paramets {JSON.stringify(action.functionArgs)}
+            </p>
           {:else}
             An error occured, an unsupported action type was passed in!
           {/if}

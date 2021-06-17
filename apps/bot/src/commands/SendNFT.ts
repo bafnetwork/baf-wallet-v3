@@ -1,15 +1,10 @@
 import { Message } from 'discord.js';
 import { Command } from '../Command';
 import { BotClient } from '../types';
-import {
-  formatNativeTokenAmountToIndivisibleUnit,
-  formatTokenAmountToIndivisibleUnit,
-} from '@baf-wallet/multi-chain';
 import { createApproveRedirectURL } from '@baf-wallet/redirect-generator';
 import { environment } from '../environments/environment';
 import {
   Chain,
-  GenericTxAction,
   GenericTxActionTransferNFT,
   GenericTxParams,
   GenericTxSupportedActions,
@@ -17,10 +12,7 @@ import {
 import {
   createDiscordErrMsg,
   parseDiscordRecipient,
-  strToChain,
 } from '@baf-wallet/utils';
-import { getNearChain } from '@baf-wallet/global-state';
-import { getContractTokenInfoFromSymbol } from '@baf-wallet/chain-info';
 
 export default class SendNFT extends Command {
   constructor(protected client: BotClient) {
