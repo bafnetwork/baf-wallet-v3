@@ -62,8 +62,18 @@ jobs:
       - run: |
           npm i
           npx nx run bot:build:test
+          npx nx build-deploy-test frontend
           node scripts/create-dist-bot-package-json.js
           echo 'worker: npm start' > dist/apps/bot/Procfile
+
+      - uses: seanmiddleditch/gha-publish-to-git@master
+        with:
+          repository: bafnetwork/baf-wallet-deploy-frontend
+          branch: main
+          github_token: "${{ secrets.GITHUB_TOKEN  }}"
+          github_pat: "${{ secrets.GH_PAT }}"
+          source_folder: dist/apps/frontend
+
       - uses: seanmiddleditch/gha-publish-to-git@master
         with:
           repository: bafnetwork/baf-wallet-deploy-bot
