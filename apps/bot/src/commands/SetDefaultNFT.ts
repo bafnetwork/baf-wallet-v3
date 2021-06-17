@@ -84,9 +84,6 @@ export default class setDefaultNFT extends Command {
 
     const defaultNFTContract = args[0];
 
-    // const recipientUser = this.client.users.resolve(recipientParsed);
-    // const recipientUserReadable = `${recipientUser.username}#${recipientUser.discriminator}`;
-
     try {
       const tx = await this.buildGenericTx(
         require('../../../../libs/community-contract/config.json').contractName,
