@@ -19,7 +19,8 @@ export default class Help extends Command {
       message.channel,
       'Help - List out all the commands \n' +
         'Ping - Respond Pong! \n' +
-        'Send - sends NEAR or NEP-141 tokens on NEAR testnet'
+        `${this.client.settings.prefix}sendMoney - sends NEAR or NEP-141 tokens on NEAR \n` +
+        `${this.client.settings.prefix}sendNFT - sends NEP171 compatible NFTs on NEAR`
     );
   }
 }
