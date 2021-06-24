@@ -32,7 +32,6 @@ async function init() {
   ];
   const corsOptions = {
     origin: function (origin, callback) {
-      // TODO: this may be hacakable as someone can just make a netlify and call it xxx-baf-wallet
       if (whitelist.indexOf(origin) !== -1) {
         callback(null, true);
       } else if (
