@@ -10,17 +10,18 @@
   import NotFound404 from './pages/NotFound404.svelte';
   import { AccountStore } from './state/accounts.svelte';
   import { initApp } from './config/init.svelte';
+  import InitAccount from './pages/InitAccount.svelte';
 
   const routes = {
     '/': Account,
     '/approve-redirect/:chain/:txParams': ApproveRedirect,
     '/settings': Settings,
+    '/initialize-account': InitAccount,
     '/login': Login,
     '/*': NotFound404,
   };
 
   const initProm = initApp();
-
 </script>
 
 <link

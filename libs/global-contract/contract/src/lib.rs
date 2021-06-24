@@ -102,14 +102,10 @@ impl AccountInfos for GlobalData {
             throw_error(crate::errors::INVALID_ACCOUNT_ID);
         }
 
-        // TODO: lets think about this. We could j remove the need for admins
-        // if !(predecessor_account_id() == new_account_id
-        //     || self.admins.contains(&predecessor_account_id()))
-        // {
-        //     throw_error(crate::errors::UNAUTHORIZED);
-        // }
+        if !(predecessor_account_id() == new_account_id) {
+            throw_error(crate::errors::UNAUTHORIZED);
+        }
 
-        // TODO: how would this work if someone else is calling this for someone else?
         let (secp_pk_internal, nonce) = self.verify_sig(user_id, secp_pk, secp_sig_s);
         self.account_infos.insert(
             &secp_pk_internal,

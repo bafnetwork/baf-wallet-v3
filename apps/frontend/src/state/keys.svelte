@@ -13,7 +13,7 @@
 
   import { bufferConverter, encodeBytes } from '@baf-wallet/utils';
   import { writable } from 'svelte/store';
-import { BafError } from '@baf-wallet/errors';
+  import { BafError } from '@baf-wallet/errors';
 
   const keyStoreName = 'key-store';
 
@@ -37,9 +37,9 @@ import { BafError } from '@baf-wallet/errors';
   function unpackKey(keyState: string): KeyState {
     const split = keyState.split(':');
     if (split.length !== 2) {
-      throw BafError.InvalidPackedKey()
+      throw BafError.InvalidPackedKey();
     } else if (split[0] !== 'secp256k1') {
-      throw BafError.UnsupportedKeyCurve('secp256k1')
+      throw BafError.UnsupportedKeyCurve('secp256k1');
     }
     const keyBytes = encodeBytes(split[1], Encoding.HEX);
     return buildKeyStateFromSecpSk(

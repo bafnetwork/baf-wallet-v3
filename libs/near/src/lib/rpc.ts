@@ -2,6 +2,7 @@ import { RpcInterface } from '@baf-wallet/interfaces';
 import { transactions } from 'near-api-js';
 import { NearNetworkID, stringToNetworkID } from './utils';
 import { NearState } from './near';
+import { network } from 'near-api-js/lib/utils';
 
 export type NearRpcInterface = RpcInterface<
   transactions.Transaction,
@@ -19,11 +20,23 @@ export type NearSendResult = any;
 
 export function nearRpc(_innerSdk: NearState): NearRpcInterface {
   return {
-    endpoint: getNodeUrl,
+    endpoint: getRPCUrl,
   };
 }
 
-export function getNodeUrl(network?: string): string {
+export function getWalletUrl(network?: string): string {
+  const networkID: NearNetworkID = stringToNetworkID(network ?? 'mainnet');
+  return `https://wallet.${networkID}.near.org`;
+}
+
+export function getRPCUrl(network?: string): string {
   const networkID: NearNetworkID = stringToNetworkID(network ?? 'mainnet');
   return `https://rpc.${networkID}.near.org`;
 }
+
+export const getHelperUrl = (networkID: string) =>
+  `https://helper.${networkID}.near.org`;
+
+export const getExplorerUrl = (networkID: string) =>
+  `https://explorer.${networkID}.near.org`;
+
