@@ -7,7 +7,7 @@ use near_sdk::{
     near_bindgen, AccountId,
 };
 
-use crate::{AccountInfo, Community, SecpPK, SecpPKInternal};
+use crate::{AccountInfo, SecpPK, SecpPKInternal};
 
 /// The functionality which works with admin related code
 pub trait Admin {

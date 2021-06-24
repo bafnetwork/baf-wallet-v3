@@ -72,12 +72,12 @@ mod tests {
         let msg = secp256k1::Message::parse(&msg_hash_array);
 
         let (sig, _) = secp256k1::sign(&msg, &sk);
-        contract.set_account_info(
-            user_id,
-            pk.serialize().to_vec(),
-            sig.serialize().to_vec(),
-            alice(),
-        );
+        // contract.set_account_info(
+        //     user_id,
+        //     pk.serialize().to_vec(),
+        //     sig.serialize().to_vec(),
+        //     alice(),
+        // );
     }
 
     #[test]
