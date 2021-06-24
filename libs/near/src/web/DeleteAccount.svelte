@@ -1,8 +1,6 @@
 <script lang="ts">
-  import {
-    getCommunityContract,
-    CommunityContractConstants,
-  } from '@baf-wallet/community-contract';
+  import { getCommunityContract } from '@baf-wallet/community-contract';
+  import { globalContractConstants } from '@baf-wallet/global-contract';
   import Button from '@smui/button';
   import {
     AccountState,
@@ -56,7 +54,7 @@
     // Deleteing the account must come after whiping it from the contract
     await chainInterface
       .getInner()
-      .nearMasterAccount.deleteAccount(CommunityContractConstants.beneficiaryId);
+      .nearMasterAccount.deleteAccount(globalContractConstants.beneficiaryId);
     isLoading = false;
     alert('Your account was deleted');
     cb();

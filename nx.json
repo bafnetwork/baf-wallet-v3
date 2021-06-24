@@ -32,6 +32,7 @@
     "crypto": { "tags": [] },
     "base-components": { "tags": [] },
     "errors": { "tags": [] },
-    "global-state": { "tags": ["scope:admin"] }
+    "global-state": { "tags": ["scope:admin"] },
+    "global-contract": { "tags": [] }
   }
 }

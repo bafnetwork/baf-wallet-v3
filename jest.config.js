@@ -16,5 +16,6 @@ module.exports = {
     '<rootDir>/libs/base-components',
     '<rootDir>/libs/errors',
     '<rootDir>/libs/global-state',
+    '<rootDir>/libs/global-contract',
   ],
 };

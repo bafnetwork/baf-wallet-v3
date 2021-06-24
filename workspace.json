@@ -605,6 +605,31 @@
           }
         }
       }
+    },
+    "global-contract": {
+      "root": "libs/global-contract",
+      "sourceRoot": "libs/global-contract/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/global-contract/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/global-contract"
+          ],
+          "options": {
+            "jestConfig": "libs/global-contract/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
     }
   }
 }
