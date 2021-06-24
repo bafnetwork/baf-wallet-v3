@@ -41,4 +41,9 @@
   export function storeOauthState(oauthInfo: OAuthState) {
     window.localStorage.setItem(oauthInfoStoreName, JSON.stringify(oauthInfo));
   }
+  export function getOauthState(): OAuthState | null {
+    const cookieStr = window.localStorage.getItem(oauthInfoStoreName);
+    if (!JSON.parse(cookieStr)) return null;
+    return JSON.parse(cookieStr) as OAuthState;
+  }
 </script>

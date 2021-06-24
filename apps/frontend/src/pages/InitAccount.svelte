@@ -19,6 +19,7 @@
   import * as nearAPI from 'near-api-js';
   import { Account as NearAccount, WalletConnection } from 'near-api-js';
   import { constants } from '../config/constants';
+  import { getOauthState } from '../state/accounts.svelte';
   import { SiteKeyStore } from '../state/keys.svelte';
 
   const keyStore = new nearAPI.keyStores.BrowserLocalStorageKeyStore();
@@ -81,12 +82,14 @@
     const nonce = await getGlobalContract().getAccountNonce(
       $SiteKeyStore.secpPK
     );
-    const userId = 'llll';
-    const msg = createUserVerifyMessage(userId, nonce);
+		const oauthInfo = getOauthState()
+    const userName = oauthInfo.name;
+
+    const msg = createUserVerifyMessage(userName, nonce);
     const secpSig = signMsg($SiteKeyStore.secpSK, msg, true);
     await getGlobalContract().setAccountInfo(
       $SiteKeyStore.secpPK,
-      userId,
+      userName,
       secpSig,
       account.accountId
     );
