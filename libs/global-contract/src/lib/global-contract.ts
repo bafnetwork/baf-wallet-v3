@@ -35,7 +35,7 @@ export async function setGlobalContract(
   return globalContract;
 }
 
-export function getCommunityContract(): GlobalContract {
+export function getGlobalContract(): GlobalContract {
   if (globalContract) return globalContract;
   throw BafError.UninitGlobalContract();
 }
@@ -47,10 +47,12 @@ async function buildGlobalContract(
     viewMethods: [
       'get_account_id',
       'get_account_nonce',
+      'get_community_contract'
     ],
     changeMethods: [
       'set_account_info',
       'delete_account_info',
+      'set_community_contract',
     ],
   });
 

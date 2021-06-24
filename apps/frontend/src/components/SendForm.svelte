@@ -12,7 +12,7 @@
   import { ChainStores } from '../state/chains.svelte';
   import { SiteKeyStore } from '../state/keys.svelte';
   import { BafError } from '@baf-wallet/errors';
-  import { TokenInfo } from '@baf-wallet/chain-info';
+  import { TokenInfo } from '@baf-wallet/interfaces';
 
   let createTX: <T>() => Promise<CreateTxReturn<T>>;
   export let postSubmitHook: () => void | undefined;

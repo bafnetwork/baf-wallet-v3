@@ -15,6 +15,7 @@ import {
   GenericTxActionCreateAccount,
   GenericTxActionContractCall,
 } from '@baf-wallet/interfaces';
+import { getGlobalContract } from '@baf-wallet/global-contract';
 import { Pair, getEnumValues } from '@baf-wallet/utils';
 import { sha256 } from '@baf-wallet/crypto';
 import { Buffer } from 'buffer';
@@ -183,7 +184,7 @@ export const buildParamsFromGenericTx = (innerSdk: NearState) => async (
 ): Promise<NearBuildTxParams> => {
   let recipientAccountID = txParams.recipientAddress
     ? txParams.recipientAddress
-    : await getCommunityContract().getAccountId(recipientPk);
+    : await getGlobalContract().getAccountId(recipientPk);
 
   if (!recipientAccountID) {
     let createAccountAction = txParams.actions.find(

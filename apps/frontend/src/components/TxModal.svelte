@@ -3,7 +3,7 @@
 
   import { getContext } from 'svelte';
   import { Chain } from '@baf-wallet/interfaces';
-  import { TokenInfo } from '@baf-wallet/chain-info';
+  import { TokenInfo } from '@baf-wallet/interfaces';
   const { close } = getContext('modal');
 
   export let chain: Chain,
@@ -13,11 +13,10 @@
 </script>
 
 <ApproveRedirect
-  {txParams}
-  {tokenInfo}
-  txInUrl={false}
+  nativeParams={txParams}
+  tokenInfos={[tokenInfo]}
+  txInUrlAndGeneric={false}
   {recipientUser}
-  isGenericTx={false}
   {chain}
   onCancel={close}
 />

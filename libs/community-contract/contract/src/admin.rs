@@ -1,6 +1,5 @@
 use crate::errors::throw_error;
 use crate::env::predecessor_account_id;
-use crate::CommunityContract;
 use std::convert::TryInto;
 
 use near_sdk::{

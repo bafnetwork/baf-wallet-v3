@@ -10,7 +10,7 @@ import {
 } from 'tsoa';
 
 import {
-  createNearAccount,
+  // createNearAccount,
   getAccountInfoFromSecpPK,
   getAccountNonce,
   NearAccountInfo,
@@ -37,27 +37,27 @@ interface CreateNearAccountParams {
 
 @Route('near')
 export class NearController extends Controller {
-  @SuccessResponse('204')
-  @Post('account')
-  public async createNearAccount(
-    @Body() requestBody: CreateNearAccountParams
-  ): Promise<void> {
-    const secpPubkey = await getTorusPublicAddress(
-      requestBody.userID,
-      'discord'
-    );
+  // @SuccessResponse('204')
+  // @Post('account')
+  // public async createNearAccount(
+  //   @Body() requestBody: CreateNearAccountParams
+  // ): Promise<void> {
+  //   const secpPubkey = await getTorusPublicAddress(
+  //     requestBody.userID,
+  //     'discord'
+  //   );
 
-    await createNearAccount(
-      secpPubkey,
-      pkFromString(requestBody.edPubkey, ed25519Marker, Encoding.HEX),
-      requestBody.userID,
-      requestBody.nonce,
-      requestBody.secpSigHex,
-      requestBody.secpSig_s,
-      requestBody.edSigHex,
-      requestBody.accountID
-    );
-  }
+  //   await createNearAccount(
+  //     secpPubkey,
+  //     pkFromString(requestBody.edPubkey, ed25519Marker, Encoding.HEX),
+  //     requestBody.userID,
+  //     requestBody.nonce,
+  //     requestBody.secpSigHex,
+  //     requestBody.secpSig_s,
+  //     requestBody.edSigHex,
+  //     requestBody.accountID
+  //   );
+  // }
 
   @SuccessResponse('200')
   @Get('account/{secpPubkeyB58}/nonce')

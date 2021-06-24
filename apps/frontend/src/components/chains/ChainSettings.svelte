@@ -10,31 +10,31 @@
 
   const chains = getEnumValues(Chain);
   // TODO: clean up imports, see https://github.com/bafnetwork/baf-wallet-v2/issues/54
-  const ChainDeleteAccountComponent = (chain: Chain) => () =>
-    import(`../../../../../libs/${chain}/src/web/DeleteAccount.svelte`);
+  // const ChainDeleteAccountComponent = (chain: Chain) => () =>
+  //   import(`../../../../../libs/${chain}/src/web/DeleteAccount.svelte`);
 
-  const ChainInitAccountComponent = (chain: Chain) => () =>
-    import(`../../../../../libs/${chain}/src/web/InitAccount.svelte`);
+  // const ChainInitAccountComponent = (chain: Chain) => () =>
+  //   import(`../../../../../libs/${chain}/src/web/InitAccount.svelte`);
 </script>
 
 {#each chains as chain}
   {#if checkChainInit($ChainStores, chain)}
     <!-- content here -->
-    Delete your {chain} initialized account: <Lazy
+    <!-- Delete your {chain} initialized account: <Lazy
       component={ChainDeleteAccountComponent(chain)}
       cb={reinitApp}
       chainInterface={$ChainStores[chain]}
       {apiClient}
       keyState={$SiteKeyStore}
       accountState={$AccountStore}
-    />
+    /> -->
   {:else}
-    Initialize your {chain} account: <Lazy
+    <!-- Initialize your {chain} account: <Lazy
       component={ChainInitAccountComponent(chain)}
       cb={reinitApp}
       {apiClient}
       keyState={$SiteKeyStore}
       accountState={$AccountStore}
-    />
+    /> -->
   {/if}
 {/each}

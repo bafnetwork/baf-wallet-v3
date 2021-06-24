@@ -82,7 +82,7 @@ export default class SendNFT extends Command {
     const contractAddress =
       args.length === 3
         ? args[argsOffset]
-        : await getCommunityContract().get_default_nft_contract();
+        : await getCommunityContract()('TODO REPLACE ME').get_default_nft_contract();
     const recipient: string = args[1 + argsOffset];
 
     const recipientParsed = parseDiscordRecipient(recipient);
