@@ -28,17 +28,12 @@ async function init() {
   app.use(bodyParser.json());
   const whitelist = [
     'http://localhost:8080',
-    'https://baf-wallet.netlify.app',
-    'https://baf-wallet-v2-git-deploy-work-baf-wallet.vercel.app',
-    'https://baf-wallet-v2.vercel.app',
-    'https://baf-wallet.netlify.app',
+    'https://baf-wallet-deploy-frontend.vercel.app',
   ];
   const corsOptions = {
     origin: function (origin, callback) {
       // TODO: this may be hacakable as someone can just make a netlify and call it xxx-baf-wallet
-      const rx = /^https:\/\/(.*)baf-wallet.netlify.app$/g;
-      const matched = rx.test(origin);
-      if (whitelist.indexOf(origin) !== -1 || matched) {
+      if (whitelist.indexOf(origin) !== -1) {
         callback(null, true);
       } else if (
         // If the env is TEST or DEV, check against the following REGEX string to
