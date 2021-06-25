@@ -10,7 +10,6 @@
   import { createUserVerifyMessage } from '@baf-wallet/utils';
   import { Account as NearAccount, WalletConnection } from 'near-api-js';
   import { getNearWalletAccount } from '@baf-wallet/near/web';
-  import { doesNearAccountHaveKey } from '@baf-wallet/near';
 
   import Button from '@smui/button';
 
@@ -25,7 +24,7 @@
 
 
   async function associatePKWithAccount(account: NearAccount) {
-    if (await doesNearAccountHaveKey($SiteKeyStore.edPK, account)) return;
+    // if (await doesNearAccountHaveKey($SiteKeyStore.edPK, account)) return;
     account.addKey($SiteKeyStore.edPK.format(Encoding.BS58));
   }
   async function setGlobalContractAccountInfo(account: NearAccount) {

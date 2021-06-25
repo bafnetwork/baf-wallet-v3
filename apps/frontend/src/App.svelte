@@ -11,8 +11,6 @@
   import { AccountStore } from './state/accounts.svelte';
   import { initApp } from './config/init.svelte';
   import InitAccount from './pages/InitAccount.svelte';
-  import { ChainStores, checkChainInit } from './state/chains.svelte';
-  import { Chain } from '@baf-wallet/interfaces';
 
   const routes = {
     '/': Account,

@@ -32,9 +32,9 @@
     chainState: ChainsState,
     chain: Chain,
     apiClient: DefaultApi,
-    secpPK: PublicKey<secp256k1>
+    secpPK: PublicKey<secp256k1> | null
   ): Promise<boolean> {
-    if (!chainState || !chainState[chain]) return false;
+    if (!chainState || !chainState[chain] || !secpPK) return false;
     const associatedAccountId = await apiClient.getAccountInfo({
       secpPubkeyB58: secpPK.format(Encoding.BS58),
     });
@@ -42,9 +42,14 @@
     const chainAccount = await chainState[chain].accounts.lookup(
       associatedAccountId.nearId
     );
+    const associatedKeys = await chainState[chain].accounts.associatedKeys(
+      chainAccount
+    );
     console.log(await chainAccount.getAccessKeys());
     console.log(chainAccount);
-    return true;
+    return associatedKeys.some(
+      (key) => key.format(Encoding.BS58) === secpPK.format(Encoding.BS58)
+    );
   }
 
   export const ChainStores = writable<ChainsState | null>(null);
