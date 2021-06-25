@@ -2,7 +2,12 @@
   import { writable } from 'svelte/store';
   import { ChainsState, initChains } from './chains.svelte';
   import { clearKeysFromStorage, loadKeys, SiteKeyStore } from './keys.svelte';
-  import { AccountState, Encoding, OAuthState } from '@baf-wallet/interfaces';
+  import {
+    AccountState,
+    Encoding,
+    KeyState,
+    OAuthState,
+  } from '@baf-wallet/interfaces';
   export const AccountStore = writable<AccountState | null>(null);
   const oauthInfoStoreName = 'oauthInfo';
 
@@ -24,6 +29,7 @@
   export async function initAccount(): Promise<{
     accountState: AccountState;
     chainsState: ChainsState | null;
+    keys: KeyState | null;
   }> {
     const keys = loadKeys();
     const loggedIn = loadKeys() !== null;
@@ -35,7 +41,7 @@
         : JSON.parse(window.localStorage.getItem(oauthInfoStoreName)),
     };
     AccountStore.set(accountState);
-    return { accountState, chainsState };
+    return { accountState, chainsState, keys };
   }
 
   export function storeOauthState(oauthInfo: OAuthState) {

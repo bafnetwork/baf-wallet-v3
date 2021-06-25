@@ -11,6 +11,8 @@
   import { AccountStore } from './state/accounts.svelte';
   import { initApp } from './config/init.svelte';
   import InitAccount from './pages/InitAccount.svelte';
+  import { ChainStores, checkChainInit } from './state/chains.svelte';
+  import { Chain } from '@baf-wallet/interfaces';
 
   const routes = {
     '/': Account,
@@ -48,8 +50,10 @@
   <p>Loading...</p>
 {:then ret}
   <Modal>
-    {#if $AccountStore.loggedIn}
+    {#if $AccountStore.loggedIn && ret.initNear}
       <Router {routes} />
+    {:else if $AccountStore.loggedIn}
+      <InitAccount />
     {:else}
       <Login />
     {/if}

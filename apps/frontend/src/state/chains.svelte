@@ -7,6 +7,7 @@
     KeyPair,
     KeyState,
     PublicKey,
+    secp256k1,
     SecretKey,
   } from '@baf-wallet/interfaces';
   import {
@@ -21,16 +22,29 @@
   import { writable } from 'svelte/store';
   import { environment } from '../environments/environment';
   import { apiClient } from '../config/api';
+  import { DefaultApi } from '@baf-wallet/api-client';
 
   export type ChainsState = {
     [Chain.NEAR]?: WrappedNearChainInterface;
   };
 
-  export function checkChainInit(
+  export async function checkChainInit(
     chainState: ChainsState,
-    chain: Chain
-  ): boolean {
-    return !!chainState && !!chainState[chain];
+    chain: Chain,
+    apiClient: DefaultApi,
+    secpPK: PublicKey<secp256k1>
+  ): Promise<boolean> {
+    if (!chainState || !chainState[chain]) return false;
+    const associatedAccountId = await apiClient.getAccountInfo({
+      secpPubkeyB58: secpPK.format(Encoding.BS58),
+    });
+    if (!associatedAccountId?.nearId) return false;
+    const chainAccount = await chainState[chain].accounts.lookup(
+      associatedAccountId.nearId
+    );
+    console.log(await chainAccount.getAccessKeys());
+    console.log(chainAccount);
+    return true;
   }
 
   export const ChainStores = writable<ChainsState | null>(null);
@@ -55,5 +69,4 @@
     ChainStores.set(chainInfos);
     return chainInfos;
   }
-
 </script>

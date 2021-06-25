@@ -24,7 +24,13 @@ import {
   NearInitContractParams,
   NEP141Contract,
 } from './contract';
-import { getHelperUrl, getRPCUrl, nearRpc, NearSendOpts, NearSendResult } from './rpc';
+import {
+  getHelperUrl,
+  getRPCUrl,
+  nearRpc,
+  NearSendOpts,
+  NearSendResult,
+} from './rpc';
 import {
   NearAccountID,
   nearAccounts,
