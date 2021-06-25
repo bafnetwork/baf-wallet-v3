@@ -10,7 +10,7 @@ import {
 import { NearAccountID } from '@baf-wallet/near';
 import { pkToArray } from '@baf-wallet/crypto';
 
-interface GlobalContract {
+interface GlobalContract  {
   getAccountId: (pk: PublicKey<secp256k1>) => Promise<NearAccountID | null>;
   getAccountNonce: (secp_pk: PublicKey<secp256k1>) => Promise<string>;
   setAccountInfo: (
@@ -41,7 +41,7 @@ export function getGlobalContract(): GlobalContract {
   throw BafError.UninitGlobalContract();
 }
 
-async function buildGlobalContract(account: Account): Promise<GlobalContract> {
+async function buildGlobalContract(account: Account): Promise<GlobalContract & any> {
   const contract = new Contract(account, ContractConfig.contractName, {
     viewMethods: [
       'get_account_id',
@@ -87,5 +87,5 @@ async function buildGlobalContract(account: Account): Promise<GlobalContract> {
       }),
     getCommunityContract: (server) =>
       (contract as any).get_community_contract(server),
-  };
+  } as any;
 }

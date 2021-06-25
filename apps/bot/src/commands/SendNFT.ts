@@ -10,6 +10,7 @@ import {
   GenericTxSupportedActions,
 } from '@baf-wallet/interfaces';
 import { createDiscordErrMsg, parseDiscordRecipient } from '@baf-wallet/utils';
+import { getGlobalContract } from '@baf-wallet/global-contract';
 
 export default class SendNFT extends Command {
   constructor(protected client: BotClient) {
@@ -78,10 +79,22 @@ export default class SendNFT extends Command {
 
     const tokenId = args[0];
     const argsOffset = args.length === 3 ? 1 : 0;
+    let community_nft_contract = '';
+    if (args.length !== 3) {
+      community_nft_contract = await getGlobalContract().get_community_default_nft_contract(
+        message.guild.id
+      );
+      // TODO: message if no guild_id exits
+      if (!community_nft_contract) {
+        await super.respond(
+          message.channel,
+          `the default NFT contract has not been set for this guild. Please contact your Discord's admins to fix this up`
+        );
+        return;
+      }
+    }
     const contractAddress =
-      args.length === 3
-        ? args[argsOffset]
-        : 'asasas'//await getCommunityContract()('TODO REPLACE ME').get_default_nft_contract();
+      args.length === 3 ? args[argsOffset] : community_nft_contract;
     const recipient: string = args[1 + argsOffset];
 
     const recipientParsed = parseDiscordRecipient(recipient);
