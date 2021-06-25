@@ -2,20 +2,31 @@ use crate::env::predecessor_account_id;
 use crate::errors::throw_error;
 use std::convert::TryInto;
 
+use near_sdk::collections::UnorderedSet;
 use near_sdk::{
     env::{current_account_id, is_valid_account_id, keccak256, signer_account_id},
     near_bindgen, AccountId,
 };
 
-use crate::{AccountInfo, GlobalData, SecpPK, SecpPKInternal};
+use crate::{AccountInfo, CommunityInfo, GlobalData, SecpPK, SecpPKInternal};
 
 /// The functionality which stores information for community contract. It maps Discord Servers to GlobalData Contract Addresses
 pub trait CommunityContract {
-    fn get_community_contract(&self, server: String) -> Option<AccountId>;
-    fn set_community_contract(&mut self, server: String, contract_address: AccountId);
+    /// Only global contract admins can initialize new communities for now
+    fn init_community(&mut self, guild_id: String, new_admins: UnorderedSet<AccountId>);
+
+    fn add_community_admins(&mut self, guild_id: String, new_admins: Vec<AccountId>);
+    fn remove_community_admins(&mut self, guild_id: String, admins: Vec<AccountId>);
+    fn get_community_admins(&self, guild_id: String) -> UnorderedSet<AccountId>;
+    fn set_community_default_nft_contract(&mut self, guild_id: String, nft_contract: AccountId);
+    fn get_community_default_nft_contract(&self, guild_id: String) -> Option<AccountId>;
 }
 
-impl GlobalData {}
+impl GlobalData {
+    pub(crate) fn get_community_info(&self, guild_id: String) -> Option<CommunityInfo> {
+        self.guild_id_to_community_info.get(&guild_id)
+    }
+}
 
 #[cfg(not(target_arch = "wasm32"))]
 #[cfg(test)]

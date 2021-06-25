@@ -1,3 +1,4 @@
+pub const GUILD_ID_NOT_REGISTERED: &str = "The requested guild ID has not been registered";
 pub const UNAUTHORIZED: &str = "This action requires admin privileges";
 pub const INVALID_ACCOUNT_ID: &str = "new account id is invalid!";
 pub const INCORRECT_SIGNATURE: &str = "The signature is incorrect for message";

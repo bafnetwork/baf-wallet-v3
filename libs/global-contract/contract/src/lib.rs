@@ -1,12 +1,12 @@
+pub mod account_info;
 pub mod admin;
-pub mod community_contract;
+pub mod community_info;
 pub mod errors;
 
-use crate::account_info::AccountInfos;
 use crate::env::predecessor_account_id;
 use crate::errors::throw_error;
 use admin::Admin;
-use community_contract::CommunityContract;
+use community_info::CommunityContract;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::UnorderedSet;
 use near_sdk::env::{current_account_id, is_valid_account_id, keccak256, signer_account_id};
@@ -27,13 +27,18 @@ pub struct AccountInfo {
     pub(crate) nonce: i32,
 }
 
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct CommunityInfo {
+    pub(crate) admins: UnorderedSet<AccountId>,
+    pub(crate) default_nft_contract: Option<AccountId>,
+}
+
 #[near_bindgen]
 #[derive(PanicOnDefault, BorshDeserialize, BorshSerialize)]
 pub struct GlobalData {
     pub(crate) account_infos: UnorderedMap<SecpPKInternal, AccountInfo>,
     pub(crate) admins: UnorderedSet<AccountId>,
-    pub(crate) default_nft_contract: Option<AccountId>,
-    pub(crate) server_to_community_contract: UnorderedMap<String, AccountId>,
+    pub(crate) guild_id_to_community_info: UnorderedMap<String, CommunityInfo>,
 }
 
 #[near_bindgen]
@@ -45,10 +50,7 @@ impl GlobalData {
         Self {
             admins: default_admins,
             account_infos: UnorderedMap::new("account-infos-map".as_bytes()),
-            server_to_community_contract: UnorderedMap::new(
-                "server-community-contract-map".as_bytes(),
-            ),
-            default_nft_contract: None,
+            guild_id_to_community_info: UnorderedMap::new("guild-community-info-map".as_bytes()),
         }
     }
 
@@ -65,20 +67,89 @@ impl GlobalData {
 
 #[near_bindgen]
 impl CommunityContract for GlobalData {
-    fn set_community_contract(&mut self, server: String, contract_address: AccountId) {
-        if !(self.admins.contains(&predecessor_account_id())) {
+    // fn set_community_contract(&mut self, server: String, contract_address: AccountId) {
+    //     if !(self.admins.contains(&predecessor_account_id())) {
+    //         throw_error(crate::errors::UNAUTHORIZED);
+    //     }
+    //     self.guild_id_to_community_contract
+    //         .insert(&server, &contract_address);
+    // }
+    // fn get_community_contract(&self, server: String) -> Option<AccountId> {
+    //     self.guild_id_to_community_contract.get(&server)
+    // }
+
+    fn init_community(&mut self, guild_id: String, new_admins: UnorderedSet<AccountId>) {
+        if !self.admins.contains(&predecessor_account_id()) {
             throw_error(crate::errors::UNAUTHORIZED);
         }
-        self.server_to_community_contract
-            .insert(&server, &contract_address);
+        self.guild_id_to_community_info.insert(
+            &guild_id,
+            &CommunityInfo {
+                admins: UnorderedSet::from(new_admins),
+                default_nft_contract: None,
+            },
+        );
     }
-    fn get_community_contract(&self, server: String) -> Option<AccountId> {
-        self.server_to_community_contract.get(&server)
+
+    fn set_community_default_nft_contract(&mut self, guild_id: String, nft_contract: AccountId) {
+        let mut community_opts = self.get_community_info(guild_id);
+        if community_opts.is_none() {
+            throw_error(crate::errors::GUILD_ID_NOT_REGISTERED);
+        };
+        let mut community = community_opts.unwrap();
+        let admins = community.admins;
+        if !admins.contains(&predecessor_account_id()) {
+            throw_error(crate::errors::UNAUTHORIZED);
+        }
+        community.default_nft_contract = Some(nft_contract);
+    }
+
+    fn get_community_default_nft_contract(&self, guild_id: String) -> Option<AccountId> {
+        let mut community_opts = self.get_community_info(guild_id);
+        if community_opts.is_none() {
+            throw_error(crate::errors::GUILD_ID_NOT_REGISTERED);
+        };
+        let mut community = community_opts.unwrap();
+        community.default_nft_contract
+    }
+    fn add_community_admins(&mut self, guild_id: String, new_admins: Vec<AccountId>) {
+        let mut community_opts = self.get_community_info(guild_id);
+        if community_opts.is_none() {
+            throw_error(crate::errors::GUILD_ID_NOT_REGISTERED);
+        };
+        let mut community = community_opts.unwrap();
+        if !community.admins.contains(&predecessor_account_id()) {
+            throw_error(crate::errors::UNAUTHORIZED);
+        }
+        for admin in new_admins {
+            community.admins.insert(&admin);
+        }
+    }
+    fn remove_community_admins(&mut self, guild_id: String, admins: Vec<AccountId>) {
+        let mut community_opts = self.get_community_info(guild_id);
+        if community_opts.is_none() {
+            throw_error(crate::errors::GUILD_ID_NOT_REGISTERED);
+        };
+        let mut community = community_opts.unwrap();
+        if !community.admins.contains(&predecessor_account_id()) {
+            throw_error(crate::errors::UNAUTHORIZED);
+        }
+        for admin in admins {
+            community.admins.remove(&admin);
+        }
+    }
+    fn get_community_admins(&self, guild_id: String) -> UnorderedSet<AccountId> {
+        let mut community_opts = self.get_community_info(guild_id);
+        if community_opts.is_none() {
+            throw_error(crate::errors::GUILD_ID_NOT_REGISTERED);
+        };
+        let mut community = community_opts.unwrap();
+        community.admins
     }
 }
 
 #[near_bindgen]
-impl AccountInfos for GlobalData {
+impl account_info::AccountInfos for GlobalData {
     fn get_account_nonce(&self, secp_pk: SecpPK) -> i32 {
         self.get_account_info(secp_pk)
             .map(|account_info| account_info.nonce)
