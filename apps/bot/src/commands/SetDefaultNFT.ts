@@ -12,6 +12,7 @@ import {
 } from '@baf-wallet/interfaces';
 import { createDiscordErrMsg, parseDiscordRecipient } from '@baf-wallet/utils';
 import { constants } from '../config/config';
+import { getGlobalContract } from '@baf-wallet/global-contract';
 
 export default class setDefaultNFT extends Command {
   constructor(protected client: BotClient) {
@@ -58,7 +59,7 @@ export default class setDefaultNFT extends Command {
     // The first element of the match is the whole string if it matched
     return matched.length < 2 ? null : matched.slice(1);
   }
-
+  
   public async run(message: Message): Promise<void> {
     const content = message.content;
     if (!content) {
@@ -85,6 +86,7 @@ export default class setDefaultNFT extends Command {
     const defaultNFTContract = args[0];
 
     try {
+      await getGlobalContract().getCommunityContract(message.
       const tx = await this.buildGenericTx(
         constants.communityContractAddr,
         defaultNFTContract

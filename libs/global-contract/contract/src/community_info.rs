@@ -10,6 +10,7 @@ use near_sdk::{
 
 use crate::{AccountInfo, CommunityInfo, GlobalData, SecpPK, SecpPKInternal};
 
+// TODO: write tests
 /// The functionality which stores information for community contract. It maps Discord Servers to GlobalData Contract Addresses
 pub trait CommunityContract {
     /// Only global contract admins can initialize new communities for now

@@ -24,6 +24,7 @@ interface GlobalContract {
     user_id: string,
     secp_sig_s: RustEncodedSecpSig
   ) => Promise<void>;
+  getCommunityContract: (server: string) => Promise<string>;
 }
 
 let globalContract: GlobalContract;
@@ -40,14 +41,12 @@ export function getGlobalContract(): GlobalContract {
   throw BafError.UninitGlobalContract();
 }
 
-async function buildGlobalContract(
-  account: Account
-): Promise<GlobalContract> {
+async function buildGlobalContract(account: Account): Promise<GlobalContract> {
   const contract = new Contract(account, ContractConfig.contractName, {
     viewMethods: [
       'get_account_id',
       'get_account_nonce',
-      'get_community_contract'
+      'get_community_contract',
     ],
     changeMethods: [
       'set_account_info',
@@ -86,5 +85,7 @@ async function buildGlobalContract(
         secp_pk: pkToArray(pk),
         secp_sig_s: [...secp_sig_s],
       }),
+    getCommunityContract: (server) =>
+      (contract as any).get_community_contract(server),
   };
 }

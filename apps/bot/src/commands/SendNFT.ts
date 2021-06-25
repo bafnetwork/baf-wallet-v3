@@ -10,7 +10,6 @@ import {
   GenericTxSupportedActions,
 } from '@baf-wallet/interfaces';
 import { createDiscordErrMsg, parseDiscordRecipient } from '@baf-wallet/utils';
-import { getCommunityContract } from '@baf-wallet/community-contract';
 
 export default class SendNFT extends Command {
   constructor(protected client: BotClient) {
@@ -82,7 +81,7 @@ export default class SendNFT extends Command {
     const contractAddress =
       args.length === 3
         ? args[argsOffset]
-        : await getCommunityContract()('TODO REPLACE ME').get_default_nft_contract();
+        : 'asasas'//await getCommunityContract()('TODO REPLACE ME').get_default_nft_contract();
     const recipient: string = args[1 + argsOffset];
 
     const recipientParsed = parseDiscordRecipient(recipient);

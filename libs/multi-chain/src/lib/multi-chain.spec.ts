@@ -2,7 +2,6 @@
   name: 'nodejs',
 };
 
-import { getCommunityContract, setCommunityContract } from '@baf-wallet/community-contract';
 import {
   keyPairFromSk,
   pkFromString,
@@ -129,7 +128,6 @@ describe('Test all supported chains', () => {
         configs[Chain.NEAR]
       ),
     };
-    await setCommunityContract(chains[Chain.NEAR].getInner().nearMasterAccount);
     const accountId = chains[Chain.NEAR].getInner().nearMasterAccount.accountId;
     const CommunityContractNonce = await getGlobalContract().getAccountNonce(
       secpPair.pk
