@@ -22,7 +22,6 @@
 
   let loading = false;
 
-  // TODO: what if one of these fails???? Then we have a weird mid state that kinda leaves us screwed...
   async function removePKFromAccount(
     account: Account,
     chainInterface: WrappedNearChainInterface

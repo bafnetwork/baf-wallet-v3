@@ -2,7 +2,10 @@
   name: 'nodejs',
 };
 
-import { getCommunityContract, setCommunityContract } from '@baf-wallet/community-contract';
+import {
+  getCommunityContract,
+  setCommunityContract,
+} from '@baf-wallet/community-contract';
 import {
   keyPairFromSk,
   pkFromString,

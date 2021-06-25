@@ -14,7 +14,7 @@ export async function getNearWalletAccount(network: NearNetworkID) {
 
   const config = {
     networkId: 'testnet',
-    keyStore, // optional if not signing transactions
+    keyStore,
     nodeUrl: getRPCUrl(network),
     walletUrl: getWalletUrl(network),
     helperUrl: getHelperUrl(network),
@@ -25,10 +25,7 @@ export async function getNearWalletAccount(network: NearNetworkID) {
   const wallet = new WalletConnection(near, 'Baf wallet?');
   if (wallet.isSignedIn()) console.log('signed in');
   else {
-    wallet.requestSignIn(
-      'example-contract.testnet', // contract requesting access
-      'BAF Wallet' // optional
-    );
+    wallet.requestSignIn();
   }
   return wallet.account();
 }

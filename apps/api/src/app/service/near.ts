@@ -4,7 +4,10 @@ import {
   PublicKey,
   secp256k1,
 } from '@baf-wallet/interfaces';
-import { getGlobalContract, setGlobalContract } from '@baf-wallet/global-contract';
+import {
+  getGlobalContract,
+  setGlobalContract,
+} from '@baf-wallet/global-contract';
 import { createUserVerifyMessage, encodeBytes } from '@baf-wallet/utils';
 import { verifySignature } from '@baf-wallet/crypto';
 import { BafError } from '@baf-wallet/errors';

@@ -112,9 +112,7 @@ export interface AccountsInterface<Account, LookupParams, CreateParams> {
   lookup: (params: LookupParams) => Promise<Account>;
   create: (params: CreateParams) => Promise<Account>;
   getGenericMasterAccount: () => GenericAccount;
-  associatedKeys: <T>(
-    account: Account
-  ) => Promise<PublicKey<T>[]>;
+  associatedKeys: <T>(account: Account) => Promise<PublicKey<T>[]>;
 }
 
 export type AccountContractTokenBalFn = (

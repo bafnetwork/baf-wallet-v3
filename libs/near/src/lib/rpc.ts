@@ -39,4 +39,3 @@ export const getHelperUrl = (networkID: string) =>
 
 export const getExplorerUrl = (networkID: string) =>
   `https://explorer.${networkID}.near.org`;
-

@@ -13,7 +13,6 @@
   }
   export async function initApp(): Promise<{ initNear: boolean }> {
     const { chainsState, keys } = await initAccount();
-    console.log("AAAAA", chainsState)
     if (keys && await checkChainInit(chainsState, Chain.NEAR, apiClient, keys.edPK, keys.secpPK))
       await setGlobalContract(
         chainsState[Chain.NEAR].getInner().nearMasterAccount

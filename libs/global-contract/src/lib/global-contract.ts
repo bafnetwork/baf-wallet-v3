@@ -40,14 +40,12 @@ export function getGlobalContract(): GlobalContract {
   throw BafError.UninitGlobalContract();
 }
 
-async function buildGlobalContract(
-  account: Account
-): Promise<GlobalContract> {
+async function buildGlobalContract(account: Account): Promise<GlobalContract> {
   const contract = new Contract(account, ContractConfig.contractName, {
     viewMethods: [
       'get_account_id',
       'get_account_nonce',
-      'get_community_contract'
+      'get_community_contract',
     ],
     changeMethods: [
       'set_account_info',
