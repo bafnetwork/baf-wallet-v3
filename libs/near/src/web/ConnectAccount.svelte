@@ -73,10 +73,10 @@
   {#if loading}
     loading...
   {:else}
-    <Button variant="raised" on:click={() => associatePKWithAccount(account)}
+    Step 1: <Button variant="raised" on:click={() => associatePKWithAccount(account)}
       >Associate Account ID</Button
     >
-    <Button
+    Step 2: <Button
       variant="raised"
       on:click={() => setGlobalContractAccountInfo(account)}
       >Associate with secp pk</Button
