@@ -2,6 +2,7 @@
   import {
     Chain,
     ChainInterface,
+    ed25519,
     Encoding,
     InferWrapChainInterface,
     KeyPair,
@@ -32,9 +33,10 @@
     chainState: ChainsState,
     chain: Chain,
     apiClient: DefaultApi,
+    edPK: PublicKey<ed25519> | null,
     secpPK: PublicKey<secp256k1> | null
   ): Promise<boolean> {
-    if (!chainState || !chainState[chain] || !secpPK) return false;
+    if (!chainState || !chainState[chain] || !edPK || !secpPK) return false;
     const associatedAccountId = await apiClient.getAccountInfo({
       secpPubkeyB58: secpPK.format(Encoding.BS58),
     });
@@ -45,10 +47,11 @@
     const associatedKeys = await chainState[chain].accounts.associatedKeys(
       chainAccount
     );
+    console.log(associatedKeys);
     console.log(await chainAccount.getAccessKeys());
     console.log(chainAccount);
     return associatedKeys.some(
-      (key) => key.format(Encoding.BS58) === secpPK.format(Encoding.BS58)
+      (key) => key.format(Encoding.BS58) === edPK.format(Encoding.BS58)
     );
   }
 

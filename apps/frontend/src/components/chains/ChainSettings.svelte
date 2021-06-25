@@ -7,8 +7,12 @@
   import { SiteKeyStore } from '../../state/keys.svelte';
   import { AccountStore } from '../../state/accounts.svelte';
   import { apiClient } from '../../config/api';
+import { constants } from '../../config/constants';
 
   const chains = getEnumValues(Chain);
+  const ChainConnectAccount = (chain: Chain) => () =>
+    // TODO: clean up imports, see https://github.com/bafnetwork/baf-wallet-v2/issues/54
+    import(`../../../../../libs/${chain}/src/web/ConnectAccount.svelte`);
   const ChainDisconnectAccount = (chain: Chain) => () =>
     // TODO: clean up imports, see https://github.com/bafnetwork/baf-wallet-v2/issues/54
     import(`../../../../../libs/${chain}/src/web/DisconnectAccount.svelte`);
@@ -17,6 +21,7 @@
       $ChainStores,
       chain,
       apiClient,
+      $SiteKeyStore?.edPK,
       $SiteKeyStore?.secpPK
     );
   }
@@ -34,6 +39,16 @@
         chainInterface={$ChainStores[chain]}
         keyState={$SiteKeyStore}
       />
+    {:else}
+      Connect your discord account from your {chain} account: <Lazy
+        component={ChainConnectAccount(chain)}
+        cb={reinitApp}
+        oauthInfo={$AccountStore.oauthInfo}
+        chainInterface={$ChainStores[chain]}
+        keyState={$SiteKeyStore}
+        networkID={constants[chain].network}
+      />
+
     {/if}
     <!-- promise was fulfilled -->
   {/await}

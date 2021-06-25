@@ -22,6 +22,7 @@
             $ChainStores,
             chain,
             apiClient,
+            $SiteKeyStore?.edPK,
             $SiteKeyStore?.secpPK
           )
       )

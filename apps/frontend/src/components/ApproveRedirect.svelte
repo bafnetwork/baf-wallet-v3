@@ -90,7 +90,13 @@
 
   async function init() {
     if (
-      !(await checkChainInit($ChainStores, chain, apiClient, $SiteKeyStore?.secpPK))
+      !(await checkChainInit(
+        $ChainStores,
+        chain,
+        apiClient,
+        $SiteKeyStore?.edPK,
+        $SiteKeyStore?.secpPK
+      ))
     ) {
       // TODO: redirect to login
       // See Github issue: https://github.com/bafnetwork/baf-wallet-v3/issues/6
