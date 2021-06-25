@@ -26,6 +26,8 @@ mod tests {
     use secp256k1::{PublicKey, SecretKey};
     use std::convert::TryInto;
 
+    use crate::GlobalData;
+
     use super::*;
 
     fn alice() -> AccountId {
@@ -63,7 +65,7 @@ mod tests {
     fn test_remove_without_privilege() {
         let context = get_context(alice());
         testing_env!(context);
-        let mut contract = Community::new();
+        let mut contract = GlobalData::new();
         testing_env!(get_context(bob()));
         contract.remove_admins(vec![bob(), carol()]);
     }
@@ -73,7 +75,7 @@ mod tests {
     fn test_add_without_privilege() {
         let context = get_context(alice());
         testing_env!(context);
-        let mut contract = Community::new();
+        let mut contract = GlobalData::new();
         testing_env!(get_context(bob()));
         contract.add_admins(vec![bob(), carol()]);
     }
@@ -82,7 +84,7 @@ mod tests {
     fn test_add_remove_admins() {
         let context = get_context(alice());
         testing_env!(context);
-        let mut contract = Community::new();
+        let mut contract = GlobalData::new();
         contract.add_admins(vec![bob(), carol()]);
         let mut admins = contract.get_admins();
         // expect three because alice should be an original admin

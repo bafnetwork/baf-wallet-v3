@@ -9,10 +9,10 @@ use near_sdk::{
 
 use crate::{AccountInfo, GlobalData, SecpPK, SecpPKInternal};
 
-/// The functionality which stores information for community contract. It maps Discord Servers to Community Contract Addresses
+/// The functionality which stores information for community contract. It maps Discord Servers to GlobalData Contract Addresses
 pub trait CommunityContract {
     fn get_community_contract(&self, server: String) -> Option<AccountId>;
-    fn set_community_contract(&mut self, server: String, contract_address: String);
+    fn set_community_contract(&mut self, server: String, contract_address: AccountId);
 }
 
 impl GlobalData {}
@@ -59,27 +59,25 @@ mod tests {
         }
     }
 
-    fn sign_and_set_account(
-        msg_str: String,
-        user_id: String,
-        contract: &mut GlobalData,
-        nonce: i32,
-        sk: &SecretKey,
-        pk: &PublicKey,
-    ) {
-        let msg_hash = keccak256(msg_str.as_bytes());
-        let msg_hash_array: [u8; 32] = msg_hash.try_into().unwrap();
-        let msg = secp256k1::Message::parse(&msg_hash_array);
-
-        let (sig, _) = secp256k1::sign(&msg, &sk);
-        // contract.set_account_info(
-        //     user_id,
-        //     pk.serialize().to_vec(),
-        //     sig.serialize().to_vec(),
-        //     alice(),
-        // );
+    #[test]
+    #[should_panic(expected = "This action requires admin privileges")]
+    fn test_add_without_privilege() {
+        let context = get_context(alice());
+        testing_env!(context);
+        let mut contract = GlobalData::new();
+        testing_env!(get_context(bob()));
+        contract.set_community_contract("Server1".to_string(), "addr1".to_string());
     }
 
     #[test]
-    fn test_update_account_id() {}
+    fn test_set_comm_contract() {
+        let context = get_context(alice());
+        testing_env!(context);
+        let mut contract = GlobalData::new();
+        let addr_uninit = contract.get_community_contract("Server1".to_string());
+        assert_eq!(addr_uninit, None);
+        contract.set_community_contract("Server1".to_string(), "addr1".to_string());
+        let addr = contract.get_community_contract("Server1".to_string());
+        assert_eq!(addr.unwrap(), "addr1".to_string());
+    }
 }
