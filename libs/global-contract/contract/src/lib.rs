@@ -1,4 +1,3 @@
-pub mod account_info;
 pub mod admin;
 pub mod community_contract;
 pub mod errors;
