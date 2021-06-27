@@ -34,7 +34,6 @@
 
   async function associatePKWithAccount(account: NearAccount) {
     loading = true;
-    // if (await doesNearAccountHaveKey($SiteKeyStore.edPK, account)) return;
     account.addKey(keyState.edPK.format(Encoding.BS58));
     loading = false;
   }

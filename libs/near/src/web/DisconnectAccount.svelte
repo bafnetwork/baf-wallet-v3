@@ -30,7 +30,7 @@
     const associatedKeys = await chainInterface.accounts.associatedKeys(
       account
     );
-    // Return if none of the associated keys of an account are with the given account
+    // Return if none of the associated keys for the given account are the ed25519 key specified in KeyState
     if (
       !associatedKeys.some(
         (key) =>

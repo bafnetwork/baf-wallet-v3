@@ -6,14 +6,27 @@
   import { checkChainInit } from '../state/chains.svelte';
   import { apiClient } from './api';
 
+  interface InitAppRet {
+    initNear: boolean;
+  }
+
   // TODO: we have to improve this to not require a reload, please see
   // https://github.com/bafnetwork/baf-wallet-v2/issues/29
   export async function reinitApp() {
     window.location.reload();
   }
-  export async function initApp(): Promise<{ initNear: boolean }> {
+  export async function initApp(): Promise<InitAppRet> {
     const { chainsState, keys } = await initAccount();
-    if (keys && await checkChainInit(chainsState, Chain.NEAR, apiClient, keys.edPK, keys.secpPK))
+    if (
+      keys &&
+      (await checkChainInit(
+        chainsState,
+        Chain.NEAR,
+        apiClient,
+        keys.edPK,
+        keys.secpPK
+      ))
+    )
       await setGlobalContract(
         chainsState[Chain.NEAR].getInner().nearMasterAccount
       );

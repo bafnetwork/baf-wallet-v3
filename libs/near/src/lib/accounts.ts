@@ -86,7 +86,9 @@ export function nearAccounts(
   };
 }
 
-export async function associatedKeys<T extends ed25519>(account: NearAccount) {
+export async function associatedKeys<Curve extends ed25519>(
+  account: NearAccount
+) {
   const keys = await account.getAccessKeys();
   const edPkStrs = keys
     .map((key) => key.public_key as string)

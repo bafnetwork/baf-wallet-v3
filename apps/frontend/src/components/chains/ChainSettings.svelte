@@ -7,7 +7,7 @@
   import { SiteKeyStore } from '../../state/keys.svelte';
   import { AccountStore } from '../../state/accounts.svelte';
   import { apiClient } from '../../config/api';
-import { constants } from '../../config/constants';
+  import { constants } from '../../config/constants';
 
   const chains = getEnumValues(Chain);
   const ChainConnectAccount = (chain: Chain) => () =>
@@ -40,7 +40,8 @@ import { constants } from '../../config/constants';
         keyState={$SiteKeyStore}
       />
     {:else}
-      Connect your discord account from your {chain} account: <Lazy
+      Connect your discord account to your {chain} account
+      <Lazy
         component={ChainConnectAccount(chain)}
         cb={reinitApp}
         oauthInfo={$AccountStore.oauthInfo}
@@ -48,7 +49,6 @@ import { constants } from '../../config/constants';
         keyState={$SiteKeyStore}
         networkID={constants[chain].network}
       />
-
     {/if}
     <!-- promise was fulfilled -->
   {/await}

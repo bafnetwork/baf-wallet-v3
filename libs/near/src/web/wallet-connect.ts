@@ -21,8 +21,7 @@ export async function getNearWalletAccount(network: NearNetworkID) {
     explorerUrl: getExplorerUrl(network),
   };
   const near = await connect(config);
-  console.log(near);
-  const wallet = new WalletConnection(near, 'Baf wallet?');
+  const wallet = new WalletConnection(near, 'Baf Wallet');
   if (wallet.isSignedIn()) console.log('signed in');
   else {
     wallet.requestSignIn();

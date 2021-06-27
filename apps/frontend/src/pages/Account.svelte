@@ -16,15 +16,14 @@
   let noChainInit = true;
   async function getNoChainInit() {
     const chainInits = await Promise.all(
-      getEnumValues(Chain).map(
-        async (chain) =>
-          await checkChainInit(
-            $ChainStores,
-            chain,
-            apiClient,
-            $SiteKeyStore?.edPK,
-            $SiteKeyStore?.secpPK
-          )
+      getEnumValues(Chain).map((chain) =>
+        checkChainInit(
+          $ChainStores,
+          chain,
+          apiClient,
+          $SiteKeyStore?.edPK,
+          $SiteKeyStore?.secpPK
+        )
       )
     );
     return !chainInits.every((init) => init === true);
@@ -60,8 +59,7 @@
     {#if noChainInit}
       <h1>Hi there!</h1>
       <p>
-        It looks like you have not setup your account on any of the Blockchains
-        which we support.
+        You haven't set up your account on at least one supported blockchain.
       </p>
       <p>
         Please see initialize your <a href="/settings" use:link
