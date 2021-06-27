@@ -26,6 +26,7 @@ export default class AddAdmins extends Command {
   }
 
   private buildGenericTx(
+    guildId: string,
     contractAddress: string,
     new_admins: string[]
   ): GenericTxParams {
@@ -33,9 +34,10 @@ export default class AddAdmins extends Command {
     actions = [
       {
         type: GenericTxSupportedActions.CONTRACT_CALL,
-        functionName: 'add_admins',
+        functionName: 'add_community_admins',
         functionArgs: {
           new_admins,
+          guild_id: guildId,
         },
         deposit: '0',
       },
@@ -84,10 +86,21 @@ export default class AddAdmins extends Command {
 
     const admins = args[0].split(', ');
 
+    const adminsParsed = admins.map(parseDiscordRecipient);
+
+    if (adminsParsed.some(admin => admin === null)) {
+      await super.respond(
+        message.channel,
+        '❌ invalid user ❌: the user must be tagged!'
+      );
+      return;
+    }
+
     try {
       const tx = await this.buildGenericTx(
-        constants.communityContractAddr,
-        admins
+        message.guild.id,
+        constants.globalContractAddress,
+        adminsParsed
       );
       if (!tx) return;
       const link = createApproveRedirectURL(
@@ -101,7 +114,9 @@ export default class AddAdmins extends Command {
         "Please check your DM's for a link to approve the transaction!"
       );
       await message.author.send(
-        `To open BAF Wallet and add ${JSON.stringify(admins)} as admins, please open this link: ${link}`
+        `To open BAF Wallet and add ${JSON.stringify(
+          admins
+        )} as admins, please open this link: ${link}`
       );
     } catch (err) {
       console.error(err);

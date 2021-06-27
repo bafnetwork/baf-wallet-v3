@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { GuildAuditLogs, Message } from 'discord.js';
 import { Command } from '../Command';
 import { BotClient } from '../types';
 import { createApproveRedirectURL } from '@baf-wallet/redirect-generator';
@@ -26,6 +26,7 @@ export default class RemoveAdmins extends Command {
   }
 
   private buildGenericTx(
+    guildId: string,
     contractAddress: string,
     admins: string[]
   ): GenericTxParams {
@@ -33,9 +34,10 @@ export default class RemoveAdmins extends Command {
     actions = [
       {
         type: GenericTxSupportedActions.CONTRACT_CALL,
-        functionName: 'remove_admins',
+        functionName: 'remove_community_admins',
         functionArgs: {
           admins,
+          guild_id: GuildAuditLogs,
         },
         deposit: '0',
       },
@@ -86,7 +88,8 @@ export default class RemoveAdmins extends Command {
 
     try {
       const tx = await this.buildGenericTx(
-        constants.communityContractAddr,
+        message.guild.id,
+        constants.globalContractAddress,
         admins
       );
       if (!tx) return;

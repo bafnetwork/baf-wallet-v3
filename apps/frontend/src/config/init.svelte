@@ -1,5 +1,4 @@
 <script lang="ts" context="module">
-  import { setCommunityContract } from '@baf-wallet/community-contract';
   import { setGlobalContract } from '@baf-wallet/global-contract';
   import { Chain } from '@baf-wallet/interfaces';
   import { initAccount } from '../state/accounts.svelte';

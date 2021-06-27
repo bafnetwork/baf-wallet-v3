@@ -11,6 +11,7 @@ import {
 } from '@baf-wallet/interfaces';
 import { createDiscordErrMsg, parseDiscordRecipient } from '@baf-wallet/utils';
 import { getGlobalContract } from '@baf-wallet/global-contract';
+import { noDefaultNFTContract } from './shared/guild-messages';
 
 export default class SendNFT extends Command {
   constructor(protected client: BotClient) {
@@ -84,11 +85,10 @@ export default class SendNFT extends Command {
       community_nft_contract = await getGlobalContract().get_community_default_nft_contract(
         message.guild.id
       );
-      // TODO: message if no guild_id exits
       if (!community_nft_contract) {
         await super.respond(
           message.channel,
-          `the default NFT contract has not been set for this guild. Please contact your Discord's admins to fix this up`
+          noDefaultNFTContract
         );
         return;
       }

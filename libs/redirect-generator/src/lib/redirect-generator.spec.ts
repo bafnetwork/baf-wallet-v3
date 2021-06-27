@@ -34,9 +34,10 @@ describe('frontend', () => {
       actions: [
         {
           type: GenericTxSupportedActions.CONTRACT_CALL,
-          functionName: 'set_default_nft_contract',
+          functionName: 'set_community_default_nft_contract',
           functionArgs: {
             nft_contract: 'nft.levtester.near',
+            guild_id: '',
           },
           deposit: '1',
         },

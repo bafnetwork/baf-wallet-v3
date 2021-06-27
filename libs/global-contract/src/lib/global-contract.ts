@@ -10,7 +10,8 @@ import {
 import { NearAccountID } from '@baf-wallet/near';
 import { pkToArray } from '@baf-wallet/crypto';
 
-interface GlobalContract  {
+export const GlobalContractConfig = { ...ContractConfig };
+interface GlobalContract {
   getAccountId: (pk: PublicKey<secp256k1>) => Promise<NearAccountID | null>;
   getAccountNonce: (secp_pk: PublicKey<secp256k1>) => Promise<string>;
   setAccountInfo: (
@@ -25,6 +26,7 @@ interface GlobalContract  {
     secp_sig_s: RustEncodedSecpSig
   ) => Promise<void>;
   getCommunityContract: (server: string) => Promise<string>;
+  [fn_name: string]: (...args: any) => Promise<any>;
 }
 
 let globalContract: GlobalContract;
@@ -41,7 +43,9 @@ export function getGlobalContract(): GlobalContract {
   throw BafError.UninitGlobalContract();
 }
 
-async function buildGlobalContract(account: Account): Promise<GlobalContract & any> {
+async function buildGlobalContract(
+  account: Account
+): Promise<GlobalContract & any> {
   const contract = new Contract(account, ContractConfig.contractName, {
     viewMethods: [
       'get_account_id',
