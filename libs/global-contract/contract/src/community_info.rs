@@ -1,16 +1,7 @@
-use crate::env::predecessor_account_id;
-use crate::errors::throw_error;
-use std::convert::TryInto;
+use near_sdk::AccountId;
 
-use near_sdk::collections::UnorderedSet;
-use near_sdk::{
-    env::{current_account_id, is_valid_account_id, keccak256, signer_account_id},
-    near_bindgen, AccountId,
-};
+use crate::{CommunityInfo, GlobalData};
 
-use crate::{AccountInfo, CommunityInfo, GlobalData, SecpPK, SecpPKInternal};
-
-// TODO: write tests
 /// The functionality which stores information for community contract. It maps Discord Servers to GlobalData Contract Addresses
 pub trait CommunityContract {
     /// Only global contract admins can initialize new communities for now
@@ -36,8 +27,6 @@ mod tests {
 
     use near_sdk::MockedBlockchain;
     use near_sdk::{testing_env, VMContext};
-    use secp256k1::{PublicKey, SecretKey};
-    use std::convert::TryInto;
 
     use super::*;
 
@@ -71,25 +60,91 @@ mod tests {
         }
     }
 
-    // #[test]
-    // #[should_panic(expected = "This action requires admin privileges")]
-    // fn test_add_without_privilege() {
-    //     let context = get_context(alice());
-    //     testing_env!(context);
-    //     let mut contract = GlobalData::new();
-    //     testing_env!(get_context(bob()));
-    //     contract.set_community_contract("Server1".to_string(), "addr1".to_string());
-    // }
+    #[test]
+    #[should_panic(expected = "This action requires admin privileges")]
+    fn test_removing_community_admins_non_admin() {
+        let mut context = get_context(alice());
+        testing_env!(context);
+        let mut contract = GlobalData::new();
+        contract.init_community("Server1".to_string(), vec![alice()]);
+        context = get_context(bob());
+        testing_env!(context);
+        contract.remove_community_admins("Server1".to_string(), vec![carol()]);
+    }
 
-    // #[test]
-    // fn test_set_comm_contract() {
-    //     let context = get_context(alice());
-    //     testing_env!(context);
-    //     let mut contract = GlobalData::new();
-    //     let addr_uninit = contract.get_community_contract("Server1".to_string());
-    //     assert_eq!(addr_uninit, None);
-    //     contract.set_community_contract("Server1".to_string(), "addr1".to_string());
-    //     let addr = contract.get_community_contract("Server1".to_string());
-    //     assert_eq!(addr.unwrap(), "addr1".to_string());
-    // }
+    #[test]
+    #[should_panic(expected = "This action requires admin privileges")]
+    fn test_add_community_admins_non_admin() {
+        let mut context = get_context(alice());
+        testing_env!(context);
+        let mut contract = GlobalData::new();
+        contract.init_community("Server1".to_string(), vec![alice()]);
+        context = get_context(bob());
+        testing_env!(context);
+        contract.add_community_admins("Server1".to_string(), vec![carol()]);
+    }
+
+    #[test]
+    fn test_add_community_admins() {
+        let mut context = get_context(alice());
+        testing_env!(context);
+        let mut contract = GlobalData::new();
+        contract.init_community("Server1".to_string(), vec![bob()]);
+        context = get_context(bob());
+        testing_env!(context);
+        contract.add_community_admins("Server1".to_string(), vec![carol()]);
+        let addrs = contract.get_community_admins("Server1".to_string());
+        assert_eq!(addrs.len(), 2);
+        assert!(addrs.contains(&carol()));
+        assert!(addrs.contains(&bob()));
+    }
+
+    #[test]
+    #[should_panic(expected = "This action requires admin privileges")]
+    fn test_init_community_non_admin() {
+        let mut context = get_context(alice());
+        testing_env!(context);
+        let mut contract = GlobalData::new();
+        context = get_context(bob());
+        testing_env!(context);
+        contract.init_community("Server1".to_string(), vec!["addr1".to_string()]);
+    }
+
+    #[test]
+    fn test_init_community() {
+        let context = get_context(alice());
+        testing_env!(context);
+        let mut contract = GlobalData::new();
+        contract.init_community("Server1".to_string(), vec!["addr1".to_string()]);
+        let addrs = contract.get_community_admins("Server1".to_string());
+        assert_eq!(addrs.len(), 1);
+        assert_eq!(addrs[0], "addr1".to_string());
+    }
+
+    #[test]
+    #[should_panic(expected = "This action requires admin privileges")]
+    fn test_set_nft_contract_non_admin() {
+        let mut context = get_context(alice());
+        testing_env!(context);
+        let mut contract = GlobalData::new();
+        contract.init_community("Server1".to_string(), vec![alice()]);
+        context = get_context(bob());
+        testing_env!(context);
+        contract
+            .set_community_default_nft_contract("Server1".to_string(), "NFT CONTRACT".to_string());
+    }
+
+    #[test]
+    fn test_set_nft_contract() {
+        let context = get_context(alice());
+        testing_env!(context);
+        let mut contract = GlobalData::new();
+        contract.init_community("Server1".to_string(), vec![alice()]);
+        let mut nft = contract.get_community_default_nft_contract("Server1".to_string());
+        assert_eq!(nft, None);
+        contract
+            .set_community_default_nft_contract("Server1".to_string(), "NFT CONTRACT".to_string());
+        nft = contract.get_community_default_nft_contract("Server1".to_string());
+        assert_eq!(nft.unwrap(), "NFT CONTRACT");
+    }
 }
