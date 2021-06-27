@@ -1,4 +1,5 @@
 import { Message } from 'discord.js';
+import { getTorusPublicAddress } from '@baf-wallet/torus';
 import { Command } from '../Command';
 import { BotClient } from '../types';
 import { createApproveRedirectURL } from '@baf-wallet/redirect-generator';
@@ -12,6 +13,7 @@ import {
 } from '@baf-wallet/interfaces';
 import { createDiscordErrMsg, parseDiscordRecipient } from '@baf-wallet/utils';
 import { constants } from '../config/config';
+import { getGlobalContract } from '@baf-wallet/global-contract';
 
 export default class AddAdmins extends Command {
   constructor(protected client: BotClient) {
@@ -88,10 +90,23 @@ export default class AddAdmins extends Command {
 
     const adminsParsed = admins.map(parseDiscordRecipient);
 
-    if (adminsParsed.some(admin => admin === null)) {
+    if (adminsParsed.some((admin) => admin === null)) {
       await super.respond(
         message.channel,
         '❌ invalid user ❌: the user must be tagged!'
+      );
+      return;
+    }
+    const adminPubkeys = await Promise.all(
+      adminsParsed.map((admin) => getTorusPublicAddress(admin, 'discord'))
+    );
+    const associatedAccounts = await Promise.all(
+      adminPubkeys.map((pk) => getGlobalContract().getAccountId(pk))
+    );
+    if (associatedAccounts.some((account) => account === null)) {
+      await super.respond(
+        message.channel,
+        'The tagged admins must have already initialized their account'
       );
       return;
     }
@@ -100,7 +115,7 @@ export default class AddAdmins extends Command {
       const tx = await this.buildGenericTx(
         message.guild.id,
         constants.globalContractAddress,
-        adminsParsed
+        associatedAccounts
       );
       if (!tx) return;
       const link = createApproveRedirectURL(

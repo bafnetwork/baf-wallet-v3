@@ -11,7 +11,7 @@ import {
 } from '@baf-wallet/interfaces';
 import { createDiscordErrMsg, parseDiscordRecipient } from '@baf-wallet/utils';
 import { getGlobalContract } from '@baf-wallet/global-contract';
-import { noDefaultNFTContract } from './shared/guild-messages';
+import { noDefaultNFTContractMessage } from './shared/guild-messages';
 
 export default class SendNFT extends Command {
   constructor(protected client: BotClient) {
@@ -88,7 +88,7 @@ export default class SendNFT extends Command {
       if (!community_nft_contract) {
         await super.respond(
           message.channel,
-          noDefaultNFTContract
+          noDefaultNFTContractMessage
         );
         return;
       }

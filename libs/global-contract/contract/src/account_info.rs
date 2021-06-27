@@ -1,6 +1,6 @@
-// use crate::GlobalContract;
 use crate::env::predecessor_account_id;
 use crate::errors::throw_error;
+// use crate::GlobalContract;
 use std::convert::TryInto;
 
 use near_sdk::{

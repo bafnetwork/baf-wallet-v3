@@ -5,6 +5,7 @@ pub mod errors;
 
 use crate::env::predecessor_account_id;
 use crate::errors::throw_error;
+use account_info::AccountInfos;
 use admin::Admin;
 use community_info::CommunityContract;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
@@ -14,6 +15,7 @@ use near_sdk::AccountId;
 use near_sdk::PanicOnDefault;
 use near_sdk::{collections::UnorderedMap, env, near_bindgen};
 use std::convert::TryInto;
+use std::fmt::format;
 
 #[global_allocator]
 static ALLOC: near_sdk::wee_alloc::WeeAlloc = near_sdk::wee_alloc::WeeAlloc::INIT;
@@ -78,14 +80,18 @@ impl CommunityContract for GlobalData {
     //     self.guild_id_to_community_contract.get(&server)
     // }
 
-    fn init_community(&mut self, guild_id: String, new_admins: UnorderedSet<AccountId>) {
+    fn init_community(&mut self, guild_id: String, new_admins: Vec<AccountId>) {
         if !self.admins.contains(&predecessor_account_id()) {
             throw_error(crate::errors::UNAUTHORIZED);
+        }
+        let mut admins = UnorderedSet::new(format!("community-contract-{}", guild_id).as_bytes());
+        for new_admin in new_admins.iter() {
+            admins.insert(new_admin);
         }
         self.guild_id_to_community_info.insert(
             &guild_id,
             &CommunityInfo {
-                admins: UnorderedSet::from(new_admins),
+                admins,
                 default_nft_contract: None,
             },
         );
@@ -138,18 +144,18 @@ impl CommunityContract for GlobalData {
             community.admins.remove(&admin);
         }
     }
-    fn get_community_admins(&self, guild_id: String) -> UnorderedSet<AccountId> {
+    fn get_community_admins(&self, guild_id: String) -> Vec<AccountId> {
         let mut community_opts = self.get_community_info(guild_id);
         if community_opts.is_none() {
             throw_error(crate::errors::GUILD_ID_NOT_REGISTERED);
         };
         let mut community = community_opts.unwrap();
-        community.admins
+        community.admins.to_vec()
     }
 }
 
 #[near_bindgen]
-impl account_info::AccountInfos for GlobalData {
+impl AccountInfos for GlobalData {
     fn get_account_nonce(&self, secp_pk: SecpPK) -> i32 {
         self.get_account_info(secp_pk)
             .map(|account_info| account_info.nonce)

@@ -12,6 +12,8 @@ import {
 } from '@baf-wallet/interfaces';
 import { createDiscordErrMsg, parseDiscordRecipient } from '@baf-wallet/utils';
 import { constants } from '../config/config';
+import { getTorusPublicAddress } from '@baf-wallet/torus';
+import { getGlobalContract } from '@baf-wallet/global-contract';
 
 export default class RemoveAdmins extends Command {
   constructor(protected client: BotClient) {
@@ -85,12 +87,34 @@ export default class RemoveAdmins extends Command {
     }
 
     const admins = args[0].split(', ');
+    const adminsParsed = admins.map(parseDiscordRecipient);
+
+    if (adminsParsed.some((admin) => admin === null)) {
+      await super.respond(
+        message.channel,
+        '❌ invalid user ❌: the user must be tagged!'
+      );
+      return;
+    }
+    const adminPubkeys = await Promise.all(
+      adminsParsed.map((admin) => getTorusPublicAddress(admin, 'discord'))
+    );
+    const associatedAccounts = await Promise.all(
+      adminPubkeys.map((pk) => getGlobalContract().getAccountId(pk))
+    );
+    if (associatedAccounts.some((account) => account === null)) {
+      await super.respond(
+        message.channel,
+        'The tagged admins must have already initialized their account'
+      );
+      return;
+    }
 
     try {
       const tx = await this.buildGenericTx(
         message.guild.id,
         constants.globalContractAddress,
-        admins
+        associatedAccounts
       );
       if (!tx) return;
       const link = createApproveRedirectURL(
@@ -104,7 +128,9 @@ export default class RemoveAdmins extends Command {
         "Please check your DM's for a link to approve the transaction!"
       );
       await message.author.send(
-        `To open BAF Wallet and remove ${JSON.stringify(admins)} as admins, please open this link: ${link}`
+        `To open BAF Wallet and remove ${JSON.stringify(
+          admins
+        )} as admins, please open this link: ${link}`
       );
     } catch (err) {
       console.error(err);
