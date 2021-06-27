@@ -47,9 +47,6 @@
     const associatedKeys = await chainState[chain].accounts.associatedKeys(
       chainAccount
     );
-    console.log(associatedKeys);
-    console.log(await chainAccount.getAccessKeys());
-    console.log(chainAccount);
     return associatedKeys.some(
       (key) => key.format(Encoding.BS58) === edPK.format(Encoding.BS58)
     );

@@ -11,6 +11,12 @@
   export const AccountStore = writable<AccountState | null>(null);
   const oauthInfoStoreName = 'oauthInfo';
 
+  interface InitAccountRet {
+    accountState: AccountState;
+    chainsState: ChainsState | null;
+    keys: KeyState | null;
+  }
+
   export function logout() {
     SiteKeyStore.set(null);
     clearKeysFromStorage();
@@ -26,11 +32,7 @@
     window.localStorage.setItem('accessToken', accessToken);
   }
 
-  export async function initAccount(): Promise<{
-    accountState: AccountState;
-    chainsState: ChainsState | null;
-    keys: KeyState | null;
-  }> {
+  export async function initAccount(): Promise<InitAccountRet> {
     const keys = loadKeys();
     const loggedIn = loadKeys() !== null;
     const chainsState = keys ? await initChains(keys) : null;
