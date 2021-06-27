@@ -143,18 +143,6 @@ mod tests {
         assert_eq!(set_account_id, alice());
     }
 
-    // #[test]
-    // #[should_panic(expected = "This action requires admin privileges")]
-    // fn test_requires_admin_panics() {
-    //     let context = get_context(alice());
-    //     testing_env!(context);
-    //     let mut contract = GlobalData::new();
-    //     testing_env!(get_context(bob()));
-    //     let sk = secp256k1::SecretKey::default();
-    //     let pk = secp256k1::PublicKey::from_secret_key(&sk);
-    //     sign_and_set_account("John:{}".to_string(), "John".to_string(), &mut contract, 0, &sk, &pk)
-    // }
-
     #[test]
     #[should_panic(expected = "The signature is incorrect")]
     fn test_invalid_signature() {
