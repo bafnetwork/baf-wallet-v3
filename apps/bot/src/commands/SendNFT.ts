@@ -27,7 +27,7 @@ export default class SendNFT extends Command {
 
   private extractArgs(content: string): string[] | null {
     const rx = /^\%sendNFT ((.*) from (.*) to (.*)|(.*) to (.*))$/g;
-    const matched = rx.exec(content).filter((elem) => elem !== undefined);
+    const matched = rx.exec(content)?.filter((elem) => elem !== undefined);
     if (!matched) return null;
     // The first element of the match is the whole string if it matched, the second is the chunk of the or clause
     return matched.length < 2 ? null : matched.slice(2);
@@ -83,13 +83,10 @@ export default class SendNFT extends Command {
     let community_nft_contract = '';
     if (args.length !== 3) {
       community_nft_contract = await getGlobalContract().get_community_default_nft_contract(
-        message.guild.id
+        { guild_id: message.guild.id }
       );
       if (!community_nft_contract) {
-        await super.respond(
-          message.channel,
-          noDefaultNFTContractMessage
-        );
+        await super.respond(message.channel, noDefaultNFTContractMessage);
         return;
       }
     }

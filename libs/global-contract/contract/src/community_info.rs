@@ -24,8 +24,8 @@ pub trait CommunityContract {
 }
 
 impl GlobalData {
-    pub(crate) fn get_community_info(&self, guild_id: String) -> Option<CommunityInfo> {
-        self.guild_id_to_community_info.get(&guild_id)
+    pub(crate) fn get_community_info(&self, guild_id: &String) -> Option<CommunityInfo> {
+        self.guild_id_to_community_info.get(guild_id)
     }
 }
 

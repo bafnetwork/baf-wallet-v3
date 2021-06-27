@@ -98,7 +98,7 @@ impl CommunityContract for GlobalData {
     }
 
     fn set_community_default_nft_contract(&mut self, guild_id: String, nft_contract: AccountId) {
-        let mut community_opts = self.get_community_info(guild_id);
+        let community_opts = self.get_community_info(&guild_id);
         if community_opts.is_none() {
             throw_error(crate::errors::GUILD_ID_NOT_REGISTERED);
         };
@@ -108,18 +108,21 @@ impl CommunityContract for GlobalData {
             throw_error(crate::errors::UNAUTHORIZED);
         }
         community.default_nft_contract = Some(nft_contract);
+        community.admins = admins;
+        self.guild_id_to_community_info
+            .insert(&guild_id, &community);
     }
 
     fn get_community_default_nft_contract(&self, guild_id: String) -> Option<AccountId> {
-        let mut community_opts = self.get_community_info(guild_id);
+        let community_opts = self.get_community_info(&guild_id);
         if community_opts.is_none() {
             throw_error(crate::errors::GUILD_ID_NOT_REGISTERED);
         };
-        let mut community = community_opts.unwrap();
+        let community = community_opts.unwrap();
         community.default_nft_contract
     }
     fn add_community_admins(&mut self, guild_id: String, new_admins: Vec<AccountId>) {
-        let mut community_opts = self.get_community_info(guild_id);
+        let community_opts = self.get_community_info(&guild_id);
         if community_opts.is_none() {
             throw_error(crate::errors::GUILD_ID_NOT_REGISTERED);
         };
@@ -130,9 +133,11 @@ impl CommunityContract for GlobalData {
         for admin in new_admins {
             community.admins.insert(&admin);
         }
+        self.guild_id_to_community_info
+            .insert(&guild_id, &community);
     }
     fn remove_community_admins(&mut self, guild_id: String, admins: Vec<AccountId>) {
-        let mut community_opts = self.get_community_info(guild_id);
+        let community_opts = self.get_community_info(&guild_id);
         if community_opts.is_none() {
             throw_error(crate::errors::GUILD_ID_NOT_REGISTERED);
         };
@@ -143,13 +148,15 @@ impl CommunityContract for GlobalData {
         for admin in admins {
             community.admins.remove(&admin);
         }
+        self.guild_id_to_community_info
+            .insert(&guild_id, &community);
     }
     fn get_community_admins(&self, guild_id: String) -> Vec<AccountId> {
-        let mut community_opts = self.get_community_info(guild_id);
+        let community_opts = self.get_community_info(&guild_id);
         if community_opts.is_none() {
             throw_error(crate::errors::GUILD_ID_NOT_REGISTERED);
         };
-        let mut community = community_opts.unwrap();
+        let community = community_opts.unwrap();
         community.admins.to_vec()
     }
 }

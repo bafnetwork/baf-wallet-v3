@@ -51,6 +51,7 @@ async function buildGlobalContract(
       'get_account_id',
       'get_account_nonce',
       'get_community_contract',
+      'get_community_default_nft_contract',
     ],
     changeMethods: [
       'set_account_info',
