@@ -29,7 +29,10 @@ import {
   WrappedNearChainInterface,
 } from '@baf-wallet/near';
 import { getNearChain, initChains } from '@baf-wallet/global-state';
-import { getGlobalContract, setGlobalContract } from '@baf-wallet/global-contract';
+import {
+  getGlobalContract,
+  setGlobalContract,
+} from '@baf-wallet/global-contract';
 import { createNearAccount } from './near';
 
 (global as any).window = {

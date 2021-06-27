@@ -474,7 +474,9 @@
       "targets": {
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": { "lintFilePatterns": ["libs/global-contract/**/*.ts"] }
+          "options": {
+            "lintFilePatterns": ["libs/global-contract/**/*.ts"]
+          }
         },
         "test": {
           "executor": "@nrwl/jest:jest",

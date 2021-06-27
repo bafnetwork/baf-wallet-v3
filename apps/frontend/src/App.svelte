@@ -20,7 +20,6 @@
   };
 
   const initProm = initApp();
-
 </script>
 
 <link
@@ -47,8 +46,10 @@
   <p>Loading...</p>
 {:then ret}
   <Modal>
-    {#if $AccountStore.loggedIn}
+    {#if $AccountStore.loggedIn && ret.initNear}
       <Router {routes} />
+    {:else if $AccountStore.loggedIn}
+      <Settings />
     {:else}
       <Login />
     {/if}
