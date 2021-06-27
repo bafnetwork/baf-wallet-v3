@@ -58,7 +58,7 @@ describe('frontend', () => {
           {
             type: GenericTxSupportedActions.TRANSFER_NFT,
             tokenId: 'coolbeans',
-            contractAddress: 'AASAS',//nftAddress.toString(),
+            contractAddress: 'AASAS', //nftAddress.toString(),
             memo: 'This is cool',
           },
         ],
