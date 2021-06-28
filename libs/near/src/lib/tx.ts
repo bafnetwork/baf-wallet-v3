@@ -165,6 +165,7 @@ const checkAllContractActions = (actions: NearAction[]) => {
 
   const contract = (actions[0] as GenericTxActionTransferContractToken)
     .contractAddress;
+
   for (let i = 1; i < actions.length; i++) {
     if (
       (actions[i] as GenericTxActionTransferContractToken).contractAddress !==
@@ -188,7 +189,7 @@ export const extractGenericActionsFromTx = (
 
 export const buildParamsFromGenericTx = (innerSdk: NearState) => async (
   txParams: GenericTxParams,
-  recipientPk: PublicKey<secp256k1>,
+  _recipientPk: PublicKey<secp256k1>,
   _senderPk: PublicKey<secp256k1>,
   senderPk: PublicKey<ed25519>
 ): Promise<NearBuildTxParams> => {

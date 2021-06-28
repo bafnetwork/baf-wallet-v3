@@ -61,7 +61,10 @@ const testTxTransferFungibleToken = async <T>(
   chain: InferWrappedChainInterface<T>,
   chainName: Chain
 ) => {
+  // Send the tx to Lev's discord account :)
+  const receiverPk = secpPair.pk;
   const genericTx = {
+    recipientAddress: await getCommunityContract().getAccountId(receiverPk),
     actions: [
       {
         type: GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN,
@@ -70,8 +73,7 @@ const testTxTransferFungibleToken = async <T>(
       },
     ],
   } as GenericTxParams;
-  // Send the tx to Lev's discord account :)
-  const receiver = secpPair.pk;
+
   const txParams = await chain.tx.buildParamsFromGenericTx(
     genericTx,
     pkFromString(
@@ -86,7 +88,10 @@ const testTxTransferFungibleToken = async <T>(
 };
 
 const testTxTransfer = async <T>(chain: InferWrappedChainInterface<T>) => {
+  // Send the tx to Lev's discord account :)
+  const receiverPk = secpPair.pk;
   const genericTx = {
+    recipientAddress: await getCommunityContract().getAccountId(receiverPk),
     actions: [
       {
         type: GenericTxSupportedActions.TRANSFER,
@@ -94,8 +99,7 @@ const testTxTransfer = async <T>(chain: InferWrappedChainInterface<T>) => {
       },
     ],
   } as GenericTxParams;
-  // Send the tx to Lev's discord account :)
-  const receiver = secpPair.pk;
+
   const txParams = await chain.tx.buildParamsFromGenericTx(
     genericTx,
     pkFromString(

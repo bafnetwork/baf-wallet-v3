@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Card, { Content, ActionButton, Actions } from '@smui/card';
+  import Card, { Content, Actions } from '@smui/card';
   import Button from '@smui/button';
   import { Icon } from '@smui/common';
   import AmountFormatter from '@baf-wallet/base-components/AmountFormatter.svelte';
@@ -21,12 +21,12 @@
     GenericTxAction,
     GenericTxParams,
     GenericTxSupportedActions,
-    secp256k1,
     TokenInfo,
   } from '@baf-wallet/interfaces';
   import { getTorusPublicAddress } from '@baf-wallet/torus';
   import { keyPairFromSk } from '@baf-wallet/crypto';
   import BN from 'bn.js';
+import { getCommunityContract } from '@baf-wallet/community-contract';
 
   export let params = {} as any;
   export let chain: Chain = params ? params.chain : null;
@@ -58,6 +58,8 @@
         )
       : null;
     recipientUser = txParams.recipientUserIdReadable;
+
+    txParams.recipientAddress = await getCommunityContract().getAccountId(recipientPubkey);
 
     const nearTxParams = await $chainStores[
       Chain.NEAR

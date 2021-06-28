@@ -13,8 +13,8 @@ export enum GenericTxSupportedActions {
  * Either the recipientUserId or recipientAddress has to be provided 
  */ 
 export interface GenericTxParams {
-  recipientUserId?: string;
   recipientAddress?: string;
+  recipientUserId?: string;
   recipientUserIdReadable?: string;
   oauthProvider?: PLATFORM;
   actions: GenericTxAction[];
