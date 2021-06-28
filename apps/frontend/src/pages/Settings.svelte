@@ -3,10 +3,10 @@
   import ChainSettings from '../components/chains/ChainSettings.svelte';
   import Button from '@smui/button';
   import { saveAs } from 'file-saver';
-  import { packKey, SiteKeyStore } from '../state/keys.svelte';
+  import { packKey, siteKeyStore } from '../state/keys.svelte';
 
   function downloadKeys() {
-    const key = packKey($SiteKeyStore);
+    const key = packKey($siteKeyStore);
     const fileToSave = new Blob([JSON.stringify(key)], {
       type: 'application/json',
     });

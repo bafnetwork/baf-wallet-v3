@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Buffer } from 'buffer';
   (window as any).Buffer = Buffer;
+
   import Modal from '@baf-wallet/base-components/Modal.svelte';
   import Router from 'svelte-spa-router';
   import Login from './pages/Login.svelte';
@@ -8,8 +9,8 @@
   import Settings from './pages/Settings.svelte';
   import ApproveRedirect from './components/ApproveRedirect.svelte';
   import NotFound404 from './pages/NotFound404.svelte';
-  import { AccountStore } from './state/accounts.svelte';
-  import { initApp } from './config/init.svelte';
+  import { accountStore } from './state/accounts.svelte';
+  import { initAppState } from './state/init.svelte';
 
   const routes = {
     '/': Account,
@@ -19,7 +20,7 @@
     '/*': NotFound404,
   };
 
-  const initProm = initApp();
+  const initProm = initAppState();
 
 </script>
 
@@ -47,7 +48,7 @@
   <p>Loading...</p>
 {:then ret}
   <Modal>
-    {#if $AccountStore.loggedIn}
+    {#if $accountStore.loggedIn}
       <Router {routes} />
     {:else}
       <Login />
