@@ -27,6 +27,7 @@
   import { getTorusPublicAddress } from '@baf-wallet/torus';
   import { keyPairFromSk } from '@baf-wallet/crypto';
   import BN from 'bn.js';
+  import { apiClient } from '../config/api';
 
   export let params = {} as any;
   export let chain: Chain = params ? params.chain : null;
@@ -88,7 +89,15 @@
   }
 
   async function init() {
-    if (!checkChainInit($ChainStores, chain)) {
+    if (
+      !(await checkChainInit(
+        $ChainStores,
+        chain,
+        apiClient,
+        $SiteKeyStore?.edPK,
+        $SiteKeyStore?.secpPK
+      ))
+    ) {
       // TODO: redirect to login
       // See Github issue: https://github.com/bafnetwork/baf-wallet-v3/issues/6
       throw BafError.UninitChain(chain);
@@ -116,7 +125,6 @@
     }
     isLoading = false;
   }
-
 </script>
 
 {#await init()}

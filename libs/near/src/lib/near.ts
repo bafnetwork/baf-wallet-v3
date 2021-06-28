@@ -24,7 +24,13 @@ import {
   NearInitContractParams,
   NEP141Contract,
 } from './contract';
-import { nearRpc, NearSendOpts, NearSendResult } from './rpc';
+import {
+  getHelperUrl,
+  getRPCUrl,
+  nearRpc,
+  NearSendOpts,
+  NearSendResult,
+} from './rpc';
 import {
   NearAccountID,
   nearAccounts,
@@ -94,11 +100,11 @@ async function init({
   keyPath,
   keyPair,
 }: NearInitParams): Promise<NearState> {
-  const nodeUrl = `https://rpc.${networkID}.near.org`;
+  const nodeUrl = getRPCUrl(networkID);
   const connectConfig = {
     networkId: networkID,
     nodeUrl,
-    helperUrl: `https://helper.${networkID}.near.org`,
+    helperUrl: getHelperUrl(networkID),
     masterAccount: masterAccountID,
     keyPath,
   } as ConnectConfig;

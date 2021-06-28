@@ -3,6 +3,8 @@ import {
   Balance,
   Chain,
   ed25519,
+  ed25519Marker,
+  Encoding,
   secp256k1,
 } from '@baf-wallet/interfaces';
 import { Account, Account as NearAccount, Contract } from 'near-api-js';
@@ -17,6 +19,7 @@ import { PublicKey } from '@baf-wallet/interfaces';
 import { NearState } from './near';
 import { nearConverter } from './convert';
 import { BafError } from '@baf-wallet/errors';
+import { pkFromString } from '@baf-wallet/crypto';
 
 export type NearAccountID = string;
 
@@ -57,6 +60,8 @@ export function nearAccounts(
       };
     },
 
+    associatedKeys,
+
     create: async ({
       accountID,
       newAccountPk,
@@ -79,6 +84,19 @@ export function nearAccounts(
       return await near.account(accountID);
     },
   };
+}
+
+export async function associatedKeys<Curve extends ed25519>(
+  account: NearAccount
+) {
+  const keys = await account.getAccessKeys();
+  const edPkStrs = keys
+    .map((key) => key.public_key as string)
+    .filter((keyStr) => keyStr.includes('ed25519:'))
+    .map((key) => key.split('ed25519:')[1]);
+  return edPkStrs.map((str) =>
+    pkFromString<ed25519>(str, ed25519Marker, Encoding.BS58)
+  );
 }
 
 export interface NearCreateAccountParams {
