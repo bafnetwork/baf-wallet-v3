@@ -12,9 +12,8 @@ export type NearRpcInterface = RpcInterface<
 
 // TODO: go spelunking in near's jsonRpcProvider and see what options it takes
 // and see what kind of stuff it actually returns so we can do better than 'any'
-export interface NearSendOpts {
-  _: string;
-}
+// eslint-disable-next-line
+export interface NearSendOpts {}
 
 export type NearSendResult = any;
 

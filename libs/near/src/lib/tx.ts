@@ -51,9 +51,8 @@ export interface NearBuildTxParams {
   recipientAccountID: NearAccountID;
 }
 
-export interface NearSignTxOpts {
-  _: string;
-}
+// eslint-disable-next-line
+export interface NearSignTxOpts {}
 
 export function nearTx(innerSdk: NearState): NearTxInterface {
   return {

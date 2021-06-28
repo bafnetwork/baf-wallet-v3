@@ -9,7 +9,6 @@
   import { accountStore } from '../../state/accounts.svelte';
 
   const chains = getEnumValues(Chain);
-  // TODO: clean up imports, see https://github.com/bafnetwork/baf-wallet-v2/issues/54
   const ChainDeleteAccountComponent = (chain: Chain) => () =>
     import(`./${chain}/DeleteAccount.svelte`);
 
@@ -19,7 +18,6 @@
 
 {#each chains as chain}
   {#if checkChainInit($chainStores, chain)}
-    <!-- content here -->
     Delete your {chain} initialized account: <Lazy
       component={ChainDeleteAccountComponent(chain)}
       cb={initAppState}
