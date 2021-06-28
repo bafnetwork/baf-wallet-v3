@@ -1,8 +1,5 @@
 import BN from 'bn.js';
-import {
-  Account,
-  Contract as NearNativeContract,
-} from 'near-api-js';
+import { Account, Contract as NearNativeContract } from 'near-api-js';
 import { NearAccountID } from './accounts';
 
 import { NearState } from './near';

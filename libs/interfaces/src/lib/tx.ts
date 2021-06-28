@@ -10,8 +10,8 @@ export enum GenericTxSupportedActions {
 }
 
 /**
- * Either the recipientUserId or recipientAddress has to be provided 
- */ 
+ * Either the recipientUserId or recipientAddress has to be provided
+ */
 export interface GenericTxParams {
   recipientAddress?: string;
   recipientUserId?: string;

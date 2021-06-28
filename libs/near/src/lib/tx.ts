@@ -112,7 +112,6 @@ function buildNativeAction(
           new BN(1)
         ),
       ];
-
     }
 
     case GenericTxSupportedActions.CREATE_ACCOUNT: {
@@ -132,9 +131,7 @@ function buildNativeAction(
           ),
         ];
       } else {
-        return [
-          transactions.createAccount()
-        ];
+        return [transactions.createAccount()];
       }
     }
 
