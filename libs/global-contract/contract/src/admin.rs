@@ -1,13 +1,4 @@
-use crate::env::predecessor_account_id;
-use crate::errors::throw_error;
-use std::convert::TryInto;
-
-use near_sdk::{
-    env::{current_account_id, is_valid_account_id, keccak256, signer_account_id},
-    near_bindgen, AccountId,
-};
-
-use crate::{AccountInfo, SecpPK, SecpPKInternal};
+use near_sdk::AccountId;
 
 /// The functionality which works with admin related code
 pub trait Admin {

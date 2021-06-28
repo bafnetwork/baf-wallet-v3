@@ -1,6 +1,6 @@
 use near_sdk::AccountId;
 
-use crate::{CommunityInfo, GlobalData};
+use crate::{CommunityInfo, GlobalData, throw_error};
 
 /// The functionality which stores information for community contract. It maps Discord Servers to GlobalData Contract Addresses
 pub trait CommunityContract {
@@ -15,8 +15,14 @@ pub trait CommunityContract {
 }
 
 impl GlobalData {
-    pub(crate) fn get_community_info(&self, guild_id: &String) -> Option<CommunityInfo> {
-        self.guild_id_to_community_info.get(guild_id)
+    pub(crate) fn get_community_info(&self, guild_id: &String) -> CommunityInfo {
+        let community_opts = self.guild_id_to_community_info.get(guild_id);
+        match community_opts {
+            None => {
+                throw_error!(crate::errors::GUILD_ID_NOT_REGISTERED);
+            }
+            Some(community) => community,
+        }
     }
 }
 

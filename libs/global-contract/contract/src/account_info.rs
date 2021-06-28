@@ -1,14 +1,11 @@
-use crate::env::predecessor_account_id;
-use crate::errors::throw_error;
-// use crate::GlobalContract;
 use std::convert::TryInto;
 
 use near_sdk::{
-    env::{current_account_id, is_valid_account_id, keccak256, signer_account_id},
-    near_bindgen, AccountId,
+    env::{keccak256},
+    AccountId,
 };
 
-use crate::{AccountInfo, GlobalData, SecpPK, SecpPKInternal};
+use crate::{AccountInfo, GlobalData, SecpPK, SecpPKInternal, throw_error};
 
 /// The functionality which connects public keys to a near address
 pub trait AccountInfos {
@@ -60,7 +57,7 @@ impl GlobalData {
             .map_err(|e| "Error parsing pk")
             .unwrap();
         if !secp256k1::verify(&secp256k1::Message::parse(&hash), sig, &pubkey) {
-            throw_error(crate::errors::INCORRECT_SIGNATURE);
+            throw_error!(crate::errors::INCORRECT_SIGNATURE);
         }
         return (secp_pk_internal, nonce);
     }
