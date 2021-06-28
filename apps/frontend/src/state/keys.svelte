@@ -13,11 +13,11 @@
 
   import { bufferConverter, encodeBytes } from '@baf-wallet/utils';
   import { writable } from 'svelte/store';
-import { BafError } from '@baf-wallet/errors';
+  import { BafError } from '@baf-wallet/errors';
 
   const keyStoreName = 'key-store';
 
-  export const SiteKeyStore = writable<KeyState | null>(null);
+  export const siteKeyStore = writable<KeyState | null>(null);
 
   export function buildKeyStateFromSecpSk(
     secpSK: SecretKey<secp256k1>
@@ -51,7 +51,7 @@ import { BafError } from '@baf-wallet/errors';
     window.localStorage.setItem(keyStoreName, '');
   }
 
-  SiteKeyStore.subscribe((keyStore) => {
+  siteKeyStore.subscribe((keyStore) => {
     if (!keyStore) {
       return;
     }
@@ -65,7 +65,7 @@ import { BafError } from '@baf-wallet/errors';
     const keysStored = window.localStorage.getItem(keyStoreName);
     if (!keysStored) return null;
     const keysParse = unpackKey(keysStored);
-    SiteKeyStore.set(keysParse);
+    siteKeyStore.set(keysParse);
     return keysParse;
   }
 </script>

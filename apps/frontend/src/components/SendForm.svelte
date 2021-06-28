@@ -3,16 +3,15 @@
   import {
     Chain,
     CreateTxReturn,
-    GenericTxAction,
     SupportedTransferTypes,
+    TokenInfo
   } from '@baf-wallet/interfaces';
   import Button from '@smui/button';
   import Lazy from '@baf-wallet/base-components/Lazy.svelte';
   import TxModal from './TxModal.svelte';
-  import { ChainStores } from '../state/chains.svelte';
-  import { SiteKeyStore } from '../state/keys.svelte';
+  import { chainStores } from '../state/chains.svelte';
+  import { siteKeyStore } from '../state/keys.svelte';
   import { BafError } from '@baf-wallet/errors';
-  import { TokenInfo } from '@baf-wallet/chain-info';
 
   let createTX: <T>() => Promise<CreateTxReturn<T>>;
   export let postSubmitHook: () => void | undefined;
@@ -62,18 +61,18 @@
 {#if transferType === SupportedTransferTypes.NativeToken}
   <Lazy
     component={ChainSendFormPart(chain)}
-    chainInterface={$ChainStores[chain]}
-    edPK={$SiteKeyStore.edPK}
-    secpPK={$SiteKeyStore.secpPK}
+    chainInterface={$chainStores[chain]}
+    edPK={$siteKeyStore.edPK}
+    secpPK={$siteKeyStore.secpPK}
     {tokenInfo}
     bind:selfBind={chainSendFormPart}
   />
 {:else if transferType === SupportedTransferTypes.ContractToken}
   <Lazy
     component={ChainSendFormPart(chain)}
-    chainInterface={$ChainStores[chain]}
-    edPK={$SiteKeyStore.edPK}
-    secpPK={$SiteKeyStore.secpPK}
+    chainInterface={$chainStores[chain]}
+    edPK={$siteKeyStore.edPK}
+    secpPK={$siteKeyStore.secpPK}
     isContractToken={true}
     {tokenInfo}
     {contractAddress}

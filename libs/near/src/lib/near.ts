@@ -11,7 +11,6 @@ import {
   connect,
   ConnectConfig,
   KeyPair as NearKeyPair,
-  Contract as NearNativeContract,
   Near,
   providers,
   transactions,

@@ -6,14 +6,14 @@
   import { TorusLoginResponse } from '@toruslabs/torus-direct-web-sdk';
   import { secp256k1Marker } from '@baf-wallet/interfaces';
   import {
-    AccountStore,
+    accountStore,
     storeOauthState,
     storeTorusAccessToken,
   } from '../state/accounts.svelte';
-  import { buildKeyStateFromSecpSk, SiteKeyStore } from '../state/keys.svelte';
+  import { buildKeyStateFromSecpSk, siteKeyStore } from '../state/keys.svelte';
   import { apiClient } from '../config/api';
   import { constants } from '../config/constants';
-  import { reinitApp } from '../config/init.svelte';
+  import { initAppState } from '../state/init.svelte';
   import Spinner from 'svelte-spinner';
   import { skFromString } from '@baf-wallet/crypto';
 
@@ -40,15 +40,15 @@
 
     const secpSk = skFromString(userInfo.privateKey, secp256k1Marker);
 
-    SiteKeyStore.set(buildKeyStateFromSecpSk(secpSk));
+    siteKeyStore.set(buildKeyStateFromSecpSk(secpSk));
 
-    AccountStore.update((state) => {
+    accountStore.update((state) => {
       return {
         ...state,
         loggedIn: true,
       };
     });
-    reinitApp();
+    await initAppState();
   }
 
   async function discordLogin() {

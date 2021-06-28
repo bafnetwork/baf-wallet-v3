@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Card, { Content, ActionButton, Actions } from '@smui/card';
+  import Card, { Content, Actions } from '@smui/card';
   import Button from '@smui/button';
   import { Icon } from '@smui/common';
   import AmountFormatter from '@baf-wallet/base-components/AmountFormatter.svelte';
@@ -13,20 +13,20 @@
   let thickness = 2.0;
   let gap = 40;
 
-  import { SiteKeyStore } from '../state/keys.svelte';
-  import { ChainStores, checkChainInit } from '../state/chains.svelte';
+  import { siteKeyStore } from '../state/keys.svelte';
+  import { chainStores, checkChainInit } from '../state/chains.svelte';
   import { deserializeTxParams } from '@baf-wallet/redirect-generator';
   import {
     Chain,
     GenericTxAction,
     GenericTxParams,
     GenericTxSupportedActions,
-    secp256k1,
     TokenInfo,
   } from '@baf-wallet/interfaces';
   import { getTorusPublicAddress } from '@baf-wallet/torus';
   import { keyPairFromSk } from '@baf-wallet/crypto';
   import BN from 'bn.js';
+import { getCommunityContract } from '@baf-wallet/community-contract';
 
   export let params = {} as any;
   export let chain: Chain = params ? params.chain : null;
@@ -59,27 +59,29 @@
       : null;
     recipientUser = txParams.recipientUserIdReadable;
 
-    const nearTxParams = await $ChainStores[
+    txParams.recipientAddress = await getCommunityContract().getAccountId(recipientPubkey);
+
+    const nearTxParams = await $chainStores[
       Chain.NEAR
     ].tx.buildParamsFromGenericTx(
       txParams,
       recipientPubkey,
-      $SiteKeyStore.secpPK,
-      $SiteKeyStore.edPK
+      $siteKeyStore.secpPK,
+      $siteKeyStore.edPK
     );
     actions = txParams.actions;
-    tx = await $ChainStores[Chain.NEAR].tx.build(nearTxParams);
+    tx = await $chainStores[Chain.NEAR].tx.build(nearTxParams);
   }
 
   async function initTokenInfos() {
     const tokenInfoProms = txParams.actions.map((action) => {
       if (action.type === GenericTxSupportedActions.TRANSFER)
-        return $ChainStores[chain].constants.nativeTokenInfo();
+        return $chainStores[chain].constants.nativeTokenInfo();
       else if (
         action.type === GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN
       ) {
         return (
-          $ChainStores[chain].constants.tokens[action.contractAddress]?.() ??
+          $chainStores[chain].constants.tokens[action.contractAddress]?.() ??
           null
         );
       } else null;
@@ -88,7 +90,7 @@
   }
 
   async function init() {
-    if (!checkChainInit($ChainStores, chain)) {
+    if (!checkChainInit($chainStores, chain)) {
       // TODO: redirect to login
       // See Github issue: https://github.com/bafnetwork/baf-wallet-v3/issues/6
       throw BafError.UninitChain(chain);
@@ -102,12 +104,12 @@
     attemptedApprove = true;
     isLoading = true;
     try {
-      const signed = await $ChainStores[chain].tx.sign(
+      const signed = await $chainStores[chain].tx.sign(
         tx,
-        keyPairFromSk($SiteKeyStore.edSK)
+        keyPairFromSk($siteKeyStore.edSK)
       );
       BN.prototype.toString = undefined;
-      const ret = await $ChainStores[chain].tx.send(signed);
+      const ret = await $chainStores[chain].tx.send(signed);
       explorerUrl = ret.snd;
       txSuccess = true;
     } catch (e) {
@@ -137,7 +139,7 @@
               to {recipientUser}
             </p>
           {:else if action.type === GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN}
-            {#if $ChainStores[chain].constants.supportedContractTokenContracts.includes(action.contractAddress)}
+            {#if $chainStores[chain].constants.supportedContractTokenContracts.includes(action.contractAddress)}
               <p>
                 transfer <AmountFormatter
                   bal={action.amount}

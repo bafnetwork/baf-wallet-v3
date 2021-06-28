@@ -4,24 +4,24 @@
   import Layout from '../components/Layout.svelte';
   import Listbalances from '../components/Listbalances.svelte';
   import History from '../components/History.svelte';
-  import { ChainStores, checkChainInit } from '../state/chains.svelte';
-  import { Chain, Encoding } from '@baf-wallet/interfaces';
+  import { chainStores, checkChainInit } from '../state/chains.svelte';
+  import { Chain } from '@baf-wallet/interfaces';
   import { getEnumValues } from '@baf-wallet/utils';
 
   let viewMode: 'assets' | 'history' = 'assets';
 
   let displayName: string;
   let noChainInit = getEnumValues(Chain).every(
-    (chain) => !checkChainInit($ChainStores, chain)
+    (chain) => !checkChainInit($chainStores, chain)
   );
 
   function hashdisplayName(displayName: string) {
-    var hash = 0;
+    let hash = 0;
     if (displayName.length == 0) {
       return hash;
     }
     for (var i = 0; i < displayName.length; i++) {
-      var char = displayName.charCodeAt(i);
+      let char = displayName.charCodeAt(i);
       hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32bit integer
     }

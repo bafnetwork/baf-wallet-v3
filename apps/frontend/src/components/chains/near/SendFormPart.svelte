@@ -15,7 +15,7 @@
     formatNativeTokenAmountToIndivisibleUnit,
     formatTokenAmountToIndivisibleUnit,
   } from '@baf-wallet/multi-chain';
-  import { TokenInfo } from '@baf-wallet/chain-info';
+  import { TokenInfo } from '@baf-wallet/interfaces';
   import Textfield from '@smui/textfield';
   import HelperText from '@smui/textfield/helper-text/index';
 

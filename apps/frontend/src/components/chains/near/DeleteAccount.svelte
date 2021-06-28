@@ -6,7 +6,6 @@
   import Button from '@smui/button';
   import {
     AccountState,
-    Chain,
     Encoding,
     KeyState,
   } from '@baf-wallet/interfaces';
