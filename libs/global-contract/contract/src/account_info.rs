@@ -1,14 +1,11 @@
-// use crate::GlobalContract;
-use crate::env::predecessor_account_id;
-use crate::errors::throw_error;
 use std::convert::TryInto;
 
 use near_sdk::{
-    env::{current_account_id, is_valid_account_id, keccak256, signer_account_id},
-    near_bindgen, AccountId,
+    env::{keccak256},
+    AccountId,
 };
 
-use crate::{AccountInfo, GlobalData, SecpPK, SecpPKInternal};
+use crate::{AccountInfo, GlobalData, SecpPK, SecpPKInternal, throw_error};
 
 /// The functionality which connects public keys to a near address
 pub trait AccountInfos {
@@ -60,7 +57,7 @@ impl GlobalData {
             .map_err(|e| "Error parsing pk")
             .unwrap();
         if !secp256k1::verify(&secp256k1::Message::parse(&hash), sig, &pubkey) {
-            throw_error(crate::errors::INCORRECT_SIGNATURE);
+            throw_error!(crate::errors::INCORRECT_SIGNATURE);
         }
         return (secp_pk_internal, nonce);
     }
@@ -141,18 +138,6 @@ mod tests {
         sign_and_set_account(msg_str, "John".to_string(), &mut contract, nonce, &sk, &pk);
         let set_account_id = contract.get_account_id(pk.serialize().to_vec()).unwrap();
         assert_eq!(set_account_id, alice());
-    }
-
-    #[test]
-    #[should_panic(expected = "This action requires admin privileges")]
-    fn test_requires_admin_panics() {
-        let context = get_context(alice());
-        testing_env!(context);
-        let mut contract = GlobalData::new();
-        testing_env!(get_context(bob()));
-        let sk = secp256k1::SecretKey::default();
-        let pk = secp256k1::PublicKey::from_secret_key(&sk);
-        sign_and_set_account("John:{}".to_string(), "John".to_string(), &mut contract, 0, &sk, &pk)
     }
 
     #[test]

@@ -1,13 +1,12 @@
 pub mod account_info;
 pub mod admin;
-pub mod community_contract;
+pub mod community_info;
 pub mod errors;
 
-use crate::account_info::AccountInfos;
 use crate::env::predecessor_account_id;
-use crate::errors::throw_error;
+use account_info::AccountInfos;
 use admin::Admin;
-use community_contract::CommunityContract;
+use community_info::CommunityContract;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::UnorderedSet;
 use near_sdk::env::{current_account_id, is_valid_account_id, keccak256, signer_account_id};
@@ -15,6 +14,7 @@ use near_sdk::AccountId;
 use near_sdk::PanicOnDefault;
 use near_sdk::{collections::UnorderedMap, env, near_bindgen};
 use std::convert::TryInto;
+use std::fmt::format;
 
 #[global_allocator]
 static ALLOC: near_sdk::wee_alloc::WeeAlloc = near_sdk::wee_alloc::WeeAlloc::INIT;
@@ -28,13 +28,18 @@ pub struct AccountInfo {
     pub(crate) nonce: i32,
 }
 
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct CommunityInfo {
+    pub(crate) admins: UnorderedSet<AccountId>,
+    pub(crate) default_nft_contract: Option<AccountId>,
+}
+
 #[near_bindgen]
 #[derive(PanicOnDefault, BorshDeserialize, BorshSerialize)]
 pub struct GlobalData {
     pub(crate) account_infos: UnorderedMap<SecpPKInternal, AccountInfo>,
     pub(crate) admins: UnorderedSet<AccountId>,
-    pub(crate) default_nft_contract: Option<AccountId>,
-    pub(crate) server_to_community_contract: UnorderedMap<String, AccountId>,
+    pub(crate) guild_id_to_community_info: UnorderedMap<String, CommunityInfo>,
 }
 
 #[near_bindgen]
@@ -46,16 +51,9 @@ impl GlobalData {
         Self {
             admins: default_admins,
             account_infos: UnorderedMap::new("account-infos-map".as_bytes()),
-            server_to_community_contract: UnorderedMap::new(
-                "server-community-contract-map".as_bytes(),
-            ),
-            default_nft_contract: None,
+            guild_id_to_community_info: UnorderedMap::new("guild-community-info-map".as_bytes()),
         }
     }
-
-    // TODO: and add tests
-    // pub fn add_admins()
-    // pub fn remove_admins()
 
     pub(crate) fn parse_secp_pk(secp_pk: SecpPK) -> Result<SecpPKInternal, String> {
         secp_pk
@@ -66,15 +64,68 @@ impl GlobalData {
 
 #[near_bindgen]
 impl CommunityContract for GlobalData {
-    fn set_community_contract(&mut self, server: String, contract_address: AccountId) {
-        if !(self.admins.contains(&predecessor_account_id())) {
-            throw_error(crate::errors::UNAUTHORIZED);
+    fn init_community(&mut self, guild_id: String, new_admins: Vec<AccountId>) {
+        if !self.admins.contains(&predecessor_account_id()) {
+            throw_error!(crate::errors::UNAUTHORIZED);
         }
-        self.server_to_community_contract
-            .insert(&server, &contract_address);
+        let mut admins = UnorderedSet::new(format!("community-contract-{}", guild_id).as_bytes());
+        for new_admin in new_admins.iter() {
+            if !is_valid_account_id(new_admin.as_bytes()) {
+                throw_error!(crate::errors::INVALID_ACCOUNT_ID);
+            }
+            admins.insert(new_admin);
+        }
+        self.guild_id_to_community_info.insert(
+            &guild_id,
+            &CommunityInfo {
+                admins,
+                default_nft_contract: None,
+            },
+        );
     }
-    fn get_community_contract(&self, server: String) -> Option<AccountId> {
-        self.server_to_community_contract.get(&server)
+
+    fn set_community_default_nft_contract(&mut self, guild_id: String, nft_contract: AccountId) {
+        let mut community = self.get_community_info(&guild_id);
+        let admins = community.admins;
+        if !admins.contains(&predecessor_account_id()) {
+            throw_error!(crate::errors::UNAUTHORIZED);
+        }
+        community.default_nft_contract = Some(nft_contract);
+        community.admins = admins;
+        self.guild_id_to_community_info
+            .insert(&guild_id, &community);
+    }
+
+    fn get_community_default_nft_contract(&self, guild_id: String) -> Option<AccountId> {
+        let community = self.get_community_info(&guild_id);
+        community.default_nft_contract
+    }
+
+    fn add_community_admins(&mut self, guild_id: String, new_admins: Vec<AccountId>) {
+        let mut community = self.get_community_info(&guild_id);
+        if !community.admins.contains(&predecessor_account_id()) {
+            throw_error!(crate::errors::UNAUTHORIZED);
+        }
+        for admin in new_admins {
+            community.admins.insert(&admin);
+        }
+        self.guild_id_to_community_info
+            .insert(&guild_id, &community);
+    }
+    fn remove_community_admins(&mut self, guild_id: String, admins: Vec<AccountId>) {
+        let mut community = self.get_community_info(&guild_id);
+        if !community.admins.contains(&predecessor_account_id()) {
+            throw_error!(crate::errors::UNAUTHORIZED);
+        }
+        for admin in admins {
+            community.admins.remove(&admin);
+        }
+        self.guild_id_to_community_info
+            .insert(&guild_id, &community);
+    }
+    fn get_community_admins(&self, guild_id: String) -> Vec<AccountId> {
+        let mut community = self.get_community_info(&guild_id);
+        community.admins.to_vec()
     }
 }
 
@@ -99,11 +150,11 @@ impl AccountInfos for GlobalData {
         new_account_id: AccountId,
     ) {
         if !is_valid_account_id(new_account_id.as_bytes()) {
-            throw_error(crate::errors::INVALID_ACCOUNT_ID);
+            throw_error!(crate::errors::INVALID_ACCOUNT_ID);
         }
 
         if !(predecessor_account_id() == new_account_id) {
-            throw_error(crate::errors::UNAUTHORIZED);
+            throw_error!(crate::errors::UNAUTHORIZED);
         }
 
         let (secp_pk_internal, nonce) = self.verify_sig(user_id, secp_pk, secp_sig_s);
@@ -127,7 +178,7 @@ impl AccountInfos for GlobalData {
 impl Admin for GlobalData {
     fn add_admins(&mut self, new_admins: Vec<AccountId>) {
         if !self.admins.contains(&predecessor_account_id()) {
-            throw_error(crate::errors::UNAUTHORIZED);
+            throw_error!(crate::errors::UNAUTHORIZED);
         }
         for admin in new_admins {
             self.admins.insert(&admin);
@@ -136,7 +187,7 @@ impl Admin for GlobalData {
 
     fn remove_admins(&mut self, admins: Vec<AccountId>) {
         if !self.admins.contains(&predecessor_account_id()) {
-            throw_error(crate::errors::UNAUTHORIZED);
+            throw_error!(crate::errors::UNAUTHORIZED);
         }
         for admin in admins {
             self.admins.remove(&admin);

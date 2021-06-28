@@ -12,6 +12,10 @@ import {
 } from '@baf-wallet/interfaces';
 import { createDiscordErrMsg, parseDiscordRecipient } from '@baf-wallet/utils';
 import { constants } from '../config/config';
+import {
+  getGlobalContract,
+  GlobalContractConfig,
+} from '@baf-wallet/global-contract';
 
 export default class setDefaultNFT extends Command {
   constructor(protected client: BotClient) {
@@ -26,15 +30,17 @@ export default class setDefaultNFT extends Command {
   }
 
   private buildGenericTx(
-    contractAddress: string,
+    guildId: string,
+    globalContractAddr: string,
     nftContractAddress: string
   ): GenericTxParams {
     let actions: GenericTxAction[];
     actions = [
       {
         type: GenericTxSupportedActions.CONTRACT_CALL,
-        functionName: 'set_default_nft_contract',
+        functionName: 'set_community_default_nft_contract',
         functionArgs: {
+          guild_id: guildId,
           nft_contract: nftContractAddress,
         },
         deposit: '0',
@@ -42,7 +48,7 @@ export default class setDefaultNFT extends Command {
     ];
 
     const tx: GenericTxParams = {
-      recipientAddress: contractAddress,
+      recipientAddress: globalContractAddr,
       recipientUserIdReadable: 'Community Contract',
       actions,
       oauthProvider: 'discord',
@@ -86,7 +92,8 @@ export default class setDefaultNFT extends Command {
 
     try {
       const tx = await this.buildGenericTx(
-        constants.communityContractAddr,
+        message.guild.id,
+        constants.globalContractAddress,
         defaultNFTContract
       );
       if (!tx) return;

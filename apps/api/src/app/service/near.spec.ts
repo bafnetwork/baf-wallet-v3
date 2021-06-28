@@ -22,10 +22,6 @@ import {
 // import { createNearAccount } from './near';
 import { Account, KeyPair } from 'near-api-js';
 import { constants } from '../config/constants';
-import {
-  getCommunityContract,
-  setCommunityContract,
-} from '@baf-wallet/community-contract';
 import { createUserVerifyMessage, formatBytes } from '@baf-wallet/utils';
 import {
   NearChainInterface,

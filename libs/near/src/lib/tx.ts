@@ -31,7 +31,6 @@ import {
   SignedTransaction,
   Transaction,
 } from 'near-api-js/lib/transaction';
-import { getCommunityContract } from '@baf-wallet/community-contract';
 import { BafError } from '@baf-wallet/errors';
 
 export type NearTxInterface = TxInterface<
