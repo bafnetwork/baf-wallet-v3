@@ -5,7 +5,7 @@ import {
   ed25519,
   secp256k1,
 } from '@baf-wallet/interfaces';
-import { Account, Account as NearAccount, Contract } from 'near-api-js';
+import { Account, Account as NearAccount } from 'near-api-js';
 import {
   AccountCreator,
   UrlAccountCreator,

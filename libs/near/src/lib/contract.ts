@@ -1,10 +1,7 @@
-import { ContractInterface } from '@baf-wallet/interfaces';
 import BN from 'bn.js';
 import {
   Account,
-  Account as NearAccount,
   Contract as NearNativeContract,
-  Near,
 } from 'near-api-js';
 import { NearAccountID } from './accounts';
 
