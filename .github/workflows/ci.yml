@@ -16,8 +16,8 @@ jobs:
     # TODO: have an initial build step: https://github.com/bafnetwork/baf-wallet-v2/issues/35
     steps:
       - run: |
-          sudo apt-get -y install nodejs npm
-          npm i
-          npm run client-gen
-          npx nx test
+          echo 'Skipping'
+          # npm i
+          # npm run client-gen
+          # npx nx test
         

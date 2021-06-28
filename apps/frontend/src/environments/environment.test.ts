@@ -5,6 +5,6 @@ export const environment = {
   env: Env.TEST,
   baseUrl: process.env.BASE_URL
     ? process.env.BASE_URL
-    : 'https://baf-wallet-v2.vercel.app',
+    : 'https://baf-wallet-deploy-frontend.vercel.app',
   basePathApi: 'https://baf-wallet-testnet.herokuapp.com',
 };
