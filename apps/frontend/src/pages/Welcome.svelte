@@ -5,6 +5,7 @@
 	import { NearNetworkID } from '@baf-wallet/near';
   	import { signMsg } from '@baf-wallet/crypto';
 	import { Encoding } from  '@baf-wallet/interfaces';
+	import { Icon } from '@smui/common';
 	import {
 		getGlobalContract,
 		setGlobalContract,
@@ -12,27 +13,37 @@
   	import { Account as NearAccount } from 'near-api-js';
 	import { SiteKeyStore } from '../state/keys.svelte';
 	import { AccountStore } from '../state/accounts.svelte';
-	import { reinitApp } from '../state/init.svelte';
   	import { createUserVerifyMessage } from '@baf-wallet/utils';
 	import Button from '@smui/button';
-	import NearIcon from '@baf-wallet/base-components/NearIcon.svelte';
-import { pop } from 'svelte-spa-router';
+	import Pusher from '@baf-wallet/base-components/Pusher.svelte';
 
-	export let networkID: NearNetworkID;
+	let account;
+	let discordAccountConnected = false;
+	let done = false;
 
 	async function connectNearAccount() {
-		const account = await getNearWalletAccount(networkID);
-		account.addKey($SiteKeyStore.edPK.format(Encoding.BS58))
-		await setGlobalContractAccountInfo(account);
+		account = await getNearWalletAccount(NearNetworkID.TESTNET);
+
+		const discordPK = $SiteKeyStore.edPK.format(Encoding.BS58);
+		const discordPKStr = `ed25519:${discordPK}`;
+
+		const currentPubKeys = await account.getAccessKeys();
+		console.log(currentPubKeys, discordPKStr);
+		if (!currentPubKeys.some(({ public_key }) => public_key === discordPKStr)) {
+			await account.addKey(discordPK);
+		}
+		
+		discordAccountConnected = true;
 	}
 
 	async function setGlobalContractAccountInfo(account: NearAccount) {
 		await setGlobalContract(account);
+
 		const currentAssociatedAccount = await getGlobalContract().getAccountId(
 			$SiteKeyStore.secpPK
 		);
 		if (currentAssociatedAccount === account.accountId) {
-			pop().then(reinitApp);
+			done = true;
 			return;
 		}
 
@@ -41,14 +52,20 @@ import { pop } from 'svelte-spa-router';
 
 		const msg = createUserVerifyMessage(userName, nonce);
 		const secpSig = signMsg($SiteKeyStore.secpSK, msg, true);
+
+		console.log("howdy");
 		await getGlobalContract().setAccountInfo(
 			$SiteKeyStore.secpPK,
 			userName,
 			secpSig,
 			account.accountId
 		);
-		pop().then(reinitApp);
+		console.log('ho');
+
+		done = true;
 	}
+
+	const accountSet = () => account !== undefined && account !== null;
   
 </script>
 
@@ -57,18 +74,33 @@ import { pop } from 'svelte-spa-router';
 		<h1>Welcome to BAF Wallet!</h1>
 	</div>
 	<div class="row">
-		<span>To get set up, you simply need to connect your Discord account to your Near Account. Currently, your Discord account wil have full access to the funds in the Near account you choose, so we reccomend choosing one that doesn't have a lot of funds in it. In a later version we will instead use a sub-account so this isn't a problem.</span>
-	</div>
-	<div class="row">
+		<span>To get set up, you need a NEAR wallet account and a Discord account.</span>
 		<span>
-			If you don't already have a NEAR wallet, create one now: <a href="https://wallet.near.org/" target="_blank">https://wallet.near.org/</a>
+			If you don't already have a NEAR wallet, create one now at <a href="https://wallet.testnet.near.org/" target="_blank">https://wallet.testnet.near.org/</a>
 		</span>
+		<ol>
+			<li>Connect your Discord account to your Near Account</li>
+			<li>Connect your Discord account to BAF Wallet</li>
+		</ol>
+
+		<span>Currently, your Discord account wil have full access to the funds in the Near account you choose, so we reccomend choosing one that doesn't have a lot of funds in it. In a later version we will limit the permissions of your discord account so it can't touch any of your funds unless you explicitly allow it to.</span>
 	</div>
 	<div class="row">
 		<Button variant="outlined" on:click={connectNearAccount} >
 			Connect your Discord account to your NEAR account.
 		</Button>
+		{#if discordAccountConnected}
+			<Icon class="material-icons">done</Icon>
+		{/if}
 	</div>
+	<div class="row">
+		<Button disabled={accountSet()} variant="outlined" on:click={() => setGlobalContractAccountInfo(account)} >
+			Connect your Discord account to BAF Wallet
+		</Button>
+	</div>
+	{#if done}
+		<Pusher route="/"/>
+	{/if}
 </Layout>
 
 <style>

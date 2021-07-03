@@ -16,7 +16,6 @@
   export async function initApp(): Promise<InitAppRet> {
     const { chainsState, keys } = await initAccount();
 
-    console.log('hi')
     if (
       keys &&
       (await checkChainInit(
