@@ -1,7 +1,6 @@
-import { Account, Contract, Near } from 'near-api-js';
+import { Account, Contract } from 'near-api-js';
 import { BafError } from '@baf-wallet/errors';
 import ContractConfig from '../../config.json';
-import { ec as EC } from 'elliptic';
 import {
   PublicKey,
   RustEncodedSecpSig,

@@ -4,7 +4,6 @@
   import { clearKeysFromStorage, loadKeys, SiteKeyStore } from './keys.svelte';
   import {
     AccountState,
-    Encoding,
     KeyState,
     OAuthState,
   } from '@baf-wallet/interfaces';
@@ -20,9 +19,9 @@
   export function logout() {
     SiteKeyStore.set(null);
     clearKeysFromStorage();
-    AccountStore.update((accountStore) => {
+    AccountStore.update((AccountStore) => {
       return {
-        ...accountStore,
+        ...AccountStore,
         loggedIn: false,
       };
     });

@@ -7,7 +7,7 @@ import {
   Encoding,
   secp256k1,
 } from '@baf-wallet/interfaces';
-import { Account, Account as NearAccount, Contract } from 'near-api-js';
+import { Account as NearAccount } from 'near-api-js';
 import {
   AccountCreator,
   UrlAccountCreator,

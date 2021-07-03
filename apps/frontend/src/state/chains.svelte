@@ -1,20 +1,15 @@
 <script lang="ts" context="module">
   import {
     Chain,
-    ChainInterface,
     ed25519,
     Encoding,
-    InferWrapChainInterface,
-    KeyPair,
     KeyState,
     PublicKey,
     secp256k1,
-    SecretKey,
   } from '@baf-wallet/interfaces';
   import {
     getNearNetworkID,
     NearChainInterface,
-    NearInitParams,
     nearSupportedContractTokens,
     WrappedNearChainInterface,
   } from '@baf-wallet/near';
@@ -58,6 +53,7 @@
     const nearAccountInfo = await apiClient.getAccountInfo({
       secpPubkeyB58: keys.secpPK.format(Encoding.BS58),
     });
+
     let chainInfos: ChainsState = {};
     if (nearAccountInfo.nearId && nearAccountInfo.nearId !== '') {
       const nearWrapped: WrappedNearChainInterface = await getWrappedInterface<NearChainInterface>(

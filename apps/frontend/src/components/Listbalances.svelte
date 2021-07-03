@@ -2,11 +2,11 @@
   import {
     Balance,
     Chain,
+    TokenInfo,
     SupportedTransferTypes,
   } from '@baf-wallet/interfaces';
   import {
     getTokenLogoUrl,
-    TokenInfo,
     getTokenInfo,
     getContractAddresses
   } from '@baf-wallet/chain-info';

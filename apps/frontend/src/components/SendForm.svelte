@@ -3,8 +3,8 @@
   import {
     Chain,
     CreateTxReturn,
-    GenericTxAction,
     SupportedTransferTypes,
+    TokenInfo
   } from '@baf-wallet/interfaces';
   import Button from '@smui/button';
   import Lazy from '@baf-wallet/base-components/Lazy.svelte';
@@ -12,7 +12,6 @@
   import { ChainStores } from '../state/chains.svelte';
   import { SiteKeyStore } from '../state/keys.svelte';
   import { BafError } from '@baf-wallet/errors';
-  import { TokenInfo } from '@baf-wallet/interfaces';
 
   let createTX: <T>() => Promise<CreateTxReturn<T>>;
   export let postSubmitHook: () => void | undefined;

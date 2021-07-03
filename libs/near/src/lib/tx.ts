@@ -16,11 +16,11 @@ import {
   GenericTxActionContractCall,
 } from '@baf-wallet/interfaces';
 import { getGlobalContract } from '@baf-wallet/global-contract';
-import { Pair, getEnumValues } from '@baf-wallet/utils';
+import { Pair } from '@baf-wallet/utils';
 import { sha256 } from '@baf-wallet/crypto';
 import { Buffer } from 'buffer';
 import BN from 'bn.js';
-import { KeyPair as NearKeyPair, transactions, utils } from 'near-api-js';
+import { transactions, utils } from 'near-api-js';
 
 import { NearState } from './near';
 import { NearSendOpts, NearSendResult } from './rpc';
@@ -51,6 +51,8 @@ export interface NearBuildTxParams {
   senderAccountID: NearAccountID;
   recipientAccountID: NearAccountID;
 }
+
+// eslint-disable-next-line
 export interface NearSignTxOpts {}
 
 export function nearTx(innerSdk: NearState): NearTxInterface {
@@ -77,40 +79,42 @@ function buildNativeAction(
         ),
       ];
 
-    case GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN:
-      const paramsTransfer = action as GenericTxActionTransferContractToken;
+    case GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN: {
+      const params = action as GenericTxActionTransferContractToken;
       return [
         transactions.functionCall(
           'ft_transfer',
           {
             receiver_id: receiverId,
-            amount: paramsTransfer.amount,
-            memo: paramsTransfer.memo ?? null,
+            amount: params.amount,
+            memo: params.memo ?? null,
           },
           // TODO: maximum gas fees per chain: see https://github.com/bafnetwork/baf-wallet-v2/issues/68
           new BN(10000000000000), // Maximum gas fee
           new BN(1) // A deposit associated with the ft_transfer action
         ),
       ];
+    }
 
-    case GenericTxSupportedActions.TRANSFER_NFT:
-      const paramsNFT = action as GenericTxActionTransferNFT;
+    case GenericTxSupportedActions.TRANSFER_NFT: {
+      const params = action as GenericTxActionTransferNFT;
       return [
         transactions.functionCall(
           'nft_transfer',
           {
             receiver_id: receiverId,
-            token_id: paramsNFT.tokenId,
-            approval_id: paramsNFT.approvalId ?? null,
-            memo: paramsNFT.memo ?? null,
+            token_id: params.tokenId,
+            approval_id: params.approvalId ?? null,
+            memo: params.memo ?? null,
           },
           // TODO: maximum gas fees per chain: see https://github.com/bafnetwork/baf-wallet-v2/issues/68
           new BN(10000000000000), // Maximum gas fee
           new BN(1)
         ),
       ];
+    }
 
-    case GenericTxSupportedActions.CREATE_ACCOUNT:
+    case GenericTxSupportedActions.CREATE_ACCOUNT: {
       const params = action as GenericTxActionCreateAccount;
       if (params.amount && parseInt(params.amount) > 0) {
         const transferAction: GenericTxActionTransfer = {
@@ -127,18 +131,22 @@ function buildNativeAction(
           ),
         ];
       } else {
-        transactions.createAccount();
+        return [transactions.createAccount()];
       }
-    case GenericTxSupportedActions.CONTRACT_CALL:
-      const paramsContractCall = action as GenericTxActionContractCall;
+    }
+
+    case GenericTxSupportedActions.CONTRACT_CALL: {
+      const params = action as GenericTxActionContractCall;
       return [
         transactions.functionCall(
-          paramsContractCall.functionName,
-          paramsContractCall.functionArgs,
+          params.functionName,
+          params.functionArgs,
           new BN(10000000000000), // Maximum gas fee
-          new BN(paramsContractCall.deposit || 0)
+          new BN(params.deposit || 0)
         ),
       ];
+    }
+
     default:
       throw `Action of type ${actionType} is unsupported`;
   }
@@ -154,6 +162,7 @@ const checkAllContractActions = (actions: NearAction[]) => {
 
   const contract = (actions[0] as GenericTxActionTransferContractToken)
     .contractAddress;
+
   for (let i = 1; i < actions.length; i++) {
     if (
       (actions[i] as GenericTxActionTransferContractToken).contractAddress !==
@@ -186,9 +195,10 @@ export const buildParamsFromGenericTx = (innerSdk: NearState) => async (
     : await getGlobalContract().getAccountId(recipientPk);
 
   if (!recipientAccountID) {
-    let createAccountAction = txParams.actions.find(
+    const createAccountAction = txParams.actions.find(
       (action) => action.type === GenericTxSupportedActions.CREATE_ACCOUNT
     ) as GenericTxActionCreateAccount;
+
     recipientAccountID = createAccountAction?.accountID;
   }
 

@@ -12,6 +12,7 @@ import {
   GenericTxSupportedActions,
 } from '@baf-wallet/interfaces';
 import { parseDiscordRecipient } from '@baf-wallet/utils';
+import { getCommunityContract } from '@baf-wallet/community-contract';
 
 export default class InitAccount extends Command {
   constructor(protected client: BotClient) {
@@ -32,8 +33,7 @@ export default class InitAccount extends Command {
     newAccountId: string,
     recipientUsername: string
   ): GenericTxParams {
-    let actions: GenericTxAction[];
-    actions = [
+    const actions: GenericTxAction[] = [
       {
         type: GenericTxSupportedActions.CREATE_ACCOUNT,
         accountID: newAccountId,

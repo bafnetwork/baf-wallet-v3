@@ -1,7 +1,7 @@
 <script lang="ts">
   type IconName = 'Discord';
   export let iconName: IconName;
-  export let classExtra: string | string[];
+  export let classExtra: string | string[] | undefined;
 
   let classes: string;
   if (Array.isArray(classExtra)) {

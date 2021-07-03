@@ -13,7 +13,7 @@
   import { buildKeyStateFromSecpSk, SiteKeyStore } from '../state/keys.svelte';
   import { apiClient } from '../config/api';
   import { constants } from '../config/constants';
-  import { reinitApp } from '../config/init.svelte';
+  import { initAppState } from '../state/init.svelte';
   import Spinner from 'svelte-spinner';
   import { skFromString } from '@baf-wallet/crypto';
 
@@ -48,7 +48,7 @@
         loggedIn: true,
       };
     });
-    reinitApp();
+    await initAppState();
   }
 
   async function discordLogin() {

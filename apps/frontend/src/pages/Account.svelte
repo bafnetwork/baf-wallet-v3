@@ -5,7 +5,7 @@
   import Listbalances from '../components/Listbalances.svelte';
   import History from '../components/History.svelte';
   import { ChainStores, checkChainInit } from '../state/chains.svelte';
-  import { Chain, Encoding } from '@baf-wallet/interfaces';
+  import { Chain } from '@baf-wallet/interfaces';
   import { getEnumValues } from '@baf-wallet/utils';
   import { apiClient } from '../config/api';
   import { SiteKeyStore } from '../state/keys.svelte';
@@ -13,7 +13,7 @@
   let viewMode: 'assets' | 'history' = 'assets';
 
   let displayName: string;
-  let noChainInit = true;
+  
   async function getNoChainInit() {
     const chainInits = await Promise.all(
       getEnumValues(Chain).map((chain) =>
@@ -30,12 +30,12 @@
   }
 
   function hashdisplayName(displayName: string) {
-    var hash = 0;
+    let hash = 0;
     if (displayName.length == 0) {
       return hash;
     }
     for (var i = 0; i < displayName.length; i++) {
-      var char = displayName.charCodeAt(i);
+      let char = displayName.charCodeAt(i);
       hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32bit integer
     }

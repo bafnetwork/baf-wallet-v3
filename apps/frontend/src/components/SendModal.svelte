@@ -3,14 +3,11 @@
   import Card, {
     Content,
     Actions,
-    ActionButtons,
-    ActionIcons,
   } from '@smui/card';
   import Button, { Label } from '@smui/button';
-
   import { getContext } from 'svelte';
-  import { Chain, SupportedTransferTypes } from '@baf-wallet/interfaces';
-  import { TokenInfo } from '@baf-wallet/interfaces';
+  import { TokenInfo, Chain, SupportedTransferTypes } from '@baf-wallet/interfaces';
+  
   const { close } = getContext('modal');
   let submit: (e: Event) => Promise<void>;
 
