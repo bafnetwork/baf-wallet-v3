@@ -4,7 +4,6 @@
   import { getGlobalContract } from '@baf-wallet/global-contract';
 
   import {
-    ChainInterface,
     Encoding,
     KeyState,
     OAuthState,
@@ -13,7 +12,7 @@
   import Button from '@smui/button';
   import { Account } from 'near-api-js';
 
-  import { WrappedNearChainInterface } from '../lib/near';
+  import { WrappedNearChainInterface } from '@baf-wallet/near';
 
   export let keyState: KeyState;
   export let chainInterface: WrappedNearChainInterface;
@@ -64,7 +63,7 @@
       removePKFromAccount(
         chainInterface.getInner().nearMasterAccount,
         chainInterface
-      )}>Remove association</Button
+      )}>Remove Near Account From BAF Wallet</Button
   >
 {:else}
   loading...

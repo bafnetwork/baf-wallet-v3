@@ -7,6 +7,7 @@
   import Login from './pages/Login.svelte';
   import Account from './pages/Account.svelte';
   import Settings from './pages/Settings.svelte';
+  import Welcome from './pages/Welcome.svelte';
   import ApproveRedirect from './components/ApproveRedirect.svelte';
   import NotFound404 from './pages/NotFound404.svelte';
   import { AccountStore } from './state/accounts.svelte';
@@ -14,6 +15,7 @@
 
   const routes = {
     '/': Account,
+    '/welcome': Welcome,
     '/approve-redirect/:chain/:txParams': ApproveRedirect,
     '/settings': Settings,
     '/login': Login,

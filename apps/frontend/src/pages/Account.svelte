@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { link } from 'svelte-spa-router';
+  import { push } from 'svelte-spa-router';
   import jazzicon from 'jazzicon';
   import Layout from '../components/Layout.svelte';
   import Listbalances from '../components/Listbalances.svelte';
@@ -9,6 +9,7 @@
   import { getEnumValues } from '@baf-wallet/utils';
   import { apiClient } from '../config/api';
   import { SiteKeyStore } from '../state/keys.svelte';
+  import Pusher from '@baf-wallet/base-components/Pusher.svelte';
 
   let viewMode: 'assets' | 'history' = 'assets';
 
@@ -57,15 +58,7 @@
     loading...
   {:then noChainInit}
     {#if noChainInit}
-      <h1>Hi there!</h1>
-      <p>
-        You haven't set up your account on at least one supported blockchain.
-      </p>
-      <p>
-        Please see initialize your <a href="/settings" use:link
-          >account's page</a
-        >
-      </p>
+      <Pusher route="/welcome"/>
     {:else}
       <h1>Account</h1>
       {#if viewMode === 'assets'}

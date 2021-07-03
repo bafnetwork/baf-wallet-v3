@@ -3,10 +3,10 @@ import {
   getHelperUrl,
   getRPCUrl,
   getWalletUrl,
-} from 'libs/near/src/lib/rpc';
+} from '@baf-wallet/near';
 import * as nearAPI from 'near-api-js';
-import { Account, WalletConnection } from 'near-api-js';
-import { NearNetworkID } from '../lib/utils';
+import { WalletConnection } from 'near-api-js';
+import { NearNetworkID } from '@baf-wallet/near';
 const keyStore = new nearAPI.keyStores.BrowserLocalStorageKeyStore();
 
 export async function getNearWalletAccount(network: NearNetworkID) {

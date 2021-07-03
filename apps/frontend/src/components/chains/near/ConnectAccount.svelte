@@ -1,24 +1,19 @@
 <script lang="ts">
   import { signMsg } from '@baf-wallet/crypto';
-
   import {
     getGlobalContract,
     setGlobalContract,
   } from '@baf-wallet/global-contract';
-
   import {
-    ed25519,
     Encoding,
     KeyState,
     OAuthState,
-    PublicKey,
   } from '@baf-wallet/interfaces';
   import { createUserVerifyMessage } from '@baf-wallet/utils';
-  import { Account as NearAccount, WalletConnection } from 'near-api-js';
-  import { getNearWalletAccount } from '@baf-wallet/near/web';
-
+  import { Account as NearAccount } from 'near-api-js';
+  import { getNearWalletAccount } from './wallet-connect'
   import Button from '@smui/button';
-  import { NearNetworkID } from '../lib/utils';
+  import { NearNetworkID } from '@baf-wallet/near';
 
   export let keyState: KeyState;
   export let cb: () => void;

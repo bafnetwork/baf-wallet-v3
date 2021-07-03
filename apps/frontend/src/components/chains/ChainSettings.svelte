@@ -2,8 +2,8 @@
   import { getEnumValues } from '@baf-wallet/utils';
   import { Chain } from '@baf-wallet/interfaces';
   import Lazy from '@baf-wallet/base-components/Lazy.svelte';
+  import { reinitApp } from '../../state/init.svelte';
   import { ChainStores, checkChainInit } from '../../state/chains.svelte';
-  import { reinitApp } from '../../config/init.svelte';
   import { SiteKeyStore } from '../../state/keys.svelte';
   import { AccountStore } from '../../state/accounts.svelte';
   import { apiClient } from '../../config/api';
@@ -12,10 +12,11 @@
   const chains = getEnumValues(Chain);
   const ChainConnectAccount = (chain: Chain) => () =>
     // TODO: clean up imports, see https://github.com/bafnetwork/baf-wallet-v2/issues/54
-    import(`../../../../../libs/${chain}/src/web/ConnectAccount.svelte`);
+    import(`./${chain}/ConnectAccount.svelte`);
   const ChainDisconnectAccount = (chain: Chain) => () =>
     // TODO: clean up imports, see https://github.com/bafnetwork/baf-wallet-v2/issues/54
-    import(`../../../../../libs/${chain}/src/web/DisconnectAccount.svelte`);
+    import(`./${chain}/DisconnectAccount.svelte`);
+
   async function isInit(chain: Chain) {
     return await checkChainInit(
       $ChainStores,
@@ -25,6 +26,7 @@
       $SiteKeyStore?.secpPK
     );
   }
+
 </script>
 
 {#each chains as chain}
