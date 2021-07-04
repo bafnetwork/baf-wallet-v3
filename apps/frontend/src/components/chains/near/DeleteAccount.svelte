@@ -1,8 +1,4 @@
 <script lang="ts">
-  import {
-    getCommunityContract,
-    CommunityContractConstants,
-  } from '@baf-wallet/community-contract';
   import Button from '@smui/button';
   import {
     AccountState,

@@ -63,7 +63,7 @@ async function buildGlobalContract(
     ...(contract as any),
     /**
      * Below are override functions for the calls
-     * Find the contract code in libs/community-contract/contract
+     * Find the contract code in libs/global-contract/contract
      */
     getAccountId: async (pk) => {
       const ret = await (contract as any).get_account_id({

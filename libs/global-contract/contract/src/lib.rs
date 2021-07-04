@@ -68,7 +68,7 @@ impl CommunityContract for GlobalData {
         if !self.admins.contains(&predecessor_account_id()) {
             throw_error!(crate::errors::UNAUTHORIZED);
         }
-        let mut admins = UnorderedSet::new(format!("community-contract-{}", guild_id).as_bytes());
+        let mut admins = UnorderedSet::new(format!("global-contract-{}", guild_id).as_bytes());
         for new_admin in new_admins.iter() {
             if !is_valid_account_id(new_admin.as_bytes()) {
                 throw_error!(crate::errors::INVALID_ACCOUNT_ID);

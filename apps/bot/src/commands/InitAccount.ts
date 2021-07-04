@@ -12,7 +12,6 @@ import {
   GenericTxSupportedActions,
 } from '@baf-wallet/interfaces';
 import { parseDiscordRecipient } from '@baf-wallet/utils';
-import { getCommunityContract } from '@baf-wallet/community-contract';
 
 export default class InitAccount extends Command {
   constructor(protected client: BotClient) {

@@ -36,5 +36,5 @@
       "@baf-wallet/global-contract": ["libs/global-contract/src/index.ts"]
     }
   },
-  "exclude": ["node_modules", "tmp", "libs/community-contract/contract"]
+  "exclude": ["node_modules", "tmp"]
 }
