@@ -15,7 +15,7 @@
   import { createUserVerifyMessage } from '@baf-wallet/utils';
   import Button from '@smui/button';
   import Pusher from '@baf-wallet/base-components/Pusher.svelte';
-  import { initApp, reinitApp } from '../state/init.svelte';
+  import { initApp, reinitAppState } from '../state/init.svelte';
 
   let account;
   let discordAccountConnected = false;
@@ -38,7 +38,7 @@
         $SiteKeyStore.secpPK
       );
       done = !!currentAssociatedAccount;
-      await reinitApp();
+      await reinitAppState();
     }
   }
 
@@ -53,7 +53,7 @@
       await account.addKey(discordPK);
     }
     discordAccountConnected = true;
-    await reinitApp();
+    await reinitAppState();
   }
 
   async function setGlobalContractAccountInfo(account: NearAccount) {
@@ -85,6 +85,7 @@
     });
     console.log('ho');
 
+    await reinitAppState();
     done = true;
   }
 </script>
