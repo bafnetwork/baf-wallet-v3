@@ -12,7 +12,6 @@ import {
   GenericTxActionTransferContractToken,
   Chain,
   GenericTxActionTransferNFT,
-  GenericTxActionCreateAccount,
   GenericTxActionContractCall,
 } from '@baf-wallet/interfaces';
 import { getGlobalContract } from '@baf-wallet/global-contract';
@@ -114,27 +113,6 @@ function buildNativeAction(
       ];
     }
 
-    case GenericTxSupportedActions.CREATE_ACCOUNT: {
-      const params = action as GenericTxActionCreateAccount;
-      if (params.amount && parseInt(params.amount) > 0) {
-        const transferAction: GenericTxActionTransfer = {
-          type: GenericTxSupportedActions.TRANSFER,
-          amount: params.amount,
-        };
-
-        return [
-          transactions.createAccount(),
-          ...buildNativeAction(
-            GenericTxSupportedActions.TRANSFER,
-            transferAction,
-            innerSdk
-          ),
-        ];
-      } else {
-        return [transactions.createAccount()];
-      }
-    }
-
     case GenericTxSupportedActions.CONTRACT_CALL: {
       const params = action as GenericTxActionContractCall;
       return [
@@ -193,14 +171,6 @@ export const buildParamsFromGenericTx = (innerSdk: NearState) => async (
   let recipientAccountID = txParams.recipientAddress
     ? txParams.recipientAddress
     : await getGlobalContract().getAccountId(recipientPk);
-
-  if (!recipientAccountID) {
-    const createAccountAction = txParams.actions.find(
-      (action) => action.type === GenericTxSupportedActions.CREATE_ACCOUNT
-    ) as GenericTxActionCreateAccount;
-
-    recipientAccountID = createAccountAction?.accountID;
-  }
 
   if (!recipientAccountID) {
     throw BafError.SecpPKNotAssociatedWithAccount(Chain.NEAR);

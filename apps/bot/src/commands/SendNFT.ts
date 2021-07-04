@@ -38,7 +38,6 @@ export default class SendNFT extends Command {
     contractAddress: string,
     tokenId: string,
     recipientParsed: string,
-    recipientUserReadable: string
   ): Promise<GenericTxParams | null> {
     const action: GenericTxActionTransferNFT = {
       type: GenericTxSupportedActions.TRANSFER_NFT,
@@ -48,7 +47,6 @@ export default class SendNFT extends Command {
 
     const tx: GenericTxParams = {
       recipientUserId: recipientParsed,
-      recipientUserIdReadable: recipientUserReadable,
       actions: [action],
       oauthProvider: 'discord',
     };
@@ -113,7 +111,6 @@ export default class SendNFT extends Command {
         contractAddress,
         tokenId,
         recipientParsed,
-        recipientUserReadable
       );
       if (!tx) return;
       const link = createApproveRedirectURL(

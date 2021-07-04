@@ -46,7 +46,6 @@ export default class SendMoney extends Command {
     asset: string,
     amount: number,
     recipientParsed: string,
-    recipientUserReadable: string
   ): Promise<GenericTxParams | null> {
     let actions: GenericTxAction[];
     const nearConstants = getNearChain().constants;
@@ -84,7 +83,6 @@ export default class SendMoney extends Command {
 
     const tx: GenericTxParams = {
       recipientUserId: recipientParsed,
-      recipientUserIdReadable: recipientUserReadable,
       actions,
       oauthProvider: 'discord',
     };
@@ -144,7 +142,6 @@ export default class SendMoney extends Command {
         asset,
         amount,
         recipientParsed,
-        recipientUserReadable
       );
       if (!tx) return;
 
@@ -159,7 +156,7 @@ export default class SendMoney extends Command {
         "Please check your DM's for a link to approve the transaction!"
       );
       await message.author.send(
-        `To open BAF Wallet and approve your transfer, please open this link: ${link}`
+        `To open BAF Wallet and approve your transfer to ${recipientUserReadable}, please open this link: ${link}`
       );
     } catch (err) {
       console.error(err);

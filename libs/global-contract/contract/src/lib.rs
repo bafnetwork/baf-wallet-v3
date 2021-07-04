@@ -10,6 +10,7 @@ use community_info::CommunityContract;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::UnorderedSet;
 use near_sdk::env::{current_account_id, is_valid_account_id, keccak256, signer_account_id};
+use near_sdk::serde::Serialize;
 use near_sdk::AccountId;
 use near_sdk::PanicOnDefault;
 use near_sdk::{collections::UnorderedMap, env, near_bindgen};
@@ -22,8 +23,10 @@ static ALLOC: near_sdk::wee_alloc::WeeAlloc = near_sdk::wee_alloc::WeeAlloc::INI
 pub(crate) type SecpPKInternal = [u8; 65];
 pub(crate) type SecpPK = Vec<u8>;
 
-#[derive(BorshSerialize, BorshDeserialize)]
+#[derive(BorshSerialize, BorshDeserialize, Serialize)]
+#[serde(crate = "near_sdk::serde")]
 pub struct AccountInfo {
+    pub(crate) user_name: String,
     pub(crate) account_id: AccountId,
     pub(crate) nonce: i32,
 }
@@ -137,14 +140,13 @@ impl AccountInfos for GlobalData {
             .unwrap_or(0)
     }
 
-    fn get_account_id(&self, secp_pk: SecpPK) -> Option<AccountId> {
+    fn get_account_info(&self, secp_pk: SecpPK) -> Option<AccountInfo> {
         self.get_account_info(secp_pk)
-            .map(|account_info| account_info.account_id)
     }
 
     fn set_account_info(
         &mut self,
-        user_id: String,
+        user_name: String,
         secp_pk: SecpPK,
         secp_sig_s: Vec<u8>,
         new_account_id: AccountId,
@@ -157,21 +159,31 @@ impl AccountInfos for GlobalData {
             throw_error!(crate::errors::UNAUTHORIZED);
         }
 
-        let (secp_pk_internal, nonce) = self.verify_sig(user_id, secp_pk, secp_sig_s);
+        let (secp_pk_internal, nonce) = self.verify_sig(user_name.clone(), secp_pk, secp_sig_s);
         self.account_infos.insert(
             &secp_pk_internal,
             &AccountInfo {
+                user_name,
                 account_id: new_account_id,
                 nonce: nonce + 1,
             },
         );
     }
 
-    fn delete_account_info(&mut self, user_id: String, secp_pk: SecpPK, secp_sig_s: Vec<u8>) {
-        let (secp_pk_internal, _) = self.verify_sig(user_id, secp_pk, secp_sig_s);
-        // TODO: this leaves vulnrebaility to replay attacks. If an account is made, deleted, and made again,
-        // The nonce resets to 0. Please see https://github.com/bafnetwork/baf-wallet-v2/issues/32
-        self.account_infos.remove(&secp_pk_internal);
+    fn delete_account_info(&mut self, user_name: String, secp_pk: SecpPK, secp_sig_s: Vec<u8>) {
+        let (secp_pk_internal, _) = self.verify_sig(user_name.clone(), secp_pk, secp_sig_s);
+        let account_info_opts = self.account_infos.get(&secp_pk_internal);
+        match account_info_opts {
+            None => return,
+            Some(account_info) => {
+                if account_info.user_name != user_name {
+                    throw_error!(crate::errors::INVALID_USER_NAME)
+                }
+                // TODO: this leaves vulnrebaility to replay attacks. If an account is made, deleted, and made again,
+                // The nonce resets to 0. Please see https://github.com/bafnetwork/baf-wallet-v2/issues/32
+                self.account_infos.remove(&secp_pk_internal);
+            }
+        }
     }
 }
 #[near_bindgen]

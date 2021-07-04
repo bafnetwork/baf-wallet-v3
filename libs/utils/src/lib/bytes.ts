@@ -8,6 +8,8 @@ export function formatBytes(buf: Buffer, fmt = Encoding.HEX) {
       return Buffer.from(buf).toString('hex');
     case Encoding.BS58:
       return bs58.encode(Buffer.from(buf));
+    case Encoding.ARRAY:
+      return [...buf]
     default:
       throw BafError.UnsupportedEncoding(fmt);
   }

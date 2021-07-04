@@ -14,7 +14,6 @@ describe('frontend', () => {
       Chain.NEAR,
       'http://localhost:8080',
       {
-        recipientUserIdReadable: 'lev_s#7844',
         actions: [
           {
             type: GenericTxSupportedActions.TRANSFER,
@@ -30,7 +29,6 @@ describe('frontend', () => {
     const url = createApproveRedirectURL(Chain.NEAR, 'http://localhost:8080', {
       // TODO: add an option for if recipientUserId is a TorusTarget or not
       recipientAddress: 'asas',
-      recipientUserIdReadable: 'Community Contract',
       actions: [
         {
           type: GenericTxSupportedActions.CONTRACT_CALL,
@@ -53,7 +51,6 @@ describe('frontend', () => {
       'http://localhost:8080',
       {
         recipientUserId: '216732707449733120',
-        recipientUserIdReadable: 'sladuca#4629',
         actions: [
           {
             type: GenericTxSupportedActions.TRANSFER_NFT,
@@ -73,7 +70,6 @@ describe('frontend', () => {
       'http://localhost:8080',
       {
         recipientUserId: '216732707449733120',
-        recipientUserIdReadable: 'sladuca#4629',
         actions: [
           {
             type: GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN,

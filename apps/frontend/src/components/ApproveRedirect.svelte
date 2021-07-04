@@ -18,6 +18,7 @@
   import { deserializeTxParams } from '@baf-wallet/redirect-generator';
   import {
     Chain,
+    Encoding,
     GenericTxAction,
     GenericTxParams,
     GenericTxSupportedActions,
@@ -32,7 +33,6 @@
   export let params = {} as any;
   export let chain: Chain = params ? params.chain : null;
   export let txParams: GenericTxParams;
-  export let recipientUser: string;
   export let tokenInfos: (TokenInfo | null)[];
   export let onCancel = () => window.close();
 
@@ -43,12 +43,12 @@
   let error: string;
   let attemptedApprove = false;
   let txSuccess = false;
+  let recipientUserName: string;
 
   async function initGenericTx() {
     if (
       (!txParams.recipientUserId && !txParams.recipientAddress) ||
-      !txParams.oauthProvider ||
-      !txParams.recipientUserIdReadable
+      !txParams.oauthProvider
     ) {
       throw BafError.GenericTxRequiresOauthInfo();
     }
@@ -58,9 +58,13 @@
           txParams.oauthProvider
         )
       : null;
-    recipientUser = txParams.recipientUserIdReadable;
 
-    txParams.recipientAddress = await getGlobalContract().getAccountId(recipientPubkey);
+    const account_info = await getGlobalContract().get_account_info({
+      secp_pk: recipientPubkey.format(Encoding.ARRAY),
+    });
+    if (!account_info) throw BafError.SecpPKNotAssociatedWithAccount(chain);
+    txParams.recipientAddress = account_info.account_id;
+    recipientUserName = account_info.user_name;
 
     const nearTxParams = await $ChainStores[
       Chain.NEAR
@@ -119,6 +123,7 @@
       );
       BN.prototype.toString = undefined;
       const ret = await $ChainStores[chain].tx.send(signed);
+      console.log(ret.fst);
       explorerUrl = ret.snd;
       txSuccess = true;
     } catch (e) {
@@ -135,7 +140,8 @@
   {#if !txSuccess}
     <Card padded>
       <Content>
-        <h3>Looks like you are trying to...</h3>
+        <h2>Looks like you are trying to...</h2>
+        <h3>Note: only approve transactions from a trusted source</h3>
         {#each actions as action, i}
           {#if action.type === GenericTxSupportedActions.TRANSFER}
             <p>
@@ -144,7 +150,7 @@
                 {chain}
                 tokenInfo={tokenInfos[i]}
               />
-              to {recipientUser}
+              to {recipientUserName}
             </p>
           {:else if action.type === GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN}
             {#if $ChainStores[chain].constants.supportedContractTokenContracts.includes(action.contractAddress)}
@@ -154,7 +160,7 @@
                   {chain}
                   isNativeToken={false}
                   tokenInfo={tokenInfos[i]}
-                /> to {recipientUser} for contract
+                /> to {recipientUserName} for contract
                 {action.contractAddress}
               </p>
             {:else}
@@ -163,16 +169,12 @@
           {:else if action.type === GenericTxSupportedActions.TRANSFER_NFT}
             <p>
               Transfer {action.amount || 1}
-              {action.tokenId} to {recipientUser} for contract {action.contractAddress}
-            </p>
-          {:else if action.type === GenericTxSupportedActions.CREATE_ACCOUNT}
-            <p>
-              Create account {action.accountID} for {txParams.recipientUserIdReadable}
+              {action.tokenId} to {tx.recipientAddress} for contract {action.contractAddress}
             </p>
           {:else if action.type === GenericTxSupportedActions.CONTRACT_CALL}
             <p>
-              Call action {action.functionName} for contract {txParams.recipientUserIdReadable}
-              with paramets {JSON.stringify(action.functionArgs)}
+              Call action {action.functionName} for contract {txParams.recipientAddress}
+              with parameters {JSON.stringify(action.functionArgs)}
             </p>
           {:else}
             An error occured, an unsupported action type was passed in!

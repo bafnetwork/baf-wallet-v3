@@ -1,24 +1,21 @@
 use std::convert::TryInto;
 
-use near_sdk::{
-    env::{keccak256},
-    AccountId,
-};
+use near_sdk::{env::keccak256, AccountId};
 
-use crate::{AccountInfo, GlobalData, SecpPK, SecpPKInternal, throw_error};
+use crate::{throw_error, AccountInfo, GlobalData, SecpPK, SecpPKInternal};
 
 /// The functionality which connects public keys to a near address
 pub trait AccountInfos {
-    fn get_account_id(&self, secp_pk: SecpPK) -> Option<AccountId>;
+    fn get_account_info(&self, secp_pk: SecpPK) -> Option<AccountInfo>;
     fn get_account_nonce(&self, secp_pk: SecpPK) -> i32;
     fn set_account_info(
         &mut self,
-        user_id: String,
+        user_name: String,
         secp_pk: SecpPK,
         secp_sig_s: Vec<u8>,
         new_account_id: AccountId,
     );
-    fn delete_account_info(&mut self, user_id: String, secp_pk: SecpPK, secp_sig_s: Vec<u8>);
+    fn delete_account_info(&mut self, user_name: String, secp_pk: SecpPK, secp_sig_s: Vec<u8>);
 }
 
 impl GlobalData {
@@ -136,7 +133,10 @@ mod tests {
         let nonce = 0;
         let msg_str = format!("John:{}", nonce);
         sign_and_set_account(msg_str, "John".to_string(), &mut contract, nonce, &sk, &pk);
-        let set_account_id = contract.get_account_id(pk.serialize().to_vec()).unwrap();
+        let set_account_id = contract
+            .get_account_info(pk.serialize().to_vec())
+            .unwrap()
+            .account_id;
         assert_eq!(set_account_id, alice());
     }
 

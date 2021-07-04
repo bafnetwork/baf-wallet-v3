@@ -69,6 +69,7 @@
       $SiteKeyStore.secpPK
     );
     const userName = $AccountStore.oauthInfo.name;
+    console.log(userName);
 
     const msg = createUserVerifyMessage(userName, nonce);
     const secpSig = signMsg($SiteKeyStore.secpSK, msg, true);

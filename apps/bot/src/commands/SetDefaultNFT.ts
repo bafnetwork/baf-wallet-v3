@@ -49,7 +49,6 @@ export default class setDefaultNFT extends Command {
 
     const tx: GenericTxParams = {
       recipientAddress: globalContractAddr,
-      recipientUserIdReadable: 'Community Contract',
       actions,
       oauthProvider: 'discord',
     };

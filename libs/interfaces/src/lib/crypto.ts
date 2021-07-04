@@ -20,6 +20,7 @@ export enum Encoding {
   BS58,
   HEX,
   UTF8,
+  ARRAY,
 }
 
 export interface PublicKey<Curve> {

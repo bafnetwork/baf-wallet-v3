@@ -47,7 +47,6 @@ export default class RemoveAdmins extends Command {
 
     const tx: GenericTxParams = {
       recipientAddress: contractAddress,
-      recipientUserIdReadable: 'Community Contract',
       actions,
       oauthProvider: 'discord',
     };

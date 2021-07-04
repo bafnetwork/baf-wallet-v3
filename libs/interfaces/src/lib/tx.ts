@@ -5,7 +5,6 @@ export enum GenericTxSupportedActions {
   TRANSFER = 'transfer',
   TRANSFER_CONTRACT_TOKEN = 'transfer contract token',
   TRANSFER_NFT = 'transfer nft',
-  CREATE_ACCOUNT = 'create account',
   CONTRACT_CALL = 'contract call',
 }
 
@@ -15,7 +14,6 @@ export enum GenericTxSupportedActions {
 export interface GenericTxParams {
   recipientAddress?: string;
   recipientUserId?: string;
-  recipientUserIdReadable?: string;
   oauthProvider?: PLATFORM;
   actions: GenericTxAction[];
 }
@@ -68,18 +66,11 @@ export interface GenericTxActionTransferContractToken
   memo?: string;
 }
 
-export interface GenericTxActionCreateAccount extends GenericTxActionBase {
-  type: GenericTxSupportedActions.CREATE_ACCOUNT;
-  accountID?: string;
-  amount?: string;
-}
-
 // To be or'd with whatever other actions we use
 export type GenericTxAction =
   | GenericTxActionTransfer
   | GenericTxActionTransferContractToken
   | GenericTxActionTransferNFT
-  | GenericTxActionCreateAccount
   | GenericTxActionContractCall;
 
 export enum SupportedTransferTypes {
