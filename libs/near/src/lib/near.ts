@@ -109,7 +109,9 @@ async function init({
   } as ConnectConfig;
   if (keyPair) {
     const keyStore = new InMemoryKeyStore();
-    const nearKp = new NearKeyPairEd25519(keyPair.sk.format(Encoding.BS58));
+    const nearKp = new NearKeyPairEd25519(
+      keyPair.sk.format(Encoding.BS58) as string
+    );
     keyStore.setKey(networkID, masterAccountID, nearKp);
     connectConfig.deps = {
       keyStore: keyStore,

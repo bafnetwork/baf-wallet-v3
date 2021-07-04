@@ -101,9 +101,9 @@ describe('createAccount', () => {
   });
 
   it('should create the account given good sigs', async () => {
-    const aliceNonce = await getGlobalContract().getAccountNonce(
-      aliceSecpPublicKey
-    );
+    const aliceNonce = await getGlobalContract().get_account_nonce({
+      secp_pk: aliceSecpPublicKey.format(Encoding.ARRAY) as number[],
+    });
     const msg = createUserVerifyMessage(
       aliceAccountName,
       aliceNonce.toString()
@@ -121,9 +121,9 @@ describe('createAccount', () => {
       aliceEdPublicKey,
       aliceAccountName,
       aliceNonce,
-      formatBytes(secpSig),
-      formatBytes(encodeSecpSigCommunityContract),
-      formatBytes(edSig),
+      formatBytes(secpSig) as string,
+      formatBytes(encodeSecpSigCommunityContract) as string,
+      formatBytes(edSig) as string,
       aliceAccountName
     );
 
@@ -134,14 +134,16 @@ describe('createAccount', () => {
 
     const msgDelete = createUserVerifyMessage(
       aliceAccountName,
-      await getGlobalContract().getAccountNonce(aliceSecpPublicKey)
+      await getGlobalContract().get_account_nonce({
+        secp_pk: aliceSecpPublicKey.format(Encoding.ARRAY) as number[],
+      })
     );
     const secpSigNew = signMsg(aliceSecpSecretKey, msgDelete, true);
-    await getGlobalContract().deleteAccountInfo(
-      aliceSecpPublicKey,
-      aliceAccountName,
-      secpSigNew
-    );
+    await getGlobalContract().delete_account_info({
+      secp_pk: aliceSecpPublicKey.format(Encoding.ARRAY) as number[],
+      user_name: aliceAccountName,
+      secp_sig_s: secpSigNew,
+    });
     await deleteAccount(account, true);
   });
 
@@ -167,9 +169,9 @@ describe('createAccount', () => {
         aliceEdPublicKey,
         aliceAccountName,
         aliceNonce.toString(),
-        formatBytes(secpSig),
-        formatBytes(secpSigEncodedContract),
-        formatBytes(edSig),
+        formatBytes(secpSig) as string,
+        formatBytes(secpSigEncodedContract) as string,
+        formatBytes(edSig) as string,
         aliceAccountName
       );
       fail('Should have thrown');
@@ -200,9 +202,9 @@ describe('createAccount', () => {
         aliceEdPublicKey,
         aliceAccountName,
         aliceNonce.toString(),
-        formatBytes(secpSig),
-        formatBytes(secpSigEncodedContract),
-        formatBytes(edSig),
+        formatBytes(secpSig) as string,
+        formatBytes(secpSigEncodedContract) as string,
+        formatBytes(edSig) as string,
         aliceAccountName
       );
       fail('Should have thrown');

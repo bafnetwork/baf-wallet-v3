@@ -8,24 +8,38 @@ import {
   secp256k1,
 } from '@baf-wallet/interfaces';
 import { NearAccountID } from '@baf-wallet/near';
+import { initContract, NearContract } from 'libs/near/src/lib/contract';
 
 export const GlobalContractConfig = { ...ContractConfig };
-interface GlobalContract {
-  getAccountId: (pk: PublicKey<secp256k1>) => Promise<NearAccountID | null>;
-  getAccountNonce: (secp_pk: PublicKey<secp256k1>) => Promise<string>;
-  setAccountInfo: (
-    secp_pk: PublicKey<secp256k1>,
-    user_name: string,
-    secp_sig_s: RustEncodedSecpSig,
-    new_account_id: NearAccountID
-  ) => Promise<void>;
-  deleteAccountInfo: (
-    secp_pk: PublicKey<secp256k1>,
-    user_name: string,
-    secp_sig_s: RustEncodedSecpSig
-  ) => Promise<void>;
-  getCommunityContract: (server: string) => Promise<string>;
-  [fn_name: string]: (...args: any) => Promise<any>;
+
+interface GlobalContract extends NearContract {
+  getAccountId: (pk: PublicKey<secp256k1>) => Promise<string>;
+  get_account_info: (args: {
+    secp_pk: number[];
+  }) => Promise<{
+    user_name: string;
+    account_id: string;
+  }>;
+  get_account_nonce: (args: { secp_pk: number[] }) => Promise<string>;
+  set_account_info: (args: {
+    secp_pk: number[];
+    user_name: string;
+    secp_sig_s: RustEncodedSecpSig;
+    new_account_id: NearAccountID;
+  }) => Promise<void>;
+  delete_account_info: (args: {
+    secp_pk: number[];
+    user_name: string;
+    secp_sig_s: RustEncodedSecpSig;
+  }) => Promise<void>;
+  get_community_contract: (args: { server: string }) => Promise<string>;
+  get_community_default_nft_contract: (args: {
+    server: string;
+  }) => Promise<string>;
+  set_community_default_nft_contract: (args: {
+    server: string;
+    nft_contract: string;
+  }) => Promise<void>;
 }
 
 let globalContract: GlobalContract;
@@ -37,15 +51,16 @@ export async function setGlobalContract(
   return globalContract;
 }
 
-export function getGlobalContract(): GlobalContract & any {
+export function getGlobalContract(): GlobalContract {
   if (globalContract) return globalContract;
   throw BafError.UninitGlobalContract();
 }
 
-async function buildGlobalContract(
-  account: Account
-): Promise<GlobalContract & any> {
-  const contract = new Contract(account, ContractConfig.contractName, {
+async function buildGlobalContract(account: Account): Promise<GlobalContract> {
+  const contract = await initContract(
+    account,
+    ContractConfig.contractName
+  )<GlobalContract>({
     viewMethods: [
       'get_account_info',
       'get_account_nonce',
@@ -55,41 +70,16 @@ async function buildGlobalContract(
     changeMethods: [
       'set_account_info',
       'delete_account_info',
-      'set_community_contract',
+      'set_community_default_nft_contract',
     ],
   });
-
   return {
-    ...(contract as any),
-    /**
-     * Below are override functions for the calls
-     * Find the contract code in libs/global-contract/contract
-     */
-    getAccountId: async (pk) => {
-      const ret = await (contract as any).get_account_info({
-        secp_pk: pk.format(Encoding.ARRAY),
-      });
-      if (!ret || ret === '') return null;
-      else return ret.account_id as NearAccountID;
-    },
-    getAccountNonce: (pk) =>
-      (contract as any).get_account_nonce({
-        secp_pk: pk.format(Encoding.ARRAY),
-      }) as Promise<string>,
-    setAccountInfo: (pk, user_name, secp_sig_s, new_account_id) =>
-      (contract as any).set_account_info({
-        user_name,
-        secp_pk: pk.format(Encoding.ARRAY),
-        secp_sig_s: [...secp_sig_s],
-        new_account_id,
-      }),
-    deleteAccountInfo: (pk, user_name, secp_sig_s) =>
-      (contract as any).delete_account_info({
-        user_name,
-        secp_pk: pk.format(Encoding.ARRAY),
-        secp_sig_s: [...secp_sig_s],
-      }),
-    getCommunityContract: (server) =>
-      (contract as any).get_community_contract(server),
-  } as any;
+    ...contract,
+    getAccountId: async (pk) =>
+      (
+        await contract.get_account_info({
+          secp_pk: pk.format(Encoding.ARRAY) as number[],
+        })
+      ).account_id,
+  };
 }

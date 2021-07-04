@@ -45,18 +45,20 @@ export async function createNearAccount(
   });
 
   const CommunityContract = await getGlobalContract();
-  await CommunityContract.setAccountInfo(
-    secpPK,
-    userId,
-    encodeBytes(rustEncodedSecpSig, Encoding.HEX),
-    accountID
-  );
+  await CommunityContract.set_account_info({
+    secp_pk: secpPK.format(Encoding.ARRAY) as number[],
+    user_name: userId,
+    secp_sig_s: encodeBytes(rustEncodedSecpSig, Encoding.HEX),
+    new_account_id: accountID,
+  });
 }
 
 export async function getAccountNonce(
   pk: PublicKey<secp256k1>
 ): Promise<string> {
-  return await getGlobalContract().getAccountNonce(pk);
+  return await getGlobalContract().get_account_nonce({
+    secp_pk: pk.format(Encoding.ARRAY) as number[],
+  });
 }
 
 export async function getAccountInfoFromSecpPK(

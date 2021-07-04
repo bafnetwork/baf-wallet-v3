@@ -32,7 +32,7 @@ export const nearConverter: Converter<
   },
 
   pkFromUnified: <Curve>(unifiedPk: PublicKey<Curve>): NearUtils.PublicKey =>
-    NearUtils.PublicKey.fromString(unifiedPk.format(Encoding.BS58)),
+    NearUtils.PublicKey.fromString(unifiedPk.format(Encoding.BS58) as string),
 
   keyPairToUnified<Curve>(
     keyPair: NearKeyPair,

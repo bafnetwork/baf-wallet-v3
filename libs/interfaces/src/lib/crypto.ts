@@ -26,13 +26,13 @@ export enum Encoding {
 export interface PublicKey<Curve> {
   data: Buffer;
   curve: Curve;
-  format: (fmt: Encoding) => string;
+  format: (fmt: Encoding) => string | number[];
 }
 
 export interface SecretKey<Curve> {
   data: Buffer;
   curve: Curve;
-  format: (fmt: Encoding) => string;
+  format: (fmt: Encoding) => string | number[];
 }
 
 export interface KeyPair<Curve> {

@@ -44,7 +44,7 @@
       cb();
       return;
     }
-    const nonce = await getGlobalContract().getAccountNonce(keyState.secpPK);
+    const nonce = await getGlobalContract().get_account_nonce(keyState.secpPK.format(Encoding.ARRAY));
     const userName = oauthInfo.name;
 
     const msg = createUserVerifyMessage(userName, nonce);

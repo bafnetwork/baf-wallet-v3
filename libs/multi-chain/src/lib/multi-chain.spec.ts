@@ -64,7 +64,7 @@ const testTxTransferFungibleToken = async <T>(
   // Send the tx to Lev's discord account :)
   const receiverPk = secpPair.pk;
   const genericTx = {
-    recipientAddress: await getCommunityContract().getAccountId(receiverPk),
+    recipientAddress: await getGlobalContract().getAccountId(receiverPk),
     actions: [
       {
         type: GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN,
@@ -91,7 +91,7 @@ const testTxTransfer = async <T>(chain: InferWrappedChainInterface<T>) => {
   // Send the tx to Lev's discord account :)
   const receiverPk = secpPair.pk;
   const genericTx = {
-    recipientAddress: await getCommunityContract().getAccountId(receiverPk),
+    recipientAddress: await getGlobalContract().getAccountId(receiverPk),
     actions: [
       {
         type: GenericTxSupportedActions.TRANSFER,
@@ -133,19 +133,19 @@ describe('Test all supported chains', () => {
       ),
     };
     const accountId = chains[Chain.NEAR].getInner().nearMasterAccount.accountId;
-    const CommunityContractNonce = await getGlobalContract().getAccountNonce(
-      secpPair.pk
-    );
-    await getGlobalContract().setAccountInfo(
-      secpPair.pk,
-      accountId,
-      signMsg(
+    const CommunityContractNonce = await getGlobalContract().get_account_nonce({
+      secp_pk: secpPair.pk.format(Encoding.ARRAY) as number[],
+    });
+    await getGlobalContract().set_account_info({
+      secp_pk: secpPair.pk.format(Encoding.ARRAY) as number[],
+      user_name: accountId,
+      secp_sig_s: signMsg(
         secpPair.sk,
         createUserVerifyMessage(accountId, CommunityContractNonce),
         true
       ),
-      accountId
-    );
+      new_account_id: accountId,
+    });
     done();
   });
 
