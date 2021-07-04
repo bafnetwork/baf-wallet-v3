@@ -13,9 +13,16 @@
 
   function downloadKeys() {
     const key = packKey($SiteKeyStore);
-    const fileToSave = new Blob([JSON.stringify(key)], {
-      type: 'application/json',
-    });
+    const fileToSave = new Blob(
+      [
+        JSON.stringify({
+          privateKey: key,
+        }),
+      ],
+      {
+        type: 'application/json',
+      }
+    );
     saveAs(fileToSave, 'baf-wallet.json');
   }
 
@@ -28,29 +35,31 @@
       $SiteKeyStore?.secpPK
     );
   }
-
 </script>
 
-{#await isInit(Chain.NEAR)}
-<!-- promise is pending -->
-{:then chainInit}
+{#await isInit(Chain.NEAR) then chainInit}
   {#if chainInit}
     <Layout>
-      <DisconnectNearAccount
-        cb={reinitApp}
-        oauthInfo={$AccountStore.oauthInfo}
-        chainInterface={$ChainStores[Chain.NEAR]}
-        keyState={$SiteKeyStore}
-      />
-      <div>
-        <h3>Danger Zone</h3>
-        <div>
-          <Button on:click={downloadKeys}>Download your keys</Button>
-        </div>
+      <div class="wrapper">
+        <DisconnectNearAccount
+          cb={reinitApp}
+          oauthInfo={$AccountStore.oauthInfo}
+          chainInterface={$ChainStores[Chain.NEAR]}
+          keyState={$SiteKeyStore}
+        />
+        <Button on:click={downloadKeys} variant="raised"
+          >Download your keys</Button
+        >
       </div>
     </Layout>
   {:else}
-    <Pusher route="/welcome"/>
+    <Pusher route="/welcome" />
   {/if}
 {/await}
 
+<style>
+  .wrapper {
+    display: grid;
+    gap: 2rem;
+  }
+</style>

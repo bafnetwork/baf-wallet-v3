@@ -21,7 +21,10 @@
   let done = false;
 
   async function init() {
-    account = await getNearWalletAccount(NearNetworkID.TESTNET);
+    account = await getNearWalletAccount(NearNetworkID.TESTNET, {
+      requestIfNotSignedIn: false,
+    });
+    if (!account) return;
     const currentPubKeys = await account.getAccessKeys();
     const discordPK = $SiteKeyStore.edPK.format(Encoding.BS58);
     const discordPKStr = `ed25519:${discordPK}`;
@@ -33,11 +36,14 @@
       const currentAssociatedAccount = await getGlobalContract().getAccountId(
         $SiteKeyStore.secpPK
       );
-      done = true;
+      done = !!currentAssociatedAccount;
     }
   }
 
   async function connectNearAccount() {
+    account = await getNearWalletAccount(NearNetworkID.TESTNET, {
+      requestIfNotSignedIn: true,
+    });
     const discordPK = $SiteKeyStore.edPK.format(Encoding.BS58);
     const discordPKStr = `ed25519:${discordPK}`;
     const currentPubKeys = await account.getAccessKeys();

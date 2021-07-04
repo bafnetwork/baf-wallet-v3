@@ -9,7 +9,14 @@ import { WalletConnection } from 'near-api-js';
 import { NearNetworkID } from '@baf-wallet/near';
 const keyStore = new nearAPI.keyStores.BrowserLocalStorageKeyStore();
 
-export async function getNearWalletAccount(network: NearNetworkID) {
+interface GetNearWalletOpts {
+  requestIfNotSignedIn?: boolean;
+}
+
+export async function getNearWalletAccount(
+  network: NearNetworkID,
+  opts: GetNearWalletOpts
+): Promise<nearAPI.ConnectedWalletAccount | null> {
   const { connect } = nearAPI;
 
   const config = {
@@ -23,8 +30,10 @@ export async function getNearWalletAccount(network: NearNetworkID) {
   const near = await connect(config);
   const wallet = new WalletConnection(near, 'Baf Wallet');
   if (wallet.isSignedIn()) console.log('signed in');
-  else {
+  else if (opts.requestIfNotSignedIn) {
     wallet.requestSignIn();
+  } else {
+    return null;
   }
   return wallet.account();
 }

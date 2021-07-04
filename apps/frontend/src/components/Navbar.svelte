@@ -19,9 +19,6 @@
   >
     <Row>
       <Section align="end" toolbar>
-        <a href="/" use:link>
-          <IconButton class="material-icons" aria-label="Home">home</IconButton>
-        </a>
         <a href="/settings" use:link>
           <IconButton class="material-icons" aria-label="Account Page">
             account_circle

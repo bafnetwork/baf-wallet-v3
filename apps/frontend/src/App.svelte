@@ -5,7 +5,6 @@
   import Modal from '@baf-wallet/base-components/Modal.svelte';
   import Router from 'svelte-spa-router';
   import Login from './pages/Login.svelte';
-  import Account from './pages/Account.svelte';
   import Settings from './pages/Settings.svelte';
   import Welcome from './pages/Welcome.svelte';
   import ApproveRedirect from './components/ApproveRedirect.svelte';
@@ -14,7 +13,7 @@
   import { initApp } from './state/init.svelte';
 
   const routes = {
-    '/': Account,
+    '/': Settings,
     '/welcome': Welcome,
     '/approve-redirect/:chain/:txParams': ApproveRedirect,
     '/settings': Settings,
