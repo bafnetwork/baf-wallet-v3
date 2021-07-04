@@ -5,7 +5,7 @@ import thunky from 'thunky/promise';
 import { arrayToObject } from '@baf-wallet/utils';
 import { Account } from 'near-api-js';
 import {
-  getContract,
+  contracts,
   initContract,
   NearInitContractParams,
   NEP141Contract,
@@ -34,23 +34,24 @@ const bridgeContractsProd = [
   '111111111117dc0aa78b770fa6a738034120c302.factory.bridge.near',
 ];
 
-export const getNearSupportedContractTokens = (env: Env) => {
-  switch (env) {
-    case Env.DEV:
-    case Env.TEST:
+export const getNearSupportedContractTokens = (networkId: string) => {
+  switch (networkId) {
+    case 'testnet':
       return ['ft.levtester.testnet', 'wrap.testnet'];
-    case Env.PROD:
+    case 'mainnet':
       return ['berryclub.ek.near', 'wrap.near', ...bridgeContractsProd];
+    default:
+      return ['ft.levtester.testnet', 'wrap.testnet'];
   }
 };
 
-export async function initChainConstants(
-  nearState: NearState,
-  tokenContracts: string[]
-): Promise<ChainConstants> {
+export async function constants(nearState: NearState): Promise<ChainConstants> {
+  const tokenContracts = getNearSupportedContractTokens(
+    nearState.near.connection.networkId
+  );
   const ft_metadatas = await Promise.all(
     tokenContracts.map((contractID) =>
-      getContract<NEP141Contract, NearInitContractParams>(nearState, contractID)
+      contracts<NEP141Contract>(nearState, contractID)
         .init({
           viewMethods: ['ft_metadata'],
           changeMethods: [],

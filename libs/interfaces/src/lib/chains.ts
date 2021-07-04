@@ -2,12 +2,33 @@ import { PublicKey, SecretKey, KeyPair, secp256k1, ed25519 } from './crypto';
 import { Pair } from '@baf-wallet/utils';
 import { Account as NearAccount, Contract } from 'near-api-js';
 import { GenericTxAction, GenericTxParams } from './tx';
-import { Env } from './configs';
 import { TokenInfo } from '..';
+import { InternalError } from 'near-api-js/lib/generated/rpc_error_types';
 
 export enum Chain {
   NEAR = 'near',
 }
+
+// export interface ChainInterface {
+//   chain: Chain;
+//   rpc: RpcInterface<any, any, any, any>;
+//   tx: TxInterface<any, any, any, any, any, any>;
+//   accounts: AccountsInterface<any, any, any>;
+//   convert: Converter<any, any, any>;
+//   constants: ChainConstants;
+//   contracts: ContractInterface<any, any>;
+// }
+
+// export interface ChainInterface {
+//   chain: Chain;
+//   init: (params: any) => Promise<any>;
+//   rpc: (innerSdk: any) => RpcInterface<any, any, any, any>;
+//   tx: (innerSdk: any) => TxInterface<any, any, any, any, any, any>;
+//   accounts: (innerSdk: any) => AccountsInterface<any, any, any>;
+//   convert: Converter<any, any, any>;
+//   constants: (innerSdk: any) => ChainConstants;
+//   contracts: (innerSdk: any) => ContractInterface<any, any>;
+// }
 
 // Or the type with all the supported chain account types
 export type ChainAccount = NearAccount;
@@ -25,8 +46,49 @@ export interface CommonInitParams {
 
 export type ExplorerLink = string;
 
-// ChainInterface but with the partial application already done via a closure somewhere
-// for instance, wrapChainInterface in @baf-wallet/multi-chain/switches
+// interface that every chain implementation is expected to implement
+// the 'innerSdk' HOF's are the way they are because most SDK's tend to be stateful (booooo)
+// which we need to be able to keep track of.
+// Since every SDK is probably going to be stateful, if at all, in a slightly different way,
+// we need to decouple the sdk's state from the actual functionality. If the 'Inner' type is expected
+// to contain all of the SDK's state, partial application affords us the flexibility we need to deal with
+// any kind of statefulness. Note that Inner can theoretically be void in the case that the underlying
+// SDK is stateless
+export interface ChainInterface<
+  PK,
+  SK,
+  KP,
+  InitParams,
+  Inner,
+  Tx,
+  BuildTxParams,
+  SignedTx,
+  SignOpts,
+  SendOpts,
+  SendResult,
+  Account,
+  AccountLookupParams,
+  AccountCreateParams,
+  ContractInitParams
+> {
+  init: (params: InitParams) => Promise<Inner>;
+  rpc: (innerSdk: Inner) => RpcInterface<Tx, SignedTx, SendOpts, SendResult>;
+  tx: (
+    innerSdk: Inner
+  ) => TxInterface<Tx, BuildTxParams, SignedTx, SignOpts, SendOpts, SendResult>;
+  accounts: (
+    innerSdk: Inner
+  ) => AccountsInterface<Account, AccountLookupParams, AccountCreateParams>;
+  convert: Converter<PK, SK, KP>;
+  constants: (innerSdk: Inner) => Promise<ChainConstants>;
+  contracts: <Contract>(
+    innerSdk: Inner,
+    address: string
+  ) => ContractInterface<Contract, ContractInitParams>;
+  // Types marked under score are used for internal type checking within the multi-chain library
+  _initParams?: InitParams
+}
+
 export interface WrappedChainInterface<
   PK,
   SK,
@@ -41,7 +103,7 @@ export interface WrappedChainInterface<
   Account,
   AccountLookupParams,
   AccountCreateParams,
-  ContractInitParamsBase
+  ContractInitParams
 > {
   rpc: RpcInterface<Tx, SignedTx, SendOpts, SendResult>;
   tx: TxInterface<Tx, BuildTxParams, SignedTx, SignOpts, SendOpts, SendResult>;
@@ -51,57 +113,15 @@ export interface WrappedChainInterface<
     AccountCreateParams
   >;
   convert: Converter<PK, SK, KP>;
-  constants?: ChainConstants;
-  getInner: () => Inner;
-  getContract: <Contract, ContractInitParams, ContractInitParamsBase>(
+  constants: ChainConstants;
+  contracts: <Contract>(
     address: string
   ) => ContractInterface<Contract, ContractInitParams>;
-}
-
-// interface that every chain implementation is expected to implement
-// the 'innerSdk' HOF's are the way they are because most SDK's tend to be stateful (booooo)
-// which we need to be able to keep track of.
-// Since every SDK is probably going to be stateful, if at all, in a slightly different way,
-// we need to decouple the sdk's state from the actual functionality. If the 'Inner' type is expected
-// to contain all of the SDK's state, partial application affords us the flexibility we need to deal with
-// any kind of statefulness. Note that Inner can theoretically be void in the case that the underlying
-// SDK is stateless
-export interface ChainInterface<
-  PK,
-  SK,
-  KP,
-  InitParams extends CommonInitParams,
-  Inner,
-  Tx,
-  BuildTxParams,
-  SignedTx,
-  SignOpts,
-  SendOpts,
-  SendResult,
-  Account,
-  AccountLookupParams,
-  AccountCreateParams,
-  ContractInitParamsBase
-> {
-  init: (params: InitParams) => Promise<Inner>;
-  rpc: (innerSdk: Inner) => RpcInterface<Tx, SignedTx, SendOpts, SendResult>;
-  tx: (
-    innerSdk: Inner
-  ) => TxInterface<Tx, BuildTxParams, SignedTx, SignOpts, SendOpts, SendResult>;
-  accounts: (
-    innerSdk: Inner
-  ) => AccountsInterface<Account, AccountLookupParams, AccountCreateParams>;
-  convert: Converter<PK, SK, KP>;
-  constants?: ChainConstants;
-  getContract: <Contract, ContractInitParams extends ContractInitParamsBase>(
-    innerSdk: Inner,
-    address: string
-  ) => ContractInterface<Contract, ContractInitParams>;
-  initChainConstants: (innerSdk: Inner, tokenContracts: string[]) => Promise<ChainConstants>;
+  getInner: () => Inner
 }
 
 /**
- * It is encouraged to store mappings from both token symbols to token infos and from 
+ * It is encouraged to store mappings from both token symbols to token infos and from
  * token contract addresses to infos
  */
 export interface ContractTokensConstant {
@@ -220,39 +240,6 @@ export type InferChainInterface<T> = T extends ChainInterface<
       ContractInitParamsBase
     >
   : never;
-export type InferWrappedChainInterface<T> = T extends WrappedChainInterface<
-  infer PK,
-  infer SK,
-  infer KP,
-  infer Inner,
-  infer Tx,
-  infer BuildTxParams,
-  infer SignedTx,
-  infer SignOpts,
-  infer SendOpts,
-  infer SendResult,
-  infer Account,
-  infer AccountLookupParams,
-  infer AccountCreateParams,
-  infer ContractInitParamsBase
->
-  ? WrappedChainInterface<
-      PK,
-      SK,
-      KP,
-      Inner,
-      Tx,
-      BuildTxParams,
-      SignedTx,
-      SignOpts,
-      SendOpts,
-      SendResult,
-      Account,
-      AccountLookupParams,
-      AccountCreateParams,
-      ContractInitParamsBase
-    >
-  : never;
 
 export type InferWrapChainInterface<T> = T extends ChainInterface<
   infer PK,
@@ -287,298 +274,4 @@ export type InferWrapChainInterface<T> = T extends ChainInterface<
       AccountCreateParams,
       ContractInitParamsBase
     >
-  : never;
-
-export type InferPK<T> = T extends ChainInterface<
-  infer PK,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _
->
-  ? PK
-  : never;
-export type InferSK<T> = T extends ChainInterface<
-  infer _,
-  infer SK,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _
->
-  ? SK
-  : never;
-export type InferKP<T> = T extends ChainInterface<
-  infer _,
-  infer _,
-  infer KP,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _
->
-  ? KP
-  : never;
-export type InferInitParams<T> = T extends ChainInterface<
-  infer _,
-  infer _,
-  infer _,
-  infer InitParams,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _
->
-  ? InitParams
-  : never;
-export type InferInner<T> = T extends ChainInterface<
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer Inner,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _
->
-  ? Inner
-  : never;
-export type InferTx<T> = T extends ChainInterface<
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer Tx,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _
->
-  ? Tx
-  : never;
-export type InferTxBuildParams<T> = T extends ChainInterface<
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer TxBuildParams,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _
->
-  ? TxBuildParams
-  : never;
-
-export type InferSignedTx<T> = T extends ChainInterface<
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer SignedTx,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _
->
-  ? SignedTx
-  : never;
-
-export type InferSignOpts<T> = T extends ChainInterface<
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer SignOpts,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _
->
-  ? SignOpts
-  : never;
-
-export type InferSendOpts<T> = T extends ChainInterface<
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer SendOpts,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _
->
-  ? SendOpts
-  : never;
-
-export type InferSendResult<T> = T extends ChainInterface<
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer SendResult,
-  infer _,
-  infer _,
-  infer _,
-  infer _
->
-  ? SendResult
-  : never;
-
-export type InferAccount<T> = T extends ChainInterface<
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer Account,
-  infer _,
-  infer _,
-  infer _
->
-  ? Account
-  : never;
-
-export type InferAccountLookupParams<T> = T extends ChainInterface<
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer AccountLookupParams,
-  infer _,
-  infer _
->
-  ? AccountLookupParams
-  : never;
-
-export type InferAccountCreateParams<T> = T extends ChainInterface<
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer AccountCreateParams,
-  infer _
->
-  ? AccountCreateParams
-  : never;
-
-export type InferContractInitParamsBase<T> = T extends ChainInterface<
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer _,
-  infer ContractInitParamsBase
->
-  ? ContractInitParamsBase
   : never;

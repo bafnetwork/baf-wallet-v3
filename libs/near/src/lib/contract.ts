@@ -99,13 +99,12 @@ export const initContract = (
   return (contract as unknown) as Contract;
 };
 
-export function getContract<
+export function contracts<
   Contract,
-  ContractInitParams extends NearInitContractParams
 >(
   nearState: NearState,
   contractAccountID: string
-): ContractInterface<Contract, ContractInitParams> {
+): ContractInterface<Contract, NearInitContractParams> {
   return {
     init: initContract(nearState.nearMasterAccount, contractAccountID),
   };

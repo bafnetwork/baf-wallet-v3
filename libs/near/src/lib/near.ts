@@ -1,10 +1,14 @@
 import {
+  Chain,
   ChainInterface,
   CommonInitParams,
   ed25519,
   Encoding,
+  InferChainInterface,
   InferWrapChainInterface,
   KeyPair,
+  RpcInterface,
+  TxInterface,
 } from '@baf-wallet/interfaces';
 import {
   Account,
@@ -40,8 +44,8 @@ import { NearNetworkID } from './utils';
 import { InMemoryKeyStore } from 'near-api-js/lib/key_stores';
 import { KeyPairEd25519 as NearKeyPairEd25519 } from 'near-api-js/lib/utils';
 import { BafError } from '@baf-wallet/errors';
-import { getContract } from './contract';
-import { initChainConstants } from './constants';
+import { contracts } from './contract';
+import { constants } from './constants';
 
 export type { NearAccountID, NearCreateAccountParams } from './accounts';
 export type {
@@ -50,25 +54,6 @@ export type {
   NearAction,
   NearSupportedActionTypes,
 } from './tx';
-export type WrappedNearChainInterface = InferWrapChainInterface<NearChainInterface>;
-
-export type NearChainInterface = ChainInterface<
-  NearUtils.PublicKey,
-  Buffer,
-  NearKeyPair,
-  NearInitParams & CommonInitParams,
-  NearState,
-  transactions.Transaction,
-  NearBuildTxParams,
-  transactions.SignedTransaction,
-  NearSignTxOpts,
-  NearSendOpts,
-  NearSendResult,
-  Account,
-  NearAccountID,
-  NearCreateAccountParams,
-  NearInitContractParams
->;
 
 export interface NearState {
   near: Near;
@@ -78,15 +63,19 @@ export interface NearState {
   getFungibleTokenContract: (contractName: string) => Promise<NEP141Contract>;
 }
 
-export const nearChainInterface: NearChainInterface = {
+export const nearChainInterface = {
   accounts: nearAccounts,
   tx: nearTx,
   convert: nearConverter,
   rpc: nearRpc,
   init,
-  getContract,
-  initChainConstants,
+  contracts,
+  constants
 };
+
+type _NearChainInterface = typeof nearChainInterface;
+export type NearChainInterface = InferChainInterface<_NearChainInterface>
+export type WrappedNearChainInterface = InferWrapChainInterface<_NearChainInterface>
 
 export interface NearInitParams extends CommonInitParams {
   networkID: NearNetworkID;

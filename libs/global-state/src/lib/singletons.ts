@@ -16,7 +16,6 @@ let init = false;
 export async function initChains(chainParams: ChainInitParams, env: Env) {
   nearChain = await getWrappedInterface<NearChainInterface>(Chain.NEAR, {
     ...chainParams[Chain.NEAR],
-    supportedContractTokens: getNearSupportedContractTokens(env),
   });
   init = true;
 }

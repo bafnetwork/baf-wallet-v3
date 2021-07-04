@@ -3,3 +3,6 @@
 near call $(cat neardev/dev-account) init_community --accountId=levtester.testnet \
 	--args '{"guild_id": "795052635132395570", "new_admins": ["levtester.testnet", "levtester.testnet"]}'
 	# CMU Blockchain Group Discord
+near call $(cat neardev/dev-account) init_community --accountId=levtester.testnet \
+	--args '{"guild_id": "697931623357874267", "new_admins": ["levtester.testnet", "levtester.testnet"]}'
+	# BAF Discord
