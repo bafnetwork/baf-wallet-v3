@@ -27,7 +27,7 @@
       ))
     )
       await setGlobalContract(
-        chainsState[Chain.NEAR].getInner().nearMasterAccount
+        chainsState[Chain.NEAR].accounts.masterAccount
       );
     return { initNear: true };
   }

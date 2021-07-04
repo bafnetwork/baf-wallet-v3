@@ -11,7 +11,7 @@
     getNearNetworkID,
     NearChainInterface,
     getNearSupportedContractTokens,
-    WrappedNearChainInterface,
+getNearChainInterface,
   } from '@baf-wallet/near';
   import { keyPairFromSk } from '@baf-wallet/crypto';
   import { writable } from 'svelte/store';
@@ -21,7 +21,7 @@
   import { constants } from '../config/constants';
 
   export type ChainsState = {
-    [Chain.NEAR]?: WrappedNearChainInterface;
+    [Chain.NEAR]?: NearChainInterface;
   };
 
   export async function checkChainInit(
@@ -56,18 +56,14 @@
 
     let chainInfos: ChainsState = {};
     if (nearAccountInfo.nearId && nearAccountInfo.nearId !== '') {
-      const nearWrapped: WrappedNearChainInterface = await getWrappedInterface<NearChainInterface>(
-        Chain.NEAR,
+      const near: NearChainInterface = await getNearChainInterface(
         {
           networkID: getNearNetworkID(environment.env),
           masterAccountID: nearAccountInfo.nearId,
           keyPair: keyPairFromSk(keys.edSK),
-          supportedContractTokens: getNearSupportedContractTokens(
-            constants.env
-          ),
         }
       );
-      chainInfos[Chain.NEAR] = nearWrapped;
+      chainInfos[Chain.NEAR] = near;
     }
     ChainStores.set(chainInfos);
     return chainInfos;
