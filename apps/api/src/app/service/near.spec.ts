@@ -138,7 +138,7 @@ describe('createAccount', () => {
         secp_pk: aliceSecpPublicKey.format(Encoding.ARRAY) as number[],
       })
     );
-    const secpSigNew = signMsg(aliceSecpSecretKey, msgDelete, true);
+    const secpSigNew = [...signMsg(aliceSecpSecretKey, msgDelete, true)];
     await getGlobalContract().delete_account_info({
       secp_pk: aliceSecpPublicKey.format(Encoding.ARRAY) as number[],
       user_name: aliceAccountName,

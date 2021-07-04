@@ -15,6 +15,7 @@
   import { createUserVerifyMessage } from '@baf-wallet/utils';
   import Button from '@smui/button';
   import Pusher from '@baf-wallet/base-components/Pusher.svelte';
+  import { initApp, reinitApp } from '../state/init.svelte';
 
   let account;
   let discordAccountConnected = false;
@@ -37,6 +38,7 @@
         $SiteKeyStore.secpPK
       );
       done = !!currentAssociatedAccount;
+      await reinitApp();
     }
   }
 
@@ -50,8 +52,8 @@
     if (!currentPubKeys.some(({ public_key }) => public_key === discordPKStr)) {
       await account.addKey(discordPK);
     }
-
     discordAccountConnected = true;
+    await reinitApp();
   }
 
   async function setGlobalContractAccountInfo(account: NearAccount) {
@@ -65,9 +67,9 @@
       return;
     }
 
-    const nonce = await getGlobalContract().getAccountNonce(
-      $SiteKeyStore.secpPK
-    );
+    const nonce = await getGlobalContract().get_account_nonce({
+      secp_pk: $SiteKeyStore.secpPK.format(Encoding.ARRAY) as number[],
+    });
     const userName = $AccountStore.oauthInfo.name;
     console.log(userName);
 
@@ -75,12 +77,12 @@
     const secpSig = signMsg($SiteKeyStore.secpSK, msg, true);
 
     console.log('howdy');
-    await getGlobalContract().setAccountInfo(
-      $SiteKeyStore.secpPK,
-      userName,
-      secpSig,
-      account.accountId
-    );
+    await getGlobalContract().set_account_info({
+      secp_pk: $SiteKeyStore.secpPK.format(Encoding.ARRAY) as number[],
+      user_name: userName,
+      secp_sig_s: [...secpSig],
+      new_account_id: account.accountId,
+    });
     console.log('ho');
 
     done = true;

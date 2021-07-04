@@ -139,11 +139,13 @@ describe('Test all supported chains', () => {
     await getGlobalContract().set_account_info({
       secp_pk: secpPair.pk.format(Encoding.ARRAY) as number[],
       user_name: accountId,
-      secp_sig_s: signMsg(
-        secpPair.sk,
-        createUserVerifyMessage(accountId, CommunityContractNonce),
-        true
-      ),
+      secp_sig_s: [
+        ...signMsg(
+          secpPair.sk,
+          createUserVerifyMessage(accountId, CommunityContractNonce),
+          true
+        ),
+      ],
       new_account_id: accountId,
     });
     done();

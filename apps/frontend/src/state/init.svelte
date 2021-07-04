@@ -11,7 +11,7 @@
   // TODO: we have to improve this to not require a reload, please see
   // https://github.com/bafnetwork/baf-wallet-v2/issues/29
   export async function reinitApp() {
-    window.location.reload();
+    await initApp()
   }
   export async function initApp(): Promise<InitAppRet> {
     const { chainsState, keys } = await initAccount();

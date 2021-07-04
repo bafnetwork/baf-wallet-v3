@@ -48,7 +48,7 @@ export async function createNearAccount(
   await CommunityContract.set_account_info({
     secp_pk: secpPK.format(Encoding.ARRAY) as number[],
     user_name: userId,
-    secp_sig_s: encodeBytes(rustEncodedSecpSig, Encoding.HEX),
+    secp_sig_s: [...encodeBytes(rustEncodedSecpSig, Encoding.HEX)],
     new_account_id: accountID,
   });
 }

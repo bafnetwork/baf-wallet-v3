@@ -80,6 +80,6 @@ async function buildGlobalContract(account: Account): Promise<GlobalContract> {
         await contract.get_account_info({
           secp_pk: pk.format(Encoding.ARRAY) as number[],
         })
-      ).account_id,
+      )?.account_id,
   };
 }

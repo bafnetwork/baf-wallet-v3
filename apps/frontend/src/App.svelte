@@ -51,7 +51,7 @@
     {#if $AccountStore.loggedIn && ret.initNear}
       <Router {routes} />
     {:else if $AccountStore.loggedIn}
-      <Settings />
+      <Welcome />
     {:else}
       <Login />
     {/if}

@@ -37,16 +37,18 @@
       return;
     }
     const userName = oauthInfo.name;
-    const nonce = await getGlobalContract().get_account_nonce(keyState.secpPK.format(Encoding.ARRAY));
+    const nonce = await getGlobalContract().get_account_nonce({
+      secp_pk: keyState.secpPK.format(Encoding.ARRAY) as number[],
+    });
     const msg = createUserVerifyMessage(userName, nonce);
     const secpSig = signMsg(keyState.secpSK, msg, true);
 
-    await getGlobalContract().deleteAccountInfo(
-      keyState.secpPK,
-      userName,
-      secpSig
-    );
-    await account.deleteKey(keyState.edPK.format(Encoding.BS58));
+    await getGlobalContract().delete_account_info({
+      secp_pk: keyState.secpPK.format(Encoding.ARRAY) as number[],
+      user_name: userName,
+      secp_sig_s: [...secpSig],
+    });
+    await account.deleteKey(keyState.edPK.format(Encoding.BS58) as string);
     loading = false;
     cb();
   }
