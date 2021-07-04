@@ -1,4 +1,4 @@
-import { jsonObject, jsonMember, jsonArrayMember, } from 'typedjson';
+import { jsonObject, jsonMember, jsonArrayMember } from 'typedjson';
 import { Chain } from '..';
 @jsonObject
 export class SocialMediaInfo {
@@ -41,4 +41,5 @@ export class TokenInfoAssets {
 
 export interface TokenInfo extends TokenInfoAssets {
   chain: Chain;
+  contractAddress: string;
 }

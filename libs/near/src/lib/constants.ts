@@ -48,34 +48,48 @@ export async function initChainConstants(
   nearState: NearState,
   tokenContracts: string[]
 ): Promise<ChainConstants> {
-  const ft_contract_inits = tokenContracts.map(
-    (contractID) =>
+  const ft_metadatas = await Promise.all(
+    tokenContracts.map((contractID) =>
       getContract<NEP141Contract, NearInitContractParams>(nearState, contractID)
-        .init
+        .init({
+          viewMethods: ['ft_metadata'],
+          changeMethods: [],
+        })
+        .then((contract) => contract.ft_metadata())
+    )
   );
-  const tokens = tokenContracts.map((tokenContract, i) => {
+  const tokensContractMapping = tokenContracts.map((tokenContract, i) => {
     return {
       key: tokenContract,
-      val: thunky(
-        async (): Promise<TokenInfo> => {
-          const ft_contract = await ft_contract_inits[i]({
-            viewMethods: ['ft_metadata'],
-            changeMethods: [],
-          });
-          const metadata = await ft_contract.ft_metadata();
-          console.log(metadata);
-          return {
-            chain: Chain.NEAR,
-            type: 'COIN',
-            ...metadata,
-          };
-        }
-      ),
+      val: async (): Promise<TokenInfo> => {
+        return {
+          ...ft_metadatas[i],
+          contractAddress: tokenContract,
+          chain: Chain.NEAR,
+          type: 'COIN',
+        };
+      },
+    };
+  });
+  const tokens = tokenContracts.map((tokenContract, i) => {
+    return {
+      key: ft_metadatas[i].symbol,
+      val: async (): Promise<TokenInfo> => {
+        return {
+          ...ft_metadatas[i],
+          contractAddress: tokenContract,
+          chain: Chain.NEAR,
+          type: 'COIN',
+        };
+      },
     };
   });
   return {
     nativeTokenInfo: thunky(() => getTokenInfo(Chain.NEAR)),
-    tokens: arrayToObject(tokens),
+    tokens: {
+      ...arrayToObject(tokens),
+      ...arrayToObject(tokensContractMapping),
+    },
     supportedContractTokenContracts: tokenContracts,
   };
 }

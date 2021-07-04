@@ -60,7 +60,7 @@
       : null;
 
     const account_info = await getGlobalContract().get_account_info({
-      secp_pk: recipientPubkey.format(Encoding.ARRAY),
+      secp_pk: recipientPubkey.format(Encoding.ARRAY) as number[],
     });
     if (!account_info) throw BafError.SecpPKNotAssociatedWithAccount(chain);
     txParams.recipientAddress = account_info.account_id;

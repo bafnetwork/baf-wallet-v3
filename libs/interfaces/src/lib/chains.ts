@@ -100,8 +100,12 @@ export interface ChainInterface<
   initChainConstants: (innerSdk: Inner, tokenContracts: string[]) => Promise<ChainConstants>;
 }
 
+/**
+ * It is encouraged to store mappings from both token symbols to token infos and from 
+ * token contract addresses to infos
+ */
 export interface ContractTokensConstant {
-  [contractAddress: string]: () => Promise<TokenInfo>;
+  [tokenSymbolOrAddress: string]: () => Promise<TokenInfo>;
 }
 export interface ChainConstants {
   nativeTokenInfo: () => Promise<TokenInfo>;

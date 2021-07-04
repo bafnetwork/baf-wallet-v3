@@ -121,6 +121,7 @@ export async function getTokenInfo(
     const _tokInfo = serializer.parse(data);
     return {
       ..._tokInfo,
+      contractAddress,
       chain,
     };
   } catch (err) {

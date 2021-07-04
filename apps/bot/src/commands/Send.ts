@@ -45,7 +45,7 @@ export default class SendMoney extends Command {
     message: Message,
     asset: string,
     amount: number,
-    recipientParsed: string,
+    recipientParsed: string
   ): Promise<GenericTxParams | null> {
     let actions: GenericTxAction[];
     const nearConstants = getNearChain().constants;
@@ -58,24 +58,27 @@ export default class SendMoney extends Command {
         },
       ];
     } else {
-      const tokenInfoRet = await getContractTokenInfoFromSymbol(
-        asset,
-        nearConstants.tokens
-      );
-      if (!tokenInfoRet) {
+      // TODO not right
+      const tokenInfoFn = getNearChain()?.constants.tokens[asset];
+      // const tokenInfoRet = await getContractTokenInfoFromSymbol(
+      //   asset,
+      //   nearConstants.tokens
+      // );
+      if (!tokenInfoFn) {
         await super.respond(
           message.channel,
           `❌ invalid asset ❌: ${asset} is currently not supported`
         );
         return null;
       }
+      const tokenInfoRet = await tokenInfoFn();
       actions = [
         {
           type: GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN,
-          contractAddress: tokenInfoRet.contract,
+          contractAddress: tokenInfoRet.contractAddress,
           amount: formatTokenAmountToIndivisibleUnit(
             amount,
-            tokenInfoRet.tokenInfo.decimals
+            tokenInfoRet.decimals
           ),
         },
       ];
@@ -141,7 +144,7 @@ export default class SendMoney extends Command {
         message,
         asset,
         amount,
-        recipientParsed,
+        recipientParsed
       );
       if (!tx) return;
 
