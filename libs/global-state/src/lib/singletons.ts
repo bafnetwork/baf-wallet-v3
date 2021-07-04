@@ -1,22 +1,22 @@
 /**
  * singletons provides methods to initialize and get the wrapped chain interfaces
  */
-import { Chain } from '@baf-wallet/interfaces';
+import { Chain, Env } from '@baf-wallet/interfaces';
 import { BafError } from '@baf-wallet/errors';
 import { ChainInitParams, getWrappedInterface } from '@baf-wallet/multi-chain';
 import {
   NearChainInterface,
-  nearSupportedContractTokens,
+  getNearSupportedContractTokens,
   WrappedNearChainInterface,
 } from '@baf-wallet/near';
 
 let nearChain: WrappedNearChainInterface;
 let init = false;
 
-export async function initChains(chainParams: ChainInitParams) {
+export async function initChains(chainParams: ChainInitParams, env: Env) {
   nearChain = await getWrappedInterface<NearChainInterface>(Chain.NEAR, {
     ...chainParams[Chain.NEAR],
-    supportedContractTokens: nearSupportedContractTokens,
+    supportedContractTokens: getNearSupportedContractTokens(env),
   });
   init = true;
 }

@@ -7,7 +7,6 @@ import {
   InferInitParams,
 } from '@baf-wallet/interfaces';
 import { nearChainInterface } from '@baf-wallet/near';
-import { initChainConstants } from './constants';
 
 // these are kind of ugly, but the ugly should be limited to here, all in the pursuit of typed-ness and editor completions
 
@@ -42,8 +41,8 @@ export async function wrapChainInterface<T>(
     tx: unwrapped.tx(innerSdk),
     accounts: unwrapped.accounts(innerSdk),
     convert: unwrapped.convert,
-    constants: await initChainConstants(
-      chain,
+    constants: await unwrapped.initChainConstants(
+      innerSdk,
       initParams.supportedContractTokens
     ),
 

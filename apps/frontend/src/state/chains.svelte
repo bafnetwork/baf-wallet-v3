@@ -10,7 +10,7 @@
   import {
     getNearNetworkID,
     NearChainInterface,
-    nearSupportedContractTokens,
+    getNearSupportedContractTokens,
     WrappedNearChainInterface,
   } from '@baf-wallet/near';
   import { getWrappedInterface } from '@baf-wallet/multi-chain';
@@ -19,6 +19,7 @@
   import { environment } from '../environments/environment';
   import { apiClient } from '../config/api';
   import { DefaultApi } from '@baf-wallet/api-client';
+  import { constants } from '../config/constants';
 
   export type ChainsState = {
     [Chain.NEAR]?: WrappedNearChainInterface;
@@ -33,7 +34,7 @@
   ): Promise<boolean> {
     if (!chainState || !chainState[chain] || !edPK || !secpPK) return false;
     const associatedAccountId = await apiClient.getAccountInfo({
-      secpPubkeyB58: secpPK.format(Encoding.BS58),
+      secpPubkeyB58: secpPK.format(Encoding.BS58) as string,
     });
     if (!associatedAccountId?.nearId) return false;
     const chainAccount = await chainState[chain].accounts.lookup(
@@ -51,7 +52,7 @@
 
   export async function initChains(keys: KeyState): Promise<ChainsState> {
     const nearAccountInfo = await apiClient.getAccountInfo({
-      secpPubkeyB58: keys.secpPK.format(Encoding.BS58),
+      secpPubkeyB58: keys.secpPK.format(Encoding.BS58) as string,
     });
 
     let chainInfos: ChainsState = {};
@@ -62,7 +63,9 @@
           networkID: getNearNetworkID(environment.env),
           masterAccountID: nearAccountInfo.nearId,
           keyPair: keyPairFromSk(keys.edSK),
-          supportedContractTokens: nearSupportedContractTokens,
+          supportedContractTokens: getNearSupportedContractTokens(
+            constants.env
+          ),
         }
       );
       chainInfos[Chain.NEAR] = nearWrapped;

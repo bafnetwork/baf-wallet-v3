@@ -81,7 +81,7 @@ export default class SendNFT extends Command {
     let community_nft_contract = '';
     if (args.length !== 3) {
       community_nft_contract = await getGlobalContract().get_community_default_nft_contract(
-        { guild_id: message.guild.id }
+        { server: message.guild.id }
       );
       if (!community_nft_contract) {
         await super.respond(message.channel, noDefaultNFTContractMessage);

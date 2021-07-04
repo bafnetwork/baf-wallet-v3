@@ -11,7 +11,7 @@ import { getWrappedInterface } from '@baf-wallet/multi-chain';
 const client = Container.get<Client>(Client);
 
 async function main() {
-  await initChains(constants.chainParams);
+  await initChains(constants.chainParams, constants.env);
   await setGlobalContract(await getNearChain().getInner().nearMasterAccount);
   await client.login(environment.DISCORD_BOT_TOKEN);
   console.log('tokenbot happily hodling along');

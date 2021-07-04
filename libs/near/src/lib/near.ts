@@ -41,6 +41,7 @@ import { InMemoryKeyStore } from 'near-api-js/lib/key_stores';
 import { KeyPairEd25519 as NearKeyPairEd25519 } from 'near-api-js/lib/utils';
 import { BafError } from '@baf-wallet/errors';
 import { getContract } from './contract';
+import { initChainConstants } from './constants';
 
 export type { NearAccountID, NearCreateAccountParams } from './accounts';
 export type {
@@ -84,6 +85,7 @@ export const nearChainInterface: NearChainInterface = {
   rpc: nearRpc,
   init,
   getContract,
+  initChainConstants,
 };
 
 export interface NearInitParams extends CommonInitParams {

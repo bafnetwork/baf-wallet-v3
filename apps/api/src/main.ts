@@ -18,7 +18,7 @@ async function initContracts() {
 }
 
 async function init() {
-  await initChains(constants.chainParams);
+  await initChains(constants.chainParams, constants.env);
   await initContracts();
   app.use(
     bodyParser.urlencoded({

@@ -1,6 +1,6 @@
 import { PublicKey, SecretKey, KeyPair, secp256k1, ed25519 } from './crypto';
 import { Pair } from '@baf-wallet/utils';
-import { Account as NearAccount } from 'near-api-js';
+import { Account as NearAccount, Contract } from 'near-api-js';
 import { GenericTxAction, GenericTxParams } from './tx';
 import { Env } from './configs';
 import { TokenInfo } from '..';
@@ -97,6 +97,7 @@ export interface ChainInterface<
     innerSdk: Inner,
     address: string
   ) => ContractInterface<Contract, ContractInitParams>;
+  initChainConstants: (innerSdk: Inner, tokenContracts: string[]) => Promise<ChainConstants>;
 }
 
 export interface ContractTokensConstant {
@@ -160,7 +161,7 @@ export interface TxInterface<
 }
 
 export interface ContractInterface<Contract, ContractInitParams> {
-  init: <Contract>(params: ContractInitParams) => Promise<Contract>;
+  init: (params: ContractInitParams) => Promise<Contract>;
 }
 
 // utility for going to/from key BAF Wallet unified types

@@ -1,3 +1,4 @@
+import { ContractInterface } from '@baf-wallet/interfaces';
 import BN from 'bn.js';
 import { Account, Contract as NearNativeContract } from 'near-api-js';
 import { NearAccountID } from './accounts';
@@ -7,6 +8,14 @@ import { NearState } from './near';
 interface NearNFTToken {
   id: string;
   owner_id: string;
+}
+
+export interface TokenMetadata {
+  id: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  icon: string;
 }
 
 /**
@@ -27,6 +36,7 @@ export interface NEP141Contract extends NearContract {
     gas: string,
     attachedDeposit: string
   ) => Promise<void>;
+  ft_metadata: () => Promise<TokenMetadata>;
 }
 
 export interface NEP171Contract extends NearContract {
@@ -89,10 +99,13 @@ export const initContract = (
   return (contract as unknown) as Contract;
 };
 
-export function getContract<Contract, ContractInitParams>(
+export function getContract<
+  Contract,
+  ContractInitParams extends NearInitContractParams
+>(
   nearState: NearState,
   contractAccountID: string
-) {
+): ContractInterface<Contract, ContractInitParams> {
   return {
     init: initContract(nearState.nearMasterAccount, contractAccountID),
   };
