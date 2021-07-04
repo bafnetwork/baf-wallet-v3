@@ -1,19 +1,34 @@
 <script lang="ts">
-  import { link } from 'svelte-spa-router';
+  import { push } from 'svelte-spa-router';
   import jazzicon from 'jazzicon';
   import Layout from '../components/Layout.svelte';
   import Listbalances from '../components/Listbalances.svelte';
   import History from '../components/History.svelte';
-  import { chainStores, checkChainInit } from '../state/chains.svelte';
+  import { ChainStores, checkChainInit } from '../state/chains.svelte';
   import { Chain } from '@baf-wallet/interfaces';
   import { getEnumValues } from '@baf-wallet/utils';
+  import { apiClient } from '../config/api';
+  import { SiteKeyStore } from '../state/keys.svelte';
+  import Pusher from '@baf-wallet/base-components/Pusher.svelte';
 
   let viewMode: 'assets' | 'history' = 'assets';
 
   let displayName: string;
-  let noChainInit = getEnumValues(Chain).every(
-    (chain) => !checkChainInit($chainStores, chain)
-  );
+  
+  async function getNoChainInit() {
+    const chainInits = await Promise.all(
+      getEnumValues(Chain).map((chain) =>
+        checkChainInit(
+          $ChainStores,
+          chain,
+          apiClient,
+          $SiteKeyStore?.edPK,
+          $SiteKeyStore?.secpPK
+        )
+      )
+    );
+    return !chainInits.every((init) => init === true);
+  }
 
   function hashdisplayName(displayName: string) {
     let hash = 0;
@@ -39,21 +54,18 @@
 </script>
 
 <Layout>
-  {#if noChainInit}
-    <h1>Hi there!</h1>
-    <p>
-      It looks like you have not setup your account on any of the Blockchains
-      which we support.
-    </p>
-    <p>
-      Please see initialize your <a href="/settings" use:link>account's page</a>
-    </p>
-  {:else}
-    <h1>Account</h1>
-    {#if viewMode === 'assets'}
-      <Listbalances />
+  {#await getNoChainInit()}
+    loading...
+  {:then noChainInit}
+    {#if noChainInit}
+      <Pusher route="/welcome"/>
     {:else}
-      <History />
+      <h1>Account</h1>
+      {#if viewMode === 'assets'}
+        <Listbalances />
+      {:else}
+        <History />
+      {/if}
     {/if}
-  {/if}
+  {/await}
 </Layout>

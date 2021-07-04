@@ -2,37 +2,56 @@
   import { getEnumValues } from '@baf-wallet/utils';
   import { Chain } from '@baf-wallet/interfaces';
   import Lazy from '@baf-wallet/base-components/Lazy.svelte';
-  import { chainStores, checkChainInit } from '../../state/chains.svelte';
-  import { initAppState } from '../../state/init.svelte';
+  import { reinitApp } from '../../state/init.svelte';
+  import { ChainStores, checkChainInit } from '../../state/chains.svelte';
+  import { SiteKeyStore } from '../../state/keys.svelte';
+  import { AccountStore } from '../../state/accounts.svelte';
   import { apiClient } from '../../config/api';
-  import { siteKeyStore } from '../../state/keys.svelte';
-  import { accountStore } from '../../state/accounts.svelte';
+  import { constants } from '../../config/constants';
 
   const chains = getEnumValues(Chain);
-  const ChainDeleteAccountComponent = (chain: Chain) => () =>
-    import(`./${chain}/DeleteAccount.svelte`);
+  const ChainConnectAccount = (chain: Chain) => () =>
+    // TODO: clean up imports, see https://github.com/bafnetwork/baf-wallet-v2/issues/54
+    import(`./${chain}/ConnectAccount.svelte`);
+  const ChainDisconnectAccount = (chain: Chain) => () =>
+    // TODO: clean up imports, see https://github.com/bafnetwork/baf-wallet-v2/issues/54
+    import(`./${chain}/DisconnectAccount.svelte`);
 
-  const ChainInitAccountComponent = (chain: Chain) => () =>
-    import(`./${chain}/InitAccount.svelte`);
+  async function isInit(chain: Chain) {
+    return await checkChainInit(
+      $ChainStores,
+      chain,
+      apiClient,
+      $SiteKeyStore?.edPK,
+      $SiteKeyStore?.secpPK
+    );
+  }
+
 </script>
 
 {#each chains as chain}
-  {#if checkChainInit($chainStores, chain)}
-    Delete your {chain} initialized account: <Lazy
-      component={ChainDeleteAccountComponent(chain)}
-      cb={initAppState}
-      chainInterface={$chainStores[chain]}
-      {apiClient}
-      keyState={$siteKeyStore}
-      accountState={$accountStore}
-    />
-  {:else}
-    Initialize your {chain} account: <Lazy
-      component={ChainInitAccountComponent(chain)}
-      cb={initAppState}
-      {apiClient}
-      keyState={$siteKeyStore}
-      accountState={$accountStore}
-    />
-  {/if}
+  {#await isInit(chain)}
+    <!-- promise is pending -->
+  {:then chainInit}
+    {#if chainInit}
+      Disconnnect your discord account from your {chain} account: <Lazy
+        component={ChainDisconnectAccount(chain)}
+        cb={reinitApp}
+        oauthInfo={$AccountStore.oauthInfo}
+        chainInterface={$ChainStores[chain]}
+        keyState={$SiteKeyStore}
+      />
+    {:else}
+      Connect your discord account to your {chain} account
+      <Lazy
+        component={ChainConnectAccount(chain)}
+        cb={reinitApp}
+        oauthInfo={$AccountStore.oauthInfo}
+        chainInterface={$ChainStores[chain]}
+        keyState={$SiteKeyStore}
+        networkID={constants[chain].network}
+      />
+    {/if}
+    <!-- promise was fulfilled -->
+  {/await}
 {/each}

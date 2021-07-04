@@ -6,11 +6,11 @@
   import { TorusLoginResponse } from '@toruslabs/torus-direct-web-sdk';
   import { secp256k1Marker } from '@baf-wallet/interfaces';
   import {
-    accountStore,
+    AccountStore,
     storeOauthState,
     storeTorusAccessToken,
   } from '../state/accounts.svelte';
-  import { buildKeyStateFromSecpSk, siteKeyStore } from '../state/keys.svelte';
+  import { buildKeyStateFromSecpSk, SiteKeyStore } from '../state/keys.svelte';
   import { apiClient } from '../config/api';
   import { constants } from '../config/constants';
   import { initAppState } from '../state/init.svelte';
@@ -40,9 +40,9 @@
 
     const secpSk = skFromString(userInfo.privateKey, secp256k1Marker);
 
-    siteKeyStore.set(buildKeyStateFromSecpSk(secpSk));
+    SiteKeyStore.set(buildKeyStateFromSecpSk(secpSk));
 
-    accountStore.update((state) => {
+    AccountStore.update((state) => {
       return {
         ...state,
         loggedIn: true,

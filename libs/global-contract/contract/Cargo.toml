@@ -1,5 +1,5 @@
 [package]
-name = "community-contract"
+name = "global-contract"
 version = "0.1.0"
 authors = ["Lev Stambler <levstamb@gmail.com>"]
 edition = "2018"

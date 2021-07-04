@@ -3,14 +3,14 @@
   import Button from '@smui/button';
   import TopAppBar, { Row, Section, Title } from '@smui/top-app-bar';
   import IconButton from '@smui/icon-button';
-  import { accountStore, logout } from '../state/accounts.svelte';
+  import { AccountStore, logout } from '../state/accounts.svelte';
 
   let prominent = false;
   let dense = false;
   let secondaryColor = false;
 </script>
 
-{#if $accountStore.loggedIn}
+{#if $AccountStore.loggedIn}
   <TopAppBar
     variant="static"
     {prominent}

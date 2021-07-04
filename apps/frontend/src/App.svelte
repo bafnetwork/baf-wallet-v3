@@ -7,21 +7,22 @@
   import Login from './pages/Login.svelte';
   import Account from './pages/Account.svelte';
   import Settings from './pages/Settings.svelte';
+  import Welcome from './pages/Welcome.svelte';
   import ApproveRedirect from './components/ApproveRedirect.svelte';
   import NotFound404 from './pages/NotFound404.svelte';
-  import { accountStore } from './state/accounts.svelte';
-  import { initAppState } from './state/init.svelte';
+  import { AccountStore } from './state/accounts.svelte';
+  import { initApp } from './state/init.svelte';
 
   const routes = {
     '/': Account,
+    '/welcome': Welcome,
     '/approve-redirect/:chain/:txParams': ApproveRedirect,
     '/settings': Settings,
     '/login': Login,
     '/*': NotFound404,
   };
 
-  const initProm = initAppState();
-
+  const initProm = initApp();
 </script>
 
 <link
@@ -48,8 +49,10 @@
   <p>Loading...</p>
 {:then ret}
   <Modal>
-    {#if $accountStore.loggedIn}
+    {#if $AccountStore.loggedIn && ret.initNear}
       <Router {routes} />
+    {:else if $AccountStore.loggedIn}
+      <Settings />
     {:else}
       <Login />
     {/if}

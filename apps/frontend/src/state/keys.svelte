@@ -17,7 +17,7 @@
 
   const keyStoreName = 'key-store';
 
-  export const siteKeyStore = writable<KeyState | null>(null);
+  export const SiteKeyStore = writable<KeyState | null>(null);
 
   export function buildKeyStateFromSecpSk(
     secpSK: SecretKey<secp256k1>
@@ -37,9 +37,9 @@
   function unpackKey(keyState: string): KeyState {
     const split = keyState.split(':');
     if (split.length !== 2) {
-      throw BafError.InvalidPackedKey()
+      throw BafError.InvalidPackedKey();
     } else if (split[0] !== 'secp256k1') {
-      throw BafError.UnsupportedKeyCurve('secp256k1')
+      throw BafError.UnsupportedKeyCurve('secp256k1');
     }
     const keyBytes = encodeBytes(split[1], Encoding.HEX);
     return buildKeyStateFromSecpSk(
@@ -51,7 +51,7 @@
     window.localStorage.setItem(keyStoreName, '');
   }
 
-  siteKeyStore.subscribe((keyStore) => {
+  SiteKeyStore.subscribe((keyStore) => {
     if (!keyStore) {
       return;
     }
@@ -65,7 +65,7 @@
     const keysStored = window.localStorage.getItem(keyStoreName);
     if (!keysStored) return null;
     const keysParse = unpackKey(keysStored);
-    siteKeyStore.set(keysParse);
+    SiteKeyStore.set(keysParse);
     return keysParse;
   }
 </script>

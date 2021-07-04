@@ -3,7 +3,7 @@ import express from 'express';
 import { RegisterRoutes } from '../build/routes';
 import { constants } from './app/config/constants';
 import * as cors from 'cors';
-import { setCommunityContract } from '@baf-wallet/community-contract';
+import { setGlobalContract } from '@baf-wallet/global-contract';
 import { Chain, Env } from '@baf-wallet/interfaces';
 import { getNearChain, initChains } from '@baf-wallet/global-state';
 import { BafError } from '@baf-wallet/errors';
@@ -14,7 +14,7 @@ async function initContracts() {
   const masterAccount = await getNearChain().accounts.lookup(
     constants.chainParams[Chain.NEAR].masterAccountID
   );
-  await setCommunityContract(masterAccount);
+  await setGlobalContract(masterAccount);
 }
 
 async function init() {

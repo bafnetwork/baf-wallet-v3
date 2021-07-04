@@ -3,10 +3,6 @@
 };
 
 import {
-  getCommunityContract,
-  setCommunityContract,
-} from '@baf-wallet/community-contract';
-import {
   keyPairFromSk,
   pkFromString,
   signMsg,
@@ -32,6 +28,7 @@ import { getWrappedInterface } from './index';
 import { config as dotenvConfig } from 'dotenv';
 import { createUserVerifyMessage } from '@baf-wallet/utils';
 import BN from 'bn.js';
+import { getGlobalContract } from '@baf-wallet/global-contract';
 
 dotenvConfig({ path: './env/.env.unit-test' });
 
@@ -135,12 +132,11 @@ describe('Test all supported chains', () => {
         configs[Chain.NEAR]
       ),
     };
-    await setCommunityContract(chains[Chain.NEAR].getInner().nearMasterAccount);
     const accountId = chains[Chain.NEAR].getInner().nearMasterAccount.accountId;
-    const CommunityContractNonce = await getCommunityContract().getAccountNonce(
+    const CommunityContractNonce = await getGlobalContract().getAccountNonce(
       secpPair.pk
     );
-    await getCommunityContract().setAccountInfo(
+    await getGlobalContract().setAccountInfo(
       secpPair.pk,
       accountId,
       signMsg(

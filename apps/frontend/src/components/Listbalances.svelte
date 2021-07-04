@@ -12,7 +12,7 @@
   } from '@baf-wallet/chain-info';
   import { constants } from '../config/constants';
   import AmountFormatter from '@baf-wallet/base-components/AmountFormatter.svelte';
-  import { chainStores } from '../state/chains.svelte';
+  import { ChainStores } from '../state/chains.svelte';
   import Button from '@smui/button';
   import { getContext } from 'svelte';
   import SendModal from './SendModal.svelte';
@@ -60,9 +60,9 @@
   }
 
   async function initChainBalances(): Promise<ChainBalance[]> {
-    const balanceProms: Promise<ChainBalance>[] = Object.keys($chainStores).map(
+    const balanceProms: Promise<ChainBalance>[] = Object.keys($ChainStores).map(
       async (chain: Chain) => {
-        const chainInfo = $chainStores[chain];
+        const chainInfo = $ChainStores[chain];
         const chainTokenInfo = await getTokenInfo(chain);
         const res = {
           chain,

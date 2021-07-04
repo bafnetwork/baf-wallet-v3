@@ -6,4 +6,4 @@ import setDefaultNFT from './SetDefaultNFT';
 import AddAdmins from './AddAdmins';
 import RemoveAdmins from './RemoveAdmins';
 
-export default [Ping, Send, SendNFT, InitAccount, setDefaultNFT, AddAdmins, RemoveAdmins];
+export default [Ping, Send, SendNFT, setDefaultNFT, AddAdmins, RemoveAdmins];

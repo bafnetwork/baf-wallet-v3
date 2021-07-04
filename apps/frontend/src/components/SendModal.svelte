@@ -7,6 +7,7 @@
   import Button, { Label } from '@smui/button';
   import { getContext } from 'svelte';
   import { TokenInfo, Chain, SupportedTransferTypes } from '@baf-wallet/interfaces';
+  
   const { close } = getContext('modal');
   let submit: (e: Event) => Promise<void>;
 

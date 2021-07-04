@@ -7,5 +7,5 @@
         confirmed: Date;
     }
     // TODO: somehow fetch tx history
-    export const historyStore = writable<TxHistoryItem[]>([]);
+    export const HistoryStore = writable<TxHistoryItem[]>([]);
 </script>

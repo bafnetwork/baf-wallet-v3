@@ -1,4 +1,5 @@
 import { keyPairFromSk, skFromString } from '@baf-wallet/crypto';
+import { GlobalContractConfig } from '@baf-wallet/global-contract';
 import { ed25519, ed25519Marker, Encoding } from '@baf-wallet/interfaces';
 import { getNearNetworkID, NearInitParams } from '@baf-wallet/near';
 import { environment } from '../environments/environment';
@@ -24,6 +25,5 @@ export const constants = {
       masterAccountID: process.env.NEAR_MASTER_ACCOUNT_ID,
     } as NearInitParams,
   },
-  communityContractAddr: require('../../../../libs/community-contract/config.json')
-    .contractName,
+  globalContractAddress: GlobalContractConfig.contractName,
 };

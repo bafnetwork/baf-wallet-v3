@@ -1,14 +1,11 @@
-use crate::CommunityContract;
-use crate::env::predecessor_account_id;
-use crate::errors::throw_error;
 use std::convert::TryInto;
 
 use near_sdk::{
-    env::{current_account_id, is_valid_account_id, keccak256, signer_account_id},
-    near_bindgen, AccountId,
+    env::{keccak256},
+    AccountId,
 };
 
-use crate::{AccountInfo, Community, SecpPK, SecpPKInternal};
+use crate::{AccountInfo, GlobalData, SecpPK, SecpPKInternal, throw_error};
 
 /// The functionality which connects public keys to a near address
 pub trait AccountInfos {
@@ -24,7 +21,7 @@ pub trait AccountInfos {
     fn delete_account_info(&mut self, user_id: String, secp_pk: SecpPK, secp_sig_s: Vec<u8>);
 }
 
-impl Community {
+impl GlobalData {
     fn get_account_nonce_internal(&self, secp_pk: &SecpPKInternal) -> i32 {
         self.get_account_info_internal(secp_pk)
             .map(|account_info| account_info.nonce)
@@ -35,7 +32,7 @@ impl Community {
     }
 
     pub(crate) fn get_account_info(&self, secp_pk: SecpPK) -> Option<AccountInfo> {
-        let secp_pk_internal = Community::parse_secp_pk(secp_pk).unwrap();
+        let secp_pk_internal = GlobalData::parse_secp_pk(secp_pk).unwrap();
         self.account_infos.get(&secp_pk_internal)
     }
 
@@ -45,7 +42,7 @@ impl Community {
         secp_pk: SecpPK,
         secp_sig_s: Vec<u8>,
     ) -> (SecpPKInternal, i32) {
-        let secp_pk_internal = Community::parse_secp_pk(secp_pk).unwrap();
+        let secp_pk_internal = GlobalData::parse_secp_pk(secp_pk).unwrap();
         let nonce = self.get_account_nonce_internal(&secp_pk_internal);
         let msg_str = format!("{}:{}", user_id, nonce);
         let msg_prehash = msg_str.as_bytes();
@@ -60,7 +57,7 @@ impl Community {
             .map_err(|e| "Error parsing pk")
             .unwrap();
         if !secp256k1::verify(&secp256k1::Message::parse(&hash), sig, &pubkey) {
-            throw_error(crate::errors::INCORRECT_SIGNATURE);
+            throw_error!(crate::errors::INCORRECT_SIGNATURE);
         }
         return (secp_pk_internal, nonce);
     }
@@ -111,7 +108,7 @@ mod tests {
     fn sign_and_set_account(
         msg_str: String,
         user_id: String,
-        contract: &mut Community,
+        contract: &mut GlobalData,
         nonce: i32,
         sk: &SecretKey,
         pk: &PublicKey,
@@ -133,7 +130,7 @@ mod tests {
     fn test_update_account_id() {
         let context = get_context(alice());
         testing_env!(context);
-        let mut contract = Community::new();
+        let mut contract = GlobalData::new();
         let sk = secp256k1::SecretKey::default();
         let pk = secp256k1::PublicKey::from_secret_key(&sk);
         let nonce = 0;
@@ -144,23 +141,11 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "This action requires admin privileges")]
-    fn test_requires_admin_panics() {
-        let context = get_context(alice());
-        testing_env!(context);
-        let mut contract = Community::new();
-        testing_env!(get_context(bob()));
-        let sk = secp256k1::SecretKey::default();
-        let pk = secp256k1::PublicKey::from_secret_key(&sk);
-        sign_and_set_account("John:{}".to_string(), "John".to_string(), &mut contract, 0, &sk, &pk)
-    }
-
-    #[test]
     #[should_panic(expected = "The signature is incorrect")]
     fn test_invalid_signature() {
         let context = get_context(alice());
         testing_env!(context);
-        let mut contract = Community::new();
+        let mut contract = GlobalData::new();
         let sk = secp256k1::SecretKey::default();
         let pk = secp256k1::PublicKey::from_secret_key(&sk);
         let bad_nonce = 1;
@@ -173,7 +158,7 @@ mod tests {
     fn test_invalid_signature_format() {
         let context = get_context(alice());
         testing_env!(context);
-        let mut contract = Community::new();
+        let mut contract = GlobalData::new();
         let sk = secp256k1::SecretKey::default();
         let pk = secp256k1::PublicKey::from_secret_key(&sk);
         let nonce = 0;
@@ -198,7 +183,7 @@ mod tests {
     fn test_invalid_public_key_format() {
         let context = get_context(alice());
         testing_env!(context);
-        let mut contract = Community::new();
+        let mut contract = GlobalData::new();
         let sk = secp256k1::SecretKey::default();
         let pk = secp256k1::PublicKey::from_secret_key(&sk);
         let nonce = 1;

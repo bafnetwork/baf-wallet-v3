@@ -9,7 +9,8 @@ import {
 import { NearAccountID } from '@baf-wallet/near';
 import { pkToArray } from '@baf-wallet/crypto';
 
-interface CommunityContract {
+export const GlobalContractConfig = { ...ContractConfig };
+interface GlobalContract {
   getAccountId: (pk: PublicKey<secp256k1>) => Promise<NearAccountID | null>;
   getAccountNonce: (secp_pk: PublicKey<secp256k1>) => Promise<string>;
   setAccountInfo: (
@@ -23,39 +24,38 @@ interface CommunityContract {
     user_id: string,
     secp_sig_s: RustEncodedSecpSig
   ) => Promise<void>;
-  get_default_nft_contract: () => Promise<string>;
+  getCommunityContract: (server: string) => Promise<string>;
+  [fn_name: string]: (...args: any) => Promise<any>;
 }
 
-let communityContract: CommunityContract;
+let globalContract: GlobalContract;
 
-export async function setCommunityContract(
+export async function setGlobalContract(
   account: Account
-): Promise<CommunityContract> {
-  communityContract = await buildCommunityContract(account);
-  return communityContract;
+): Promise<GlobalContract> {
+  globalContract = await buildGlobalContract(account);
+  return globalContract;
 }
 
-export function getCommunityContract(): CommunityContract {
-  if (communityContract) return communityContract;
-  throw BafError.UnintCommunityContract();
+export function getGlobalContract(): GlobalContract {
+  if (globalContract) return globalContract;
+  throw BafError.UninitGlobalContract();
 }
 
-async function buildCommunityContract(
+async function buildGlobalContract(
   account: Account
-): Promise<CommunityContract> {
+): Promise<GlobalContract & any> {
   const contract = new Contract(account, ContractConfig.contractName, {
     viewMethods: [
       'get_account_id',
       'get_account_nonce',
-      'get_admins',
-      'get_default_nft_contract',
+      'get_community_contract',
+      'get_community_default_nft_contract',
     ],
     changeMethods: [
       'set_account_info',
       'delete_account_info',
-      'add_admins',
-      'remove_admins',
-      'set_default_nft_contract',
+      'set_community_contract',
     ],
   });
 
@@ -63,7 +63,7 @@ async function buildCommunityContract(
     ...(contract as any),
     /**
      * Below are override functions for the calls
-     * Find the contract code in libs/community-contract/contract
+     * Find the contract code in libs/global-contract/contract
      */
     getAccountId: async (pk) => {
       const ret = await (contract as any).get_account_id({
@@ -89,5 +89,7 @@ async function buildCommunityContract(
         secp_pk: pkToArray(pk),
         secp_sig_s: [...secp_sig_s],
       }),
-  };
+    getCommunityContract: (server) =>
+      (contract as any).get_community_contract(server),
+  } as any;
 }

@@ -19,10 +19,9 @@ import {
   skFromRng,
   skFromSeed,
 } from '@baf-wallet/crypto';
-import { createNearAccount } from './near';
+// import { createNearAccount } from './near';
 import { Account, KeyPair } from 'near-api-js';
 import { constants } from '../config/constants';
-import { getCommunityContract, setCommunityContract } from '@baf-wallet/community-contract';
 import { createUserVerifyMessage, formatBytes } from '@baf-wallet/utils';
 import {
   NearChainInterface,
@@ -30,6 +29,11 @@ import {
   WrappedNearChainInterface,
 } from '@baf-wallet/near';
 import { getNearChain, initChains } from '@baf-wallet/global-state';
+import {
+  getGlobalContract,
+  setGlobalContract,
+} from '@baf-wallet/global-contract';
+import { createNearAccount } from './near';
 
 (global as any).window = {
   name: 'nodejs',
@@ -84,7 +88,7 @@ describe('createAccount', () => {
     masterAccount = await near.accounts.lookup(
       constants.chainParams[Chain.NEAR].masterAccountID
     );
-    await setCommunityContract(masterAccount);
+    await setGlobalContract(masterAccount);
 
     await near;
     const nearAlice = await getAliceWrappedNear();
@@ -97,7 +101,7 @@ describe('createAccount', () => {
   });
 
   it('should create the account given good sigs', async () => {
-    const aliceNonce = await getCommunityContract().getAccountNonce(
+    const aliceNonce = await getGlobalContract().getAccountNonce(
       aliceSecpPublicKey
     );
     const msg = createUserVerifyMessage(
@@ -106,7 +110,11 @@ describe('createAccount', () => {
     );
     const edSig = signMsg(aliceEdSecretKey, msg);
     const secpSig = signMsg(aliceSecpSecretKey, msg);
-    const encodeSecpSigCommunityContract = signMsg(aliceSecpSecretKey, msg, true);
+    const encodeSecpSigCommunityContract = signMsg(
+      aliceSecpSecretKey,
+      msg,
+      true
+    );
 
     await createNearAccount(
       aliceSecpPublicKey,
@@ -126,10 +134,10 @@ describe('createAccount', () => {
 
     const msgDelete = createUserVerifyMessage(
       aliceAccountName,
-      await getCommunityContract().getAccountNonce(aliceSecpPublicKey)
+      await getGlobalContract().getAccountNonce(aliceSecpPublicKey)
     );
     const secpSigNew = signMsg(aliceSecpSecretKey, msgDelete, true);
-    await getCommunityContract().deleteAccountInfo(
+    await getGlobalContract().deleteAccountInfo(
       aliceSecpPublicKey,
       aliceAccountName,
       secpSigNew

@@ -1,10 +1,10 @@
 <script lang="ts">
     import { onDestroy } from 'svelte';
-    import { historyStore } from '../state/history.svelte';
+    import { HistoryStore } from '../state/history.svelte';
     import type { TxHistoryItem } from '../state/history.svelte';
 
     let history: TxHistoryItem[];
-    const unsub = historyStore.subscribe(val => history = val);
+    const unsub = HistoryStore.subscribe(val => history = val);
     onDestroy(unsub);
 </script>
 

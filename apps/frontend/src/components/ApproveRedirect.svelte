@@ -13,8 +13,8 @@
   let thickness = 2.0;
   let gap = 40;
 
-  import { siteKeyStore } from '../state/keys.svelte';
-  import { chainStores, checkChainInit } from '../state/chains.svelte';
+  import { SiteKeyStore } from '../state/keys.svelte';
+  import { ChainStores, checkChainInit } from '../state/chains.svelte';
   import { deserializeTxParams } from '@baf-wallet/redirect-generator';
   import {
     Chain,
@@ -23,10 +23,11 @@
     GenericTxSupportedActions,
     TokenInfo,
   } from '@baf-wallet/interfaces';
+  import { getGlobalContract } from '@baf-wallet/global-contract';
   import { getTorusPublicAddress } from '@baf-wallet/torus';
   import { keyPairFromSk } from '@baf-wallet/crypto';
   import BN from 'bn.js';
-import { getCommunityContract } from '@baf-wallet/community-contract';
+  import { apiClient } from '../config/api';
 
   export let params = {} as any;
   export let chain: Chain = params ? params.chain : null;
@@ -59,29 +60,29 @@ import { getCommunityContract } from '@baf-wallet/community-contract';
       : null;
     recipientUser = txParams.recipientUserIdReadable;
 
-    txParams.recipientAddress = await getCommunityContract().getAccountId(recipientPubkey);
+    txParams.recipientAddress = await getGlobalContract().getAccountId(recipientPubkey);
 
-    const nearTxParams = await $chainStores[
+    const nearTxParams = await $ChainStores[
       Chain.NEAR
     ].tx.buildParamsFromGenericTx(
       txParams,
       recipientPubkey,
-      $siteKeyStore.secpPK,
-      $siteKeyStore.edPK
+      $SiteKeyStore.secpPK,
+      $SiteKeyStore.edPK
     );
     actions = txParams.actions;
-    tx = await $chainStores[Chain.NEAR].tx.build(nearTxParams);
+    tx = await $ChainStores[Chain.NEAR].tx.build(nearTxParams);
   }
 
   async function initTokenInfos() {
     const tokenInfoProms = txParams.actions.map((action) => {
       if (action.type === GenericTxSupportedActions.TRANSFER)
-        return $chainStores[chain].constants.nativeTokenInfo();
+        return $ChainStores[chain].constants.nativeTokenInfo();
       else if (
         action.type === GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN
       ) {
         return (
-          $chainStores[chain].constants.tokens[action.contractAddress]?.() ??
+          $ChainStores[chain].constants.tokens[action.contractAddress]?.() ??
           null
         );
       } else null;
@@ -90,7 +91,15 @@ import { getCommunityContract } from '@baf-wallet/community-contract';
   }
 
   async function init() {
-    if (!checkChainInit($chainStores, chain)) {
+    if (
+      !(await checkChainInit(
+        $ChainStores,
+        chain,
+        apiClient,
+        $SiteKeyStore?.edPK,
+        $SiteKeyStore?.secpPK
+      ))
+    ) {
       // TODO: redirect to login
       // See Github issue: https://github.com/bafnetwork/baf-wallet-v3/issues/6
       throw BafError.UninitChain(chain);
@@ -104,12 +113,12 @@ import { getCommunityContract } from '@baf-wallet/community-contract';
     attemptedApprove = true;
     isLoading = true;
     try {
-      const signed = await $chainStores[chain].tx.sign(
+      const signed = await $ChainStores[chain].tx.sign(
         tx,
-        keyPairFromSk($siteKeyStore.edSK)
+        keyPairFromSk($SiteKeyStore.edSK)
       );
       BN.prototype.toString = undefined;
-      const ret = await $chainStores[chain].tx.send(signed);
+      const ret = await $ChainStores[chain].tx.send(signed);
       explorerUrl = ret.snd;
       txSuccess = true;
     } catch (e) {
@@ -118,7 +127,6 @@ import { getCommunityContract } from '@baf-wallet/community-contract';
     }
     isLoading = false;
   }
-
 </script>
 
 {#await init()}
@@ -139,7 +147,7 @@ import { getCommunityContract } from '@baf-wallet/community-contract';
               to {recipientUser}
             </p>
           {:else if action.type === GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN}
-            {#if $chainStores[chain].constants.supportedContractTokenContracts.includes(action.contractAddress)}
+            {#if $ChainStores[chain].constants.supportedContractTokenContracts.includes(action.contractAddress)}
               <p>
                 transfer <AmountFormatter
                   bal={action.amount}

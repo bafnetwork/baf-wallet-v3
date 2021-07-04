@@ -11,6 +11,7 @@ import {
 
 import {
   createNearAccount,
+  // createNearAccount,
   getAccountInfoFromSecpPK,
   getAccountNonce,
   NearAccountInfo,

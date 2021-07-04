@@ -1,18 +1,27 @@
 <script lang="ts" context="module">
   import { writable } from 'svelte/store';
   import { ChainsState, initChains } from './chains.svelte';
-  import { clearKeysFromStorage, loadKeys, siteKeyStore } from './keys.svelte';
-  import { AccountState, Encoding, OAuthState } from '@baf-wallet/interfaces';
-
-  export const accountStore = writable<AccountState | null>(null);
+  import { clearKeysFromStorage, loadKeys, SiteKeyStore } from './keys.svelte';
+  import {
+    AccountState,
+    KeyState,
+    OAuthState,
+  } from '@baf-wallet/interfaces';
+  export const AccountStore = writable<AccountState | null>(null);
   const oauthInfoStoreName = 'oauthInfo';
 
+  interface InitAccountRet {
+    accountState: AccountState;
+    chainsState: ChainsState | null;
+    keys: KeyState | null;
+  }
+
   export function logout() {
-    siteKeyStore.set(null);
+    SiteKeyStore.set(null);
     clearKeysFromStorage();
-    accountStore.update((accountStore) => {
+    AccountStore.update((AccountStore) => {
       return {
-        ...accountStore,
+        ...AccountStore,
         loggedIn: false,
       };
     });
@@ -22,10 +31,7 @@
     window.localStorage.setItem('accessToken', accessToken);
   }
 
-  export async function initAccountState(): Promise<{
-    accountState: AccountState;
-    chainsState: ChainsState | null;
-  }> {
+  export async function initAccount(): Promise<InitAccountRet> {
     const keys = loadKeys();
     const loggedIn = loadKeys() !== null;
     const chainsState = keys ? await initChains(keys) : null;
@@ -35,11 +41,16 @@
         ? null
         : JSON.parse(window.localStorage.getItem(oauthInfoStoreName)),
     };
-    accountStore.set(accountState);
-    return { accountState, chainsState };
+    AccountStore.set(accountState);
+    return { accountState, chainsState, keys };
   }
 
   export function storeOauthState(oauthInfo: OAuthState) {
     window.localStorage.setItem(oauthInfoStoreName, JSON.stringify(oauthInfo));
+  }
+  export function getOauthState(): OAuthState | null {
+    const cookieStr = window.localStorage.getItem(oauthInfoStoreName);
+    if (!JSON.parse(cookieStr)) return null;
+    return JSON.parse(cookieStr) as OAuthState;
   }
 </script>
