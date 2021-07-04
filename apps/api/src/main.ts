@@ -5,7 +5,7 @@ import { constants } from './app/config/constants';
 import * as cors from 'cors';
 import { setGlobalContract } from '@baf-wallet/global-contract';
 import { Chain, Env } from '@baf-wallet/interfaces';
-import { getNearChain, initChains } from '@baf-wallet/global-state';
+import { getNearChain, initNearChain } from '@baf-wallet/global-state';
 import { BafError } from '@baf-wallet/errors';
 
 const app = express();
@@ -18,7 +18,7 @@ async function initContracts() {
 }
 
 async function init() {
-  await initChains(constants.chainParams, constants.env);
+  await initNearChain(constants.chainParams[Chain.NEAR], constants.env);
   await initContracts();
   app.use(
     bodyParser.urlencoded({

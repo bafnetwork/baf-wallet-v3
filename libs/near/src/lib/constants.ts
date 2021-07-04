@@ -34,20 +34,20 @@ const bridgeContractsProd = [
   '111111111117dc0aa78b770fa6a738034120c302.factory.bridge.near',
 ];
 
-export const getNearSupportedContractTokens = (env: Env) => {
-  switch (env) {
-    case Env.DEV:
-    case Env.TEST:
-      return ['ft.levtester.testnet', 'wrap.testnet'];
-    case Env.PROD:
+export const getNearSupportedContractTokens = (networkId: string) => {
+  switch (networkId) {
+    case 'mainnet':
       return ['berryclub.ek.near', 'wrap.near', ...bridgeContractsProd];
+    case 'testnet':
+    default:
+      return ['ft.levtester.testnet', 'wrap.testnet'];
   }
 };
 
-export async function initChainConstants(
-  nearState: NearState,
-  tokenContracts: string[]
+export async function getChainConstants(
+  nearState: NearState
 ): Promise<ChainConstants> {
+  const tokenContracts = getNearSupportedContractTokens(nearState.networkID);
   const ft_metadatas = await Promise.all(
     tokenContracts.map((contractID) =>
       getContract<NEP141Contract, NearInitContractParams>(nearState, contractID)

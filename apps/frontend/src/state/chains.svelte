@@ -13,7 +13,6 @@
     getNearSupportedContractTokens,
     WrappedNearChainInterface,
   } from '@baf-wallet/near';
-  import { getWrappedInterface } from '@baf-wallet/multi-chain';
   import { keyPairFromSk } from '@baf-wallet/crypto';
   import { writable } from 'svelte/store';
   import { environment } from '../environments/environment';

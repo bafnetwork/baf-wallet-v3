@@ -17,7 +17,6 @@
     "baseUrl": ".",
     "paths": {
       "@baf-wallet/api-client": ["libs/api-client/src/index.ts"],
-      "@baf-wallet/multi-chain": ["libs/multi-chain/src/index.ts"],
       "@baf-wallet/redirect-generator": [
         "libs/redirect-generator/src/index.ts"
       ],
