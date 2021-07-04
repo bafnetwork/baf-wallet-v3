@@ -164,9 +164,8 @@ export const extractGenericActionsFromTx = (
 
 export const buildParamsFromGenericTx = (innerSdk: NearState) => async (
   txParams: GenericTxParams,
-  recipientPk: PublicKey<secp256k1>,
-  _senderPk: PublicKey<secp256k1>,
-  senderPk: PublicKey<ed25519>
+  senderPk: PublicKey<ed25519>,
+  recipientPk?: PublicKey<secp256k1>,
 ): Promise<NearBuildTxParams> => {
   let recipientAccountID = txParams.recipientAddress
     ? txParams.recipientAddress
