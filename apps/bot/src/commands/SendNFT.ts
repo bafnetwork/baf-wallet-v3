@@ -11,7 +11,12 @@ import {
 } from '@baf-wallet/interfaces';
 import { createDiscordErrMsg, parseDiscordRecipient } from '@baf-wallet/utils';
 import { getGlobalContract } from '@baf-wallet/global-contract';
-import { noDefaultNFTContractMessage } from './shared/guild-messages';
+import {
+  noDefaultNFTContractMessage,
+  userUninitMessage,
+} from './shared/messages';
+import { tryGetTorusPublicAddress } from '@baf-wallet/torus';
+import { getUninitUsers } from './shared/utils';
 
 export default class SendNFT extends Command {
   constructor(protected client: BotClient) {
@@ -37,7 +42,7 @@ export default class SendNFT extends Command {
     message: Message,
     contractAddress: string,
     tokenId: string,
-    recipientParsed: string,
+    recipientParsed: string
   ): Promise<GenericTxParams | null> {
     const action: GenericTxActionTransferNFT = {
       type: GenericTxSupportedActions.TRANSFER_NFT,
@@ -104,13 +109,23 @@ export default class SendNFT extends Command {
 
     const recipientUser = this.client.users.resolve(recipientParsed);
     const recipientUserReadable = `${recipientUser.username}#${recipientUser.discriminator}`;
+    const unintUsers = await getUninitUsers([
+      { userId: recipientUser.id, userReadable: recipientUserReadable },
+    ]);
 
+    if (unintUsers.length > 0) {
+      await super.respond(
+        message.channel,
+        userUninitMessage(recipientUserReadable)
+      );
+      return;
+    }
     try {
       const tx = await this.buildGenericTx(
         message,
         contractAddress,
         tokenId,
-        recipientParsed,
+        recipientParsed
       );
       if (!tx) return;
       const link = createApproveRedirectURL(

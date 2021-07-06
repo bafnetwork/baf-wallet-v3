@@ -11,6 +11,17 @@ const torus = new Torus({
 });
 Torus.setAPIKey('torus-default');
 
+export async function tryGetTorusPublicAddress(
+  userId: string,
+  loginType: TORUS_LOGIN_TYPE
+): Promise<PublicKey<secp256k1> | null> {
+  try {
+    return getTorusPublicAddress(userId, loginType);
+  } catch (e) {
+    return null;
+  }
+}
+
 export async function getTorusPublicAddress(
   userId: string,
   loginType: TORUS_LOGIN_TYPE

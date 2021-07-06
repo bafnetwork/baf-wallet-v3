@@ -18,6 +18,12 @@ import {
 import { getNearChain } from '@baf-wallet/global-state';
 import { getContractTokenInfoFromSymbol } from '@baf-wallet/chain-info';
 import { nearToYoctoNear } from '@baf-wallet/near';
+import {
+  getTorusPublicAddress,
+  tryGetTorusPublicAddress,
+} from '@baf-wallet/torus';
+import { userUninitMessage } from './shared/messages';
+import { getUninitUsers } from './shared/utils';
 
 export default class SendMoney extends Command {
   constructor(protected client: BotClient) {
@@ -136,6 +142,17 @@ export default class SendMoney extends Command {
     }
     const recipientUser = this.client.users.resolve(recipientParsed);
     const recipientUserReadable = `${recipientUser.username}#${recipientUser.discriminator}`;
+    const unintUsers = await getUninitUsers([
+      { userId: recipientUser.id, userReadable: recipientUserReadable },
+    ]);
+
+    if (unintUsers.length > 0) {
+      await super.respond(
+        message.channel,
+        userUninitMessage(recipientUserReadable)
+      );
+      return;
+    }
 
     try {
       const tx = await this.buildGenericTx(
