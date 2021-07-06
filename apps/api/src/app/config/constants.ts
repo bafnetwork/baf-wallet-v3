@@ -1,6 +1,10 @@
 import { ed25519, ed25519Marker, Encoding, Env } from '@baf-wallet/interfaces';
 import { keyPairFromSk, skFromString } from '@baf-wallet/crypto';
-import { NearInitParams, getNearNetworkID, getNearSupportedContractTokens } from '@baf-wallet/near';
+import {
+  NearInitParams,
+  getNearNetworkID,
+  getNearSupportedContractTokens,
+} from '@baf-wallet/near';
 import { environment, initDotEnv } from '../../environments/environment';
 
 initDotEnv();
@@ -14,7 +18,6 @@ export const constants = {
       ),
       networkID: getNearNetworkID(environment.env),
       masterAccountID: process.env.NEAR_MASTER_ACCOUNT_ID,
-      supportedContractTokens: getNearSupportedContractTokens(environment.env),
     } as NearInitParams,
   },
   discord: {

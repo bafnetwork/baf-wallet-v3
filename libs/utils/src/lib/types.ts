@@ -12,3 +12,5 @@ export const arrayToObject = (array: { key: string; val: any }[]): any => {
     return prev;
   }, {});
 };
+
+export type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;

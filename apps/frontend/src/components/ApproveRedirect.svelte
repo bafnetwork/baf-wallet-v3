@@ -22,6 +22,8 @@
     GenericTxAction,
     GenericTxParams,
     GenericTxSupportedActions,
+    PublicKey,
+    secp256k1,
     TokenInfo,
   } from '@baf-wallet/interfaces';
   import { getGlobalContract } from '@baf-wallet/global-contract';
@@ -52,27 +54,27 @@
     ) {
       throw BafError.GenericTxRequiresOauthInfo();
     }
-    const recipientPubkey = txParams.recipientUserId
-      ? await getTorusPublicAddress(
-          txParams.recipientUserId,
-          txParams.oauthProvider
-        )
-      : null;
+    let recipientPubkey: PublicKey<secp256k1> | undefined
+    if (txParams.recipientUserId) {
+      recipientPubkey = await getTorusPublicAddress(
+        txParams.recipientUserId,
+        txParams.oauthProvider
+      );
 
-    const account_info = await getGlobalContract().get_account_info({
-      secp_pk: recipientPubkey.format(Encoding.ARRAY) as number[],
-    });
-    if (!account_info) throw BafError.SecpPKNotAssociatedWithAccount(chain);
-    txParams.recipientAddress = account_info.account_id;
-    recipientUserName = account_info.user_name;
+      const account_info = await getGlobalContract().get_account_info({
+        secp_pk: recipientPubkey.format(Encoding.ARRAY) as number[],
+      });
+      if (!account_info) throw BafError.SecpPKNotAssociatedWithAccount(chain);
+      txParams.recipientAddress = account_info.account_id;
+      recipientUserName = account_info.user_name;
+    }
 
     const nearTxParams = await $ChainStores[
       Chain.NEAR
     ].tx.buildParamsFromGenericTx(
       txParams,
+      $SiteKeyStore.edPK,
       recipientPubkey,
-      $SiteKeyStore.secpPK,
-      $SiteKeyStore.edPK
     );
     actions = txParams.actions;
     tx = await $ChainStores[Chain.NEAR].tx.build(nearTxParams);

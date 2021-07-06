@@ -8,10 +8,10 @@
   import Button from '@smui/button';
   import { Account } from 'near-api-js';
 
-  import { WrappedNearChainInterface } from '@baf-wallet/near';
+  import { NearChainInterface } from '@baf-wallet/near';
 
   export let keyState: KeyState;
-  export let chainInterface: WrappedNearChainInterface;
+  export let chainInterface: NearChainInterface;
   export let cb: () => void;
   export let oauthInfo: OAuthState;
 
@@ -19,7 +19,7 @@
 
   async function removePKFromAccount(
     account: Account,
-    chainInterface: WrappedNearChainInterface
+    chainInterface: NearChainInterface
   ) {
     loading = true;
     const associatedKeys = await chainInterface.accounts.associatedKeys(
@@ -59,7 +59,7 @@
     variant="raised"
     on:click={() =>
       removePKFromAccount(
-        chainInterface.getInner().nearMasterAccount,
+        chainInterface.accounts.masterAccount,
         chainInterface
       )}>Disconnect BAF Wallet from your Near Account</Button
   >

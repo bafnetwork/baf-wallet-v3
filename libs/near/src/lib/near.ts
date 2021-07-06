@@ -1,11 +1,4 @@
-import {
-  ChainInterface,
-  CommonInitParams,
-  ed25519,
-  Encoding,
-  InferWrapChainInterface,
-  KeyPair,
-} from '@baf-wallet/interfaces';
+import { ed25519, Encoding, KeyPair } from '@baf-wallet/interfaces';
 import {
   Account,
   connect,
@@ -41,7 +34,9 @@ import { InMemoryKeyStore } from 'near-api-js/lib/key_stores';
 import { KeyPairEd25519 as NearKeyPairEd25519 } from 'near-api-js/lib/utils';
 import { BafError } from '@baf-wallet/errors';
 import { getContract } from './contract';
-import { initChainConstants } from './constants';
+import { getChainConstants } from './constants';
+import { ThenArg } from '@baf-wallet/utils';
+import { stat } from 'node:fs';
 
 export type { NearAccountID, NearCreateAccountParams } from './accounts';
 export type {
@@ -50,26 +45,6 @@ export type {
   NearAction,
   NearSupportedActionTypes,
 } from './tx';
-export type WrappedNearChainInterface = InferWrapChainInterface<NearChainInterface>;
-
-export type NearChainInterface = ChainInterface<
-  NearUtils.PublicKey,
-  Buffer,
-  NearKeyPair,
-  NearInitParams & CommonInitParams,
-  NearState,
-  transactions.Transaction,
-  NearBuildTxParams,
-  transactions.SignedTransaction,
-  NearSignTxOpts,
-  NearSendOpts,
-  NearSendResult,
-  Account,
-  NearAccountID,
-  NearCreateAccountParams,
-  NearInitContractParams
->;
-
 export interface NearState {
   near: Near;
   rpcProvider: providers.JsonRpcProvider;
@@ -78,22 +53,27 @@ export interface NearState {
   getFungibleTokenContract: (contractName: string) => Promise<NEP141Contract>;
 }
 
-export const nearChainInterface: NearChainInterface = {
-  accounts: nearAccounts,
-  tx: nearTx,
-  convert: nearConverter,
-  rpc: nearRpc,
-  init,
-  getContract,
-  initChainConstants,
-};
-
-export interface NearInitParams extends CommonInitParams {
+export interface NearInitParams {
   networkID: NearNetworkID;
   masterAccountID: NearAccountID;
   keyPath?: string;
   keyPair?: KeyPair<ed25519>;
 }
+
+export const getNearChainInterface = async (params: NearInitParams) => {
+  const state = await init(params);
+  return {
+    accounts: nearAccounts(state),
+    tx: nearTx(state),
+    convert: nearConverter,
+    rpc: nearRpc,
+    getContract,
+    constants: await getChainConstants(state),
+  };
+};
+export type NearChainInterface = ThenArg<
+  ReturnType<typeof getNearChainInterface>
+>;
 
 async function init({
   networkID,

@@ -3,25 +3,21 @@
  */
 import { Chain, Env } from '@baf-wallet/interfaces';
 import { BafError } from '@baf-wallet/errors';
-import { ChainInitParams, getWrappedInterface } from '@baf-wallet/multi-chain';
 import {
   NearChainInterface,
-  getNearSupportedContractTokens,
-  WrappedNearChainInterface,
+  NearInitParams,
+  getNearChainInterface,
 } from '@baf-wallet/near';
 
-let nearChain: WrappedNearChainInterface;
+let nearChain: NearChainInterface;
 let init = false;
 
-export async function initChains(chainParams: ChainInitParams, env: Env) {
-  nearChain = await getWrappedInterface<NearChainInterface>(Chain.NEAR, {
-    ...chainParams[Chain.NEAR],
-    supportedContractTokens: getNearSupportedContractTokens(env),
-  });
+export async function initNearChain(params: NearInitParams, env: Env) {
+  nearChain = await getNearChainInterface(params);
   init = true;
 }
 
-export function getNearChain(): WrappedNearChainInterface {
+export function getNearChain(): NearChainInterface {
   if (!init) throw BafError.UninitChain(Chain.NEAR);
   return nearChain;
 }

@@ -41,7 +41,7 @@ export function nearAccounts(
   return {
     lookup: async (accountID: NearAccountID): Promise<NearAccount> =>
       await near.account(accountID),
-
+    masterAccount: nearState.nearMasterAccount,
     getGenericMasterAccount: () => {
       return {
         getBalance: async () =>

@@ -20,7 +20,6 @@
     "api": { "tags": ["scope:admin"] },
     "api-client": { "tags": [] },
     "bot": { "tags": ["scope:admin"] },
-    "multi-chain": { "tags": [] },
     "redirect-generator": { "tags": [] },
     "interfaces": { "tags": [] },
     "chain-info": { "tags": [] },
