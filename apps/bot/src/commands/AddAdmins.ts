@@ -14,6 +14,8 @@ import {
 import { createDiscordErrMsg, parseDiscordRecipient } from '@baf-wallet/utils';
 import { constants } from '../config/config';
 import { getGlobalContract } from '@baf-wallet/global-contract';
+import { getUninitUsers } from './shared/utils';
+import { usersUninitMessage } from './shared/messages';
 
 export default class AddAdmins extends Command {
   constructor(protected client: BotClient) {
@@ -96,16 +98,16 @@ export default class AddAdmins extends Command {
       );
       return;
     }
-    const adminPubkeys = await Promise.all(
-      adminsParsed.map((admin) => getTorusPublicAddress(admin, 'discord'))
+    const adminsDiscordInfo = adminsParsed.map((admin) => this.client.users.resolve(admin));
+    const { uninitUsers, associatedAccounts } = await getUninitUsers(
+      adminsDiscordInfo
     );
-    const associatedAccounts = await Promise.all(
-      adminPubkeys.map((pk) => getGlobalContract().getAccountId(pk))
-    );
-    if (associatedAccounts.some((account) => account === null)) {
+    if (uninitUsers.length > 0) {
       await super.respond(
         message.channel,
-        'The tagged admins must have already initialized their account'
+        usersUninitMessage(
+          uninitUsers.map((user) => `${user.username}#${user.discriminator}`)
+        )
       );
       return;
     }

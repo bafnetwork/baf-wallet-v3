@@ -42,6 +42,9 @@
   {#if chainInit}
     <Layout>
       <div class="wrapper">
+        <div class="row center">
+          <h1>Welcome to BAF Wallet!</h1>
+        </div>
         <DisconnectNearAccount
           cb={async () => {
             reinitAppState();
