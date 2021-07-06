@@ -109,11 +109,9 @@ export default class SendNFT extends Command {
 
     const recipientUser = this.client.users.resolve(recipientParsed);
     const recipientUserReadable = `${recipientUser.username}#${recipientUser.discriminator}`;
-    const unintUsers = await getUninitUsers([
-      { userId: recipientUser.id, userReadable: recipientUserReadable },
-    ]);
+    const { uninitUsers } = await getUninitUsers([recipientUser]);
 
-    if (unintUsers.length > 0) {
+    if (uninitUsers.length > 0) {
       await super.respond(
         message.channel,
         userUninitMessage(recipientUserReadable)

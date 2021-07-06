@@ -1,21 +1,22 @@
 import { getGlobalContract } from '@baf-wallet/global-contract';
 import { tryGetTorusPublicAddress } from '@baf-wallet/torus';
+import { User } from 'discord.js';
 
-interface UserInfo {
-  userId: string;
-  userReadable: string;
-}
-
-export async function getUninitUsers(users: UserInfo[]) {
-  const uninitMarkers = await Promise.all(
+export async function getUninitUsers(users: User[]) {
+  const associatedAccounts = await Promise.all(
     users.map(async (user) => {
-      const userPk = await tryGetTorusPublicAddress(user.userId, 'discord');
+      const userPk = await tryGetTorusPublicAddress(user.id, 'discord');
       if (!userPk) {
         return false;
       }
       const userId = await getGlobalContract().getAccountId(userPk);
-      return !userId;
+      return userId;
     })
   );
-  return users.filter((user, i) => uninitMarkers[i]);
+  return {
+    uninitUsers: users.filter((user, i) => !associatedAccounts[i]),
+    associatedAccounts: associatedAccounts.filter(
+      (account) => !!account
+    ) as string[],
+  };
 }
