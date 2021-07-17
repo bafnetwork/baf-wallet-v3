@@ -17,22 +17,23 @@
     "baseUrl": ".",
     "paths": {
       "@baf-wallet/api-client": ["libs/api-client/src/index.ts"],
-      "@baf-wallet/multi-chain": ["libs/multi-chain/src/index.ts"],
       "@baf-wallet/redirect-generator": [
         "libs/redirect-generator/src/index.ts"
       ],
       "@baf-wallet/interfaces": ["libs/interfaces/src/index.ts"],
       "@baf-wallet/chain-info": ["libs/chain-info/src/index.ts"],
       "@baf-wallet/near": ["libs/near/src/index.ts"],
+      "@baf-wallet/near/web": ["libs/near/src/web/index.ts"],
+      "@baf-wallet/near/web/*": ["libs/near/src/web/*"],
       "@baf-wallet/utils": ["libs/utils/src/index.ts"],
       "@baf-wallet/torus/web": ["libs/torus/src/web/index.ts"],
       "@baf-wallet/torus": ["libs/torus/src/common/index.ts"],
-      "@baf-wallet/community-contract": ["libs/community-contract/src/index.ts"],
       "@baf-wallet/crypto": ["libs/crypto/src/index.ts"],
       "@baf-wallet/base-components/*": ["libs/base-components/src/*"],
       "@baf-wallet/errors": ["libs/errors/src/index.ts"],
-      "@baf-wallet/global-state": ["libs/global-state/src/index.ts"]
+      "@baf-wallet/global-state": ["libs/global-state/src/index.ts"],
+      "@baf-wallet/global-contract": ["libs/global-contract/src/index.ts"]
     }
   },
-  "exclude": ["node_modules", "tmp", "libs/community-contract/contract"]
+  "exclude": ["node_modules", "tmp"]
 }

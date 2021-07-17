@@ -25,7 +25,7 @@ export default class Help extends Command {
       +  `\`${this.client.settings.prefix}sendNFT\` - sends NEP171 compatible NFTs on NEAR.\n`
       + `\`${this.client.settings.prefix}help\` - lists the available commands and what they do.\n`
       + `\n`
-      + `To see usage details of a particular command, do \`${this.client.settings.prefix}command\`.`
+      + `To see usage details of a particular command, do \`${this.client.settings.prefix}<Command Name>\`.`
     );
   }
 }

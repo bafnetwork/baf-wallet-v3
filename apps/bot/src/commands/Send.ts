@@ -1,10 +1,6 @@
 import { Message } from 'discord.js';
 import { Command } from '../Command';
 import { BotClient } from '../types';
-import {
-  formatNativeTokenAmountToIndivisibleUnit,
-  formatTokenAmountToIndivisibleUnit,
-} from '@baf-wallet/multi-chain';
 import { createApproveRedirectURL } from '@baf-wallet/redirect-generator';
 import { environment } from '../environments/environment';
 import {
@@ -15,11 +11,19 @@ import {
 } from '@baf-wallet/interfaces';
 import {
   createDiscordErrMsg,
+  formatTokenAmountToIndivisibleUnit,
   parseDiscordRecipient,
   strToChain,
 } from '@baf-wallet/utils';
 import { getNearChain } from '@baf-wallet/global-state';
 import { getContractTokenInfoFromSymbol } from '@baf-wallet/chain-info';
+import { nearToYoctoNear } from '@baf-wallet/near';
+import {
+  getTorusPublicAddress,
+  tryGetTorusPublicAddress,
+} from '@baf-wallet/torus';
+import { userUninitMessage } from './shared/messages';
+import { getUninitUsers } from './shared/utils';
 
 export default class SendMoney extends Command {
   constructor(protected client: BotClient) {
@@ -45,8 +49,7 @@ export default class SendMoney extends Command {
     message: Message,
     asset: string,
     amount: number,
-    recipientParsed: string,
-    recipientUserReadable: string
+    recipientParsed: string
   ): Promise<GenericTxParams | null> {
     let actions: GenericTxAction[];
     const nearConstants = getNearChain().constants;
@@ -55,28 +58,31 @@ export default class SendMoney extends Command {
       actions = [
         {
           type: GenericTxSupportedActions.TRANSFER,
-          amount: formatNativeTokenAmountToIndivisibleUnit(amount, Chain.NEAR),
+          amount: nearToYoctoNear(amount),
         },
       ];
     } else {
-      const tokenInfoRet = await getContractTokenInfoFromSymbol(
-        asset,
-        nearConstants.tokens
-      );
-      if (!tokenInfoRet) {
+      // TODO not right
+      const tokenInfoFn = getNearChain()?.constants.tokens[asset];
+      // const tokenInfoRet = await getContractTokenInfoFromSymbol(
+      //   asset,
+      //   nearConstants.tokens
+      // );
+      if (!tokenInfoFn) {
         await super.respond(
           message.channel,
           `❌ invalid asset ❌: ${asset} is currently not supported`
         );
         return null;
       }
+      const tokenInfoRet = await tokenInfoFn();
       actions = [
         {
           type: GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN,
-          contractAddress: tokenInfoRet.contract,
+          contractAddress: tokenInfoRet.contractAddress,
           amount: formatTokenAmountToIndivisibleUnit(
             amount,
-            tokenInfoRet.tokenInfo.decimals
+            tokenInfoRet.decimals
           ),
         },
       ];
@@ -84,7 +90,6 @@ export default class SendMoney extends Command {
 
     const tx: GenericTxParams = {
       recipientUserId: recipientParsed,
-      recipientUserIdReadable: recipientUserReadable,
       actions,
       oauthProvider: 'discord',
     };
@@ -137,14 +142,22 @@ export default class SendMoney extends Command {
     }
     const recipientUser = this.client.users.resolve(recipientParsed);
     const recipientUserReadable = `${recipientUser.username}#${recipientUser.discriminator}`;
+    const { uninitUsers } = await getUninitUsers([recipientUser]);
+
+    if (uninitUsers.length > 0) {
+      await super.respond(
+        message.channel,
+        userUninitMessage(recipientUserReadable)
+      );
+      return;
+    }
 
     try {
       const tx = await this.buildGenericTx(
         message,
         asset,
         amount,
-        recipientParsed,
-        recipientUserReadable
+        recipientParsed
       );
       if (!tx) return;
 
@@ -159,7 +172,7 @@ export default class SendMoney extends Command {
         "Please check your DM's for a link to approve the transaction!"
       );
       await message.author.send(
-        `To open BAF Wallet and approve your transfer, please open this link: ${link}`
+        `To open BAF Wallet and approve your transfer to ${recipientUserReadable}, please open this link: ${link}`
       );
     } catch (err) {
       console.error(err);

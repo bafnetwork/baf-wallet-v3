@@ -20,18 +20,19 @@ export enum Encoding {
   BS58,
   HEX,
   UTF8,
+  ARRAY,
 }
 
 export interface PublicKey<Curve> {
   data: Buffer;
   curve: Curve;
-  format: (fmt: Encoding) => string;
+  format: (fmt: Encoding) => string | number[];
 }
 
 export interface SecretKey<Curve> {
   data: Buffer;
   curve: Curve;
-  format: (fmt: Encoding) => string;
+  format: (fmt: Encoding) => string | number[];
 }
 
 export interface KeyPair<Curve> {
@@ -42,4 +43,4 @@ export interface KeyPair<Curve> {
 /**
  * A hex encoded string for the signature where sig.s is concated with sig.r
  */
-export type RustEncodedSecpSig = Buffer;
+export type RustEncodedSecpSig = number[];

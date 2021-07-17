@@ -10,7 +10,13 @@ import {
   GenericTxSupportedActions,
 } from '@baf-wallet/interfaces';
 import { createDiscordErrMsg, parseDiscordRecipient } from '@baf-wallet/utils';
-import { getCommunityContract } from '@baf-wallet/community-contract';
+import { getGlobalContract } from '@baf-wallet/global-contract';
+import {
+  noDefaultNFTContractMessage,
+  userUninitMessage,
+} from './shared/messages';
+import { tryGetTorusPublicAddress } from '@baf-wallet/torus';
+import { getUninitUsers } from './shared/utils';
 
 export default class SendNFT extends Command {
   constructor(protected client: BotClient) {
@@ -26,7 +32,7 @@ export default class SendNFT extends Command {
 
   private extractArgs(content: string): string[] | null {
     const rx = /^\%sendNFT ((.*) from (.*) to (.*)|(.*) to (.*))$/g;
-    const matched = rx.exec(content).filter((elem) => elem !== undefined);
+    const matched = rx.exec(content)?.filter((elem) => elem !== undefined);
     if (!matched) return null;
     // The first element of the match is the whole string if it matched, the second is the chunk of the or clause
     return matched.length < 2 ? null : matched.slice(2);
@@ -36,8 +42,7 @@ export default class SendNFT extends Command {
     message: Message,
     contractAddress: string,
     tokenId: string,
-    recipientParsed: string,
-    recipientUserReadable: string
+    recipientParsed: string
   ): Promise<GenericTxParams | null> {
     const action: GenericTxActionTransferNFT = {
       type: GenericTxSupportedActions.TRANSFER_NFT,
@@ -47,7 +52,6 @@ export default class SendNFT extends Command {
 
     const tx: GenericTxParams = {
       recipientUserId: recipientParsed,
-      recipientUserIdReadable: recipientUserReadable,
       actions: [action],
       oauthProvider: 'discord',
     };
@@ -79,10 +83,18 @@ export default class SendNFT extends Command {
 
     const tokenId = args[0];
     const argsOffset = args.length === 3 ? 1 : 0;
+    let community_nft_contract = '';
+    if (args.length !== 3) {
+      community_nft_contract = await getGlobalContract().get_community_default_nft_contract(
+        { server: message.guild.id }
+      );
+      if (!community_nft_contract) {
+        await super.respond(message.channel, noDefaultNFTContractMessage);
+        return;
+      }
+    }
     const contractAddress =
-      args.length === 3
-        ? args[argsOffset]
-        : await getCommunityContract().get_default_nft_contract();
+      args.length === 3 ? args[argsOffset] : community_nft_contract;
     const recipient: string = args[1 + argsOffset];
 
     const recipientParsed = parseDiscordRecipient(recipient);
@@ -97,14 +109,21 @@ export default class SendNFT extends Command {
 
     const recipientUser = this.client.users.resolve(recipientParsed);
     const recipientUserReadable = `${recipientUser.username}#${recipientUser.discriminator}`;
+    const { uninitUsers } = await getUninitUsers([recipientUser]);
 
+    if (uninitUsers.length > 0) {
+      await super.respond(
+        message.channel,
+        userUninitMessage(recipientUserReadable)
+      );
+      return;
+    }
     try {
       const tx = await this.buildGenericTx(
         message,
         contractAddress,
         tokenId,
-        recipientParsed,
-        recipientUserReadable
+        recipientParsed
       );
       if (!tx) return;
       const link = createApproveRedirectURL(

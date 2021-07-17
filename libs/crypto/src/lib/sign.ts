@@ -43,7 +43,7 @@ export function verifySignature<Curve>(
 export function signMsg<Curve>(
   sk: SecretKey<Curve>,
   msg: Buffer | string,
-  CommunityContractFormat = false,
+  GlobalContractFormat = false,
   hashFn: (buf: Buffer) => Buffer = keccak256
 ): Buffer {
   const msgFormat =
@@ -54,7 +54,7 @@ export function signMsg<Curve>(
       const ellipticSig = ellipticSecp256k1.sign(msgHash, sk.data, 'hex', {
         canonical: true,
       });
-      return CommunityContractFormat
+      return GlobalContractFormat
         ? encodeSecpSigRustContract(ellipticSig)
         : Buffer.from(ellipticSig.toDER('hex'), 'hex');
     }

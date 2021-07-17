@@ -3,9 +3,9 @@ import express from 'express';
 import { RegisterRoutes } from '../build/routes';
 import { constants } from './app/config/constants';
 import * as cors from 'cors';
-import { setCommunityContract } from '@baf-wallet/community-contract';
+import { setGlobalContract } from '@baf-wallet/global-contract';
 import { Chain, Env } from '@baf-wallet/interfaces';
-import { getNearChain, initChains } from '@baf-wallet/global-state';
+import { getNearChain, initNearChain } from '@baf-wallet/global-state';
 import { BafError } from '@baf-wallet/errors';
 
 const app = express();
@@ -14,11 +14,11 @@ async function initContracts() {
   const masterAccount = await getNearChain().accounts.lookup(
     constants.chainParams[Chain.NEAR].masterAccountID
   );
-  await setCommunityContract(masterAccount);
+  await setGlobalContract(masterAccount);
 }
 
 async function init() {
-  await initChains(constants.chainParams);
+  await initNearChain(constants.chainParams[Chain.NEAR], constants.env);
   await initContracts();
   app.use(
     bodyParser.urlencoded({
@@ -32,7 +32,6 @@ async function init() {
   ];
   const corsOptions = {
     origin: function (origin, callback) {
-      // TODO: this may be hacakable as someone can just make a netlify and call it xxx-baf-wallet
       if (whitelist.indexOf(origin) !== -1) {
         callback(null, true);
       } else if (

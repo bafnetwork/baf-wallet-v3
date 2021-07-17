@@ -14,7 +14,6 @@ describe('frontend', () => {
       Chain.NEAR,
       'http://localhost:8080',
       {
-        recipientUserIdReadable: 'lev_s#7844',
         actions: [
           {
             type: GenericTxSupportedActions.TRANSFER,
@@ -27,18 +26,16 @@ describe('frontend', () => {
     console.log(sendURL);
   });
   it('Create a url for changing the default NFT contract', () => {
-    const nftAddress = require('../../../community-contract/config.json')
-      .contractName;
     const url = createApproveRedirectURL(Chain.NEAR, 'http://localhost:8080', {
       // TODO: add an option for if recipientUserId is a TorusTarget or not
-      recipientAddress: nftAddress.toString(),
-      recipientUserIdReadable: 'Community Contract',
+      recipientAddress: 'asas',
       actions: [
         {
           type: GenericTxSupportedActions.CONTRACT_CALL,
-          functionName: 'set_default_nft_contract',
+          functionName: 'set_community_default_nft_contract',
           functionArgs: {
             nft_contract: 'nft.levtester.near',
+            guild_id: '',
           },
           deposit: '1',
         },
@@ -47,20 +44,18 @@ describe('frontend', () => {
     } as GenericTxParams);
     console.log('Change NFT Contract', url);
   });
+  // TODO: nft Addresses
   it('Create a url to send a test NFT (NEP171) to sladuca#4629', () => {
-    const nftAddress = require('../../../community-contract/config.json')
-      .contractName;
     const sendURL = createApproveRedirectURL(
       Chain.NEAR,
       'http://localhost:8080',
       {
         recipientUserId: '216732707449733120',
-        recipientUserIdReadable: 'sladuca#4629',
         actions: [
           {
             type: GenericTxSupportedActions.TRANSFER_NFT,
             tokenId: 'coolbeans',
-            contractAddress: nftAddress.toString(),
+            contractAddress: 'AASAS', //nftAddress.toString(),
             memo: 'This is cool',
           },
         ],
@@ -75,7 +70,6 @@ describe('frontend', () => {
       'http://localhost:8080',
       {
         recipientUserId: '216732707449733120',
-        recipientUserIdReadable: 'sladuca#4629',
         actions: [
           {
             type: GenericTxSupportedActions.TRANSFER_CONTRACT_TOKEN,

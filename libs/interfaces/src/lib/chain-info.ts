@@ -1,4 +1,4 @@
-import { jsonObject, jsonMember, jsonArrayMember, } from 'typedjson';
+import { jsonObject, jsonMember, jsonArrayMember } from 'typedjson';
 import { Chain } from '..';
 @jsonObject
 export class SocialMediaInfo {
@@ -22,11 +22,11 @@ export class TokenInfoAssets {
   @jsonMember(String)
   public white_paper?: string;
   @jsonMember(String)
-  public description: string;
+  public description?: string;
   @jsonArrayMember(SocialMediaInfo)
   public socials?: SocialMediaInfo[];
   @jsonMember(String)
-  public explorer: string;
+  public explorer?: string;
   @jsonMember(String)
   public symbol: string;
   @jsonMember(String)
@@ -34,11 +34,12 @@ export class TokenInfoAssets {
   @jsonMember(Number)
   public decimals: number;
   @jsonMember(String)
-  public status: 'active' | 'abandoned';
+  public status?: 'active' | 'abandoned';
   @jsonArrayMember(String)
   public tags?: string[];
 }
 
 export interface TokenInfo extends TokenInfoAssets {
   chain: Chain;
+  contractAddress: string;
 }

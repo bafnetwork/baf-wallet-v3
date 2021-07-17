@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { GuildAuditLogs, Message } from 'discord.js';
 import { Command } from '../Command';
 import { BotClient } from '../types';
 import { createApproveRedirectURL } from '@baf-wallet/redirect-generator';
@@ -12,6 +12,10 @@ import {
 } from '@baf-wallet/interfaces';
 import { createDiscordErrMsg, parseDiscordRecipient } from '@baf-wallet/utils';
 import { constants } from '../config/config';
+import { getTorusPublicAddress } from '@baf-wallet/torus';
+import { getGlobalContract } from '@baf-wallet/global-contract';
+import { getUninitUsers } from './shared/utils';
+import { usersUninitMessage } from './shared/messages';
 
 export default class RemoveAdmins extends Command {
   constructor(protected client: BotClient) {
@@ -26,6 +30,7 @@ export default class RemoveAdmins extends Command {
   }
 
   private buildGenericTx(
+    guildId: string,
     contractAddress: string,
     admins: string[]
   ): GenericTxParams {
@@ -33,9 +38,10 @@ export default class RemoveAdmins extends Command {
     actions = [
       {
         type: GenericTxSupportedActions.CONTRACT_CALL,
-        functionName: 'remove_admins',
+        functionName: 'remove_community_admins',
         functionArgs: {
           admins,
+          guild_id: GuildAuditLogs,
         },
         deposit: '0',
       },
@@ -43,7 +49,6 @@ export default class RemoveAdmins extends Command {
 
     const tx: GenericTxParams = {
       recipientAddress: contractAddress,
-      recipientUserIdReadable: 'Community Contract',
       actions,
       oauthProvider: 'discord',
     };
@@ -83,11 +88,36 @@ export default class RemoveAdmins extends Command {
     }
 
     const admins = args[0].split(', ');
+    const adminsParsed = admins.map(parseDiscordRecipient);
+
+    if (adminsParsed.some((admin) => admin === null)) {
+      await super.respond(
+        message.channel,
+        '❌ invalid user ❌: the user must be tagged!'
+      );
+      return;
+    }
+    const adminsDiscordInfo = adminsParsed.map((admin) =>
+      this.client.users.resolve(admin)
+    );
+    const { uninitUsers, associatedAccounts } = await getUninitUsers(
+      adminsDiscordInfo
+    );
+    if (uninitUsers.length > 0) {
+      await super.respond(
+        message.channel,
+        usersUninitMessage(
+          uninitUsers.map((user) => `${user.username}#${user.discriminator}`)
+        )
+      );
+      return;
+    }
 
     try {
       const tx = await this.buildGenericTx(
-        constants.communityContractAddr,
-        admins
+        message.guild.id,
+        constants.globalContractAddress,
+        associatedAccounts
       );
       if (!tx) return;
       const link = createApproveRedirectURL(
@@ -101,7 +131,9 @@ export default class RemoveAdmins extends Command {
         "Please check your DM's for a link to approve the transaction!"
       );
       await message.author.send(
-        `To open BAF Wallet and remove ${JSON.stringify(admins)} as admins, please open this link: ${link}`
+        `To open BAF Wallet and remove ${JSON.stringify(
+          admins
+        )} as admins, please open this link: ${link}`
       );
     } catch (err) {
       console.error(err);

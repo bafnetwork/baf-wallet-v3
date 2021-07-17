@@ -20,7 +20,6 @@
     "api": { "tags": ["scope:admin"] },
     "api-client": { "tags": [] },
     "bot": { "tags": ["scope:admin"] },
-    "multi-chain": { "tags": [] },
     "redirect-generator": { "tags": [] },
     "interfaces": { "tags": [] },
     "chain-info": { "tags": [] },
@@ -28,10 +27,10 @@
     "near": { "tags": [] },
     "utils": { "tags": [] },
     "torus": { "tags": [] },
-    "community-contract": { "tags": [] },
     "crypto": { "tags": [] },
     "base-components": { "tags": [] },
     "errors": { "tags": [] },
-    "global-state": { "tags": ["scope:admin"] }
+    "global-state": { "tags": ["scope:admin"] },
+    "global-contract": { "tags": [] }
   }
 }
