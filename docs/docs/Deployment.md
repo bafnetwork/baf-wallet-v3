@@ -42,7 +42,7 @@ Otherwise, each of the following steps will require some of the environment vari
 
 ## Deploying the API
 
-To deploy the API, build it by running `npx nx run api:build:test`. A single, optimized script will be placed in in `dist/apps/api`. 
+To deploy the API, build it by running `npx nx run api:build:test`. A single, optimized script will be placed in in `dist/apps/api`. Then, do `node scripts/create-dist-api-package-json.js` to generate a package.json in `dist/apps/api`
 
 Copy that file to wherever you plan to run the API (e.g. a DigitalOcean droplet). To run the script, set up the environment variables it needs, namely:
 
@@ -53,14 +53,14 @@ DISCORD_CLIENT_ID=<clientid>
 DISCORD_CLIENT_SECRET=<secret>
 ```
 
-and run it with `node` or your preferred node process manager (e.g. `pm2`).
+Then run it with `npm start` within the `dist/apps/api`. It's totally OK to copy it somewhere else.
 
 
 ## Deploying the Bot
 
-To deploy the Bot, build it by running `npx nx run bot:build:test`. A single, optimized script will be placed in `dist/apps/bot`.
+To deploy the Bot, build it by running `npx nx run bot:build:test`. A single, optimized script will be placed in `dist/apps/bot`. Then, do `node scripts/create-dist-bot-package-json.js` to generate a package.json in `dist/apps/bot`
 
-Copy that file to wherever you plan to run the bot (e.g. a DigitalOcean droplet). To run the script, set up the environment variables it needs, namely:
+To run the script, set up the environment variables it needs, namely:
 
 ```
 DISCORD_CLIENT_ID
@@ -69,7 +69,8 @@ DISCORD_BOT_TOKEN
 BASE_WALLET_URL
 ```
 
-and run it with `node` or your preferred node process manager (e.g. `pm2`).
+Then run it with `npm start` within `dist/apps/bot`. It's totally OK to copy it somewhere else.
+
 
 ## Deploying the Frontend
 
