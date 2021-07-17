@@ -49,8 +49,8 @@ Copy that file to wherever you plan to run the API (e.g. a DigitalOcean droplet)
 ```env
 NEAR_SK
 NEAR_MASTER_ACCOUNT_ID
-DISCORD_CLIENT_ID=<clientid>
-DISCORD_CLIENT_SECRET=<secret>
+DISCORD_CLIENT_ID
+DISCORD_CLIENT_SECRET
 ```
 
 Then run it with `npm start` within the `dist/apps/api`. It's totally OK to copy it somewhere else.

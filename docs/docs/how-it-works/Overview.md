@@ -9,6 +9,7 @@ BAF wallet as a system has 3 parts:
 1. Discord Bot
 2. Approval UI
 3. BAF Wallet Smart Contract (1 for each community)
+4. API
 
 The discord bot just builds transactions - it listens to the discord channel for commands (i.e. messages), extracts transaction information (e.g. amount, recipient), and PM's the message sender a link to the Approval UI.
 
@@ -17,3 +18,5 @@ The Approval UI is a very simple webpage that allows a user to approve / deny tr
 In order to send/receive tokens using BAF, all users must first sign into the UI with their discord account and link their discord account an existing NEAR account. If they don't the Bot will give an error saying the recipient or sender has not set up their account. For a more detailed description of how this mapping is stored, please see [Account Mappings](./AccountMappings.md)
 
 The Community Contract is used for access control and the storing the mappings between discord accounts and NEAR accounts for BAF wallet. The access control exists so that we can support operations like adding/removing contracts from the community that should be permissioned.
+
+The API serves two very small purposes. Firstly, it allows the bot (which doesn't have keys) to look up the near account ID associated with a give discord user ID through the smart contract. Secondly, refreshes the user's Discord OAuth Token, which is necessary because Discord by default caches it for 30 minutes, while torus requires a fresh token.
