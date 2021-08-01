@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 ---
 
 # Deployment
@@ -24,7 +24,7 @@ Go to https://developer.tor.us/ and/or read [their instructions on how to set th
 ## Near Account
 - A NEAR account / private key for our API to use. This can be either testnet or mainnet (more on that later). The API only uses this to update some mappings in a smart contract, so it only needs to have a very small amount of NEAR to be able to pay the gas of doing so.
 
-## Deploying stuff
+## Deployment
 
 To build / run each component, you will need:
 
