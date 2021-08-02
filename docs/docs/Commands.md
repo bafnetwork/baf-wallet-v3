@@ -8,7 +8,7 @@ To see a list of command available to all users in a Discord Guild, type `%help`
 
 The following message should be printed out:
 ```
-TODO:
+TODO: also show the help commands for each here
 ```
 
 For any command, simply typing `%<COMMAND NAME>` will give a little how-to guide. So, typing `%sendNFT` should have the Discord Bot return
@@ -23,7 +23,7 @@ List out the commands which Discord users can perform
 Send either native NEAR or a NEP-141 (TODO: link) fungible token to another Discord user
 
 ### sendNFT
-
+Send an NFT to another Discord user. The NFT's contract can either be the Discord Guild's default contract or a contract specified in the command
 
 ## Discord Guild Admin Commands
 

@@ -26,10 +26,9 @@ The Global Contract serves two main purposes:
 <!-- The access control exists so that we can support operations like adding/removing contracts from the community that should be permissioned. -->
 
 ### Torus and how we are noncustodial
-TODO:
+
+BAF Wallet is noncustodial. This means that the Discord user is the only one who can know the keys associated with his/her account. This is done via [Torus](https://tor.us). Long story short, they use a distributed key generation method to derive a private/ public key pair from your OAuth login (this basically means just logging in with Discord, Google, or Facebook). Check out their documentation(TODO:) to find out more.
 
 ### The API
 
 The API serves two very small purposes. Firstly, it allows the bot (which doesn't have keys) to look up the near account ID associated with a give discord user ID through the smart contract. Secondly, refreshes the user's Discord OAuth Token, which is necessary because Discord by default caches it for 30 minutes, while [Torus](https://tor.us) requires a fresh token.
-
-<!-- TODO: what is Torus and why? -->
