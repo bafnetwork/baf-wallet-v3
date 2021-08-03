@@ -28,3 +28,7 @@ We do not yet support adding our instance of the bot to discords other than the 
 If you want to deploy your own instance of the bot, please see the [deployment guide](./Deployment.md).
 
 If you're technical, want to know how it works, and/or ensure it's non-custodial, please see [how it works](./how-it-works/Overview.md)
+
+## Testnet
+
+To get started on testnet, please make sure that you are in the BAF discord and have access to the baf-wallet channel. Then, find go to [the frontend testnet site](https://baf-wallet-deploy-frontend.vercel.app/) to get started.
