@@ -27,7 +27,7 @@ The Global Contract serves two main purposes:
 
 ### Torus and how we are noncustodial
 
-BAF Wallet is noncustodial. This means that the Discord user is the only one who can know the keys associated with his/her account. This is done via [Torus](https://tor.us). Long story short, they use a distributed key generation method to derive a private/ public key pair from your OAuth login (this basically means just logging in with Discord, Google, or Facebook). Check out their documentation(TODO:) to find out more.
+BAF Wallet is noncustodial. This means that the Discord user is the only one who can know the keys associated with his/her account. This is done via [Torus](https://tor.us). Long story short, they use a distributed key generation method to derive a private/ public key pair from your OAuth login (this basically means just logging in with Discord, Google, or Facebook). Check out their [documentation](https://docs.tor.us/) to find out more.
 
 ### The API
 

@@ -8,10 +8,10 @@ import { setGlobalContract } from '@baf-wallet/global-contract';
 import { Chain } from '@baf-wallet/interfaces';
 
 // Initialize the Client using the IoC.
-const client = Container.get<Client>(Client);
 
 async function main() {
   await initNearChain(constants.chainParams[Chain.NEAR], constants.env);
+  const client = Container.get<Client>(Client);
   await setGlobalContract(getNearChain().accounts.masterAccount);
   await client.login(environment.DISCORD_BOT_TOKEN);
   console.log('tokenbot happily hodling along');

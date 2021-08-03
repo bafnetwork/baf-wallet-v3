@@ -25,20 +25,26 @@ import {
 import { userUninitMessage } from './shared/messages';
 import { getUninitUsers } from './shared/utils';
 
-export default class SendMoney extends Command {
+const getUsage = (prefix: string) =>
+  `${prefix}send [amount of fungible token] [asset, i.e. NEAR, Berries, etc.] to [recipient]\n\n` +
+  `Supported assets include: ${Object.keys(
+    getNearChain()?.constants.tokens
+  ).join(', ')}, and NEAR`;
+
+export default class send extends Command {
   constructor(protected client: BotClient) {
     super(client, {
-      name: 'sendMoney',
+      name: 'send',
       description: 'sends NEAR or NEP-141 tokens on NEAR testnet',
       category: 'Utility',
-      usage: `${client.settings.prefix}sendMoney [amount of fungible token] [asset, i.e. NEAR, Berries, etc.] to [recipient]`,
+      usage: getUsage(client.settings.prefix),
       cooldown: 1000,
       requiredPermissions: [],
     });
   }
 
   private extractArgs(content: string): string[] | null {
-    const rx = /^\%sendMoney (.*) (.*) to (.*)$/g;
+    const rx = /^\%send (.*) (.*) to (.*)$/g;
     const matched = rx.exec(content);
     if (!matched) return null;
     // The first element of the match is the whole string if it matched
@@ -64,10 +70,6 @@ export default class SendMoney extends Command {
     } else {
       // TODO not right
       const tokenInfoFn = getNearChain()?.constants.tokens[asset];
-      // const tokenInfoRet = await getContractTokenInfoFromSymbol(
-      //   asset,
-      //   nearConstants.tokens
-      // );
       if (!tokenInfoFn) {
         await super.respond(
           message.channel,

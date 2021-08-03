@@ -1,8 +1,3 @@
-### TODOS:
-1. TODO: return error message if the sender is not an admin, do this for other admins as well
-2. TODO: we should change this to just Send from sendMoney
-3. TODO: cooldowns on discord command?
-
 # BafWallet
 
 ## Find the spec
