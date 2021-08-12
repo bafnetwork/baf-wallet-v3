@@ -11,8 +11,8 @@ export const torusConstants = {
   proxyAddress: '0x4023d2a0D330bF11426B12C6144Cfb96B7fa6183',
   verifierInfo: {
     discord: {
-      verifier: 'baf wallet-discord-testnet',
-      clientId: '821890148198776874',
+      verifier: process.env.TORUS_VERIFIER_NAME,
+      clientId: process.env.DISCORD_CLIENT_ID,
     },
   } as VerifierInfo,
 };

@@ -84,4 +84,4 @@ TORUS_VERIFIER_NAME
 
 **TODO: DISCORD_CLIENT_ID and TORUS_VERIFIER_NAME are hardcoded in the frontend. Need to make it so `webpack.config.ts` slurps them up from the environment instead.**
 
-Once those environment variables are set, run `npx nx run frontend:build-deploy-test`. An optimized web bundle will be placed in `disc/apps/frontend` which you can copy and deploy to whatever static site host you wish.
+Once those environment variables are set, run `npx nx run frontend:build-deploy-test`. An optimized web bundle will be placed in `dist/apps/frontend` which you can copy and deploy to whatever static site host you wish.

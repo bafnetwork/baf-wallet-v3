@@ -16,8 +16,8 @@ export const constants = {
       ? 'mainnet'
       : 'testnet') as TORUS_NETWORK_TYPE,
     discord: {
-      verifier: 'baf wallet-discord-testnet',
-      clientId: '821890148198776874',
+      verifier: process.env.TORUS_VERIFIER_NAME,
+      clientId: process.env.DISCORD_CLIENT_ID,
     },
   },
 };
