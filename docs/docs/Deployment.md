@@ -40,11 +40,8 @@ If you wish to run it locally, create a copy of the file in the same directory c
 
 Otherwise, each of the following steps will require some of the environment variables specified in `libs/
 
-## Deploying the API
+### API
 
-To deploy the API, build it by running `npx nx run api:build:test`. A single, optimized script will be placed in in `dist/apps/api`. Then, do `node scripts/create-dist-api-package-json.js` to generate a package.json in `dist/apps/api`
-
-Copy that file to wherever you plan to run the API (e.g. a DigitalOcean droplet). To run the script, set up the environment variables it needs, namely:
 
 ```env
 NEAR_SK
@@ -53,14 +50,8 @@ DISCORD_CLIENT_ID
 DISCORD_CLIENT_SECRET
 ```
 
-Then run it with `npm start` within the `dist/apps/api`. It's totally OK to copy it somewhere else.
 
-
-## Deploying the Bot
-
-To deploy the Bot, build it by running `npx nx run bot:build:test`. A single, optimized script will be placed in `dist/apps/bot`. Then, do `node scripts/create-dist-bot-package-json.js` to generate a package.json in `dist/apps/bot`
-
-To run the script, set up the environment variables it needs, namely:
+### Bot
 
 ```
 DISCORD_CLIENT_ID
@@ -69,12 +60,8 @@ DISCORD_BOT_TOKEN
 BASE_WALLET_URL
 ```
 
-Then run it with `npm start` within `dist/apps/bot`. It's totally OK to copy it somewhere else.
+### Frontend
 
-
-## Deploying the Frontend
-
-To deploy the frontend, make sure you have set the environment variables it needs, namely:
 
 ```
 BASE_WALLET_URL
@@ -82,4 +69,29 @@ DISCORD_CLIENT_ID
 TORUS_VERIFIER_NAME
 ```
 
-Once those environment variables are set, run `npx nx run frontend:build-deploy-test`. An optimized web bundle will be placed in `dist/apps/frontend` which you can copy and deploy to whatever static site host you wish.
+## Running locally
+
+If you have all of the environment variables set up, you shoud be able to run all three locally via `npm run dev`.
+
+## Build
+
+To build the bot, frontend, API, and docs site in one go, run `scripts/build-all.sh` from the root directory of the repo. The results will be placed in `dist/apps/bot`, `dist/apps/frontend`, and `dist/apps/api` respectively.
+
+## Deploy 
+
+After building, you can simply copy `dist/apps/api` and `dist/apps/bot` to wherever you want to run them. For the frontend in `dist/apps/frontend`, it's a typical javascript app bundle, so you can take those files and deploy them pretty much wherever you want.
+
+If you're using a managed host like Heroku/Vercel that likes pulling from a github repo, we reccomend setting up a sepearate "deploy repo" for the relevant components (frontend, bot, and/or api) and pushing the contents of their respecitive `dist/apps/` subdirectories to those repos. 
+
+For example, here's ours:
+* Frontend: https://github.com/bafnetwork/baf-wallet-deploy-frontend
+* Bot: https://github.com/bafnetwork/baf-wallet-deploy-bot
+* API: https://github.com/bafnetwork/baf-wallet-deploy-api
+
+### Using CI
+
+If you want to do this through through CI, we do, and our github actions workflow is also open source and can be found in the `.github` directory of this repo.
+
+To adapt this for your usage, find the invocations of `seanmiddleditch/gha-publish-to-git` and change `repository` to the relevant deploy repo you're using for the api, bot, and frontend. Feel free to remove the step for deploying the docs site.
+
+Then you'll need to add the `GITHUB_TOKEN` and `GH_PAT` secrets to your GHA configuration - see [this](https://github.com/seanmiddleditch/gha-publish-to-git#publish-to-git) to learn more 
