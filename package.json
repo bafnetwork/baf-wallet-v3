@@ -85,6 +85,7 @@
     "css-loader": "^5.0.2",
     "cypress": "^6.0.1",
     "dotenv": "^6.2.0",
+    "env-cmd": "^10.1.0",
     "eslint": "7.10.0",
     "eslint-config-prettier": "8.1.0",
     "eslint-plugin-cypress": "^2.10.3",

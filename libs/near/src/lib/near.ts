@@ -36,7 +36,6 @@ import { BafError } from '@baf-wallet/errors';
 import { getContract } from './contract';
 import { getChainConstants } from './constants';
 import { ThenArg } from '@baf-wallet/utils';
-import { stat } from 'node:fs';
 
 export type { NearAccountID, NearCreateAccountParams } from './accounts';
 export type {

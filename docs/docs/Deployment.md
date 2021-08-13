@@ -34,44 +34,29 @@ To build / run each component, you will need:
 
 ## Environment variables
 
-See our example env configuration file at `/libs/env/.env.example` in the BAF Wallet repo for a list of environment variables. Each is annotated saying what components each variable is needed by. 
+See our example env configuration file at `env/.env.example` in the BAF Wallet repo for a list of environment variables. Each is annotated saying what components each variable is needed by. 
 
-If you wish to run it locally, create a copy of the file in the same directory called `.env.dev` and populate all of the fields from the results from the previous steps.
-
-Otherwise, each of the following steps will require some of the environment variables specified in `libs/
-
-### API
-
+To set up your env variables, create a copy of the file in the same directory called `.env.dev` and populate all of the fields using results from the previous steps and `env/.env.example` as a guide:
 
 ```env
 NEAR_SK
 NEAR_MASTER_ACCOUNT_ID
-DISCORD_CLIENT_ID
-DISCORD_CLIENT_SECRET
-```
 
-
-### Bot
-
-```
 DISCORD_CLIENT_ID
 DISCORD_CLIENT_SECRET
 DISCORD_BOT_TOKEN
-BASE_WALLET_URL
-```
 
-### Frontend
-
-
-```
-BASE_WALLET_URL
-DISCORD_CLIENT_ID
 TORUS_VERIFIER_NAME
+TORUS_NETWORK
+
+BASE_WALLET_URL
 ```
 
 ## Running locally
 
-If you have all of the environment variables set up, you shoud be able to run all three locally via `npm run dev`.
+If you have all of the environment variables set up in `.env.dev`, you can do the following to run the whole thing locally:
+* `npm run dev` to run the API and frontend
+* `npx nx serve bot` to run bot locally
 
 ## Build
 

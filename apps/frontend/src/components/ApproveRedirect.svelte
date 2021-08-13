@@ -115,6 +115,8 @@
     await initGenericTx();
   }
 
+  console.log(process.env.TORUS_VERIFIER_NAME);
+
   async function onApprove() {
     attemptedApprove = true;
     isLoading = true;
