@@ -268,7 +268,7 @@
             "commands": [
               "npm run client-gen",
               "[ -f env/.env.dev ] || touch env/.env.dev",
-              "cd apps/frontend && mkdir -p public/build && env-cmd -f ../env/.env.dev $(npm bin)/webpack --node-env test",
+              "cd apps/frontend && mkdir -p public/build && env-cmd -f ../../env/.env.dev $(npm bin)/webpack --node-env test",
               "mkdir -p dist/apps",
               "rm -r dist/apps/frontend || true",
               "cp -r apps/frontend/public/ dist/apps/frontend",
