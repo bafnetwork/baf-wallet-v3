@@ -60,7 +60,7 @@ If you have all of the environment variables set up in `.env.dev`, you can do th
 
 ## Build
 
-To build the bot, frontend, API, and docs site in one go, run `scripts/build-all.sh` from the root directory of the repo. The results will be placed in `dist/apps/bot`, `dist/apps/frontend`, and `dist/apps/api` respectively.
+To build the bot, frontend, API, and docs site in one go, run `npm run build-all`. The results will be placed in `dist/apps/bot`, `dist/apps/frontend`, and `dist/apps/api` respectively.
 
 ## Deploy 
 

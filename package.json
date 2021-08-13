@@ -4,11 +4,11 @@
   "license": "MIT",
   "scripts": {
     "dev": "./scripts/dev.sh",
+    "build-all": "./scripts/build-all.sh",
     "client-gen": "npm run tsoa-gen && nx run api-client:autogen",
     "tsoa-gen": "nx run api:tsoa",
     "nx": "nx",
     "start": "nx serve",
-    "build": "nx build",
     "test": "nx test",
     "lint": "nx workspace-lint && nx lint",
     "e2e": "nx e2e",
