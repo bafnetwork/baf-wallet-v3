@@ -2,7 +2,7 @@ name: DeployCI
 
 on:
   push:
-    branches: [master, deploy-work]
+    branches: [master, deploy-work, deploy-work-2]
 
   workflow_dispatch:
 
@@ -38,6 +38,7 @@ jobs:
           npx nx build-deploy-test frontend
           node scripts/create-dist-bot-package-json.js
           echo 'worker: npm start' > dist/apps/bot/Procfile
+          cd docs && npm i && npm run build
 
       - uses: seanmiddleditch/gha-publish-to-git@master
         with:
@@ -54,6 +55,15 @@ jobs:
           github_token: "${{ secrets.GITHUB_TOKEN  }}"
           github_pat: "${{ secrets.GH_PAT }}"
           source_folder: dist/apps/bot
+
+      - uses: seanmiddleditch/gha-publish-to-git@master
+        with:
+          repository: bafnetwork/baf-wallet-docs-deploy
+          branch: main
+          github_token: "${{ secrets.GITHUB_TOKEN  }}"
+          github_pat: "${{ secrets.GH_PAT }}"
+          source_folder: docs/build
+
 
       - uses: seanmiddleditch/gha-publish-to-git@master
         with:

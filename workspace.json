@@ -60,9 +60,19 @@
             }
           }
         },
-        "serve": {
+        "serve-inner": {
           "executor": "@nrwl/node:execute",
           "options": { "buildTarget": "api:build" }
+        },
+        "serve": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "[ -f env/.env.dev ] || touch env/.env.dev",
+              "env-cmd -f env/.env.dev nx serve-inner api"
+            ],
+            "parallel": false
+          }
         },
         "tsoa": {
           "executor": "@nrwl/workspace:run-commands",
@@ -161,9 +171,19 @@
             }
           }
         },
-        "serve": {
+        "serve-inner": {
           "executor": "@nrwl/node:execute",
           "options": { "buildTarget": "bot:build" }
+        },
+        "serve": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "[ -f env/.env.dev ] || touch env/.env.dev",
+              "env-cmd -f env/.env.dev nx serve-inner bot"
+            ],
+            "parallel": false
+          }
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
@@ -247,10 +267,11 @@
           "options": {
             "commands": [
               "npm run client-gen",
-              "cd apps/frontend && mkdir -p public/build && $(npm bin)/webpack --node-env test",
+              "[ -f env/.env.dev ] || touch env/.env.dev",
+              "cd apps/frontend && mkdir -p public/build && env-cmd -f ../../env/.env.dev $(npm bin)/webpack --node-env test",
               "mkdir -p dist/apps",
               "rm -r dist/apps/frontend || true",
-              "cp apps/frontend/public/ -r dist/apps/frontend",
+              "cp -r apps/frontend/public/ dist/apps/frontend",
               "rm dist/apps/frontend/.gitignore"
             ],
             "parallel": false
@@ -263,7 +284,7 @@
               "cd apps/frontend && $(npm bin)/cross-env NODE_ENV=production $(npm bin)/webpack",
               "mkdir -p dist/apps",
               "rm -r dist/apps/frontend || true",
-              "cp apps/frontend/public -r dist/apps/frontend"
+              "cp -r apps/frontend/public dist/apps/frontend"
             ]
           },
           "outputs": ["{options.outputPath}"],
@@ -281,18 +302,28 @@
             }
           }
         },
+        "serve-inner": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "cd apps/frontend && $(npm bin)/webpack serve"
+          }
+        },
         "serve": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
-            "command": "cd apps/frontend && $(npm bin)/cross-env NODE_ENV=developm#!/bin/shent $(npm bin)/webpack serve"
+            "commands": [
+              "[ -f env/.env.dev ] || touch env/.env.dev",
+              "env-cmd -f env/.env.dev nx serve-inner frontend"
+            ],
+            "parallel": false
           }
         },
         "serve+api": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
             "commands": [
-              "cd apps/frontend && $(npm bin)/webpack serve",
-              "nx serve api"
+              "nx serve api",
+              "nx serve frontend"
             ],
             "parallel": true
           }

@@ -60,6 +60,8 @@ function getEnvPath() {
   }
 }
 
+console.log('process.env: ', process.env);
+
 const config: Configuration = {
   mode: isProduction ? 'production' : 'development',
   entry: {
@@ -184,6 +186,8 @@ const config: Configuration = {
     new NodePolyfillPlugin({}),
     new Webpack.DefinePlugin({
       'process.env.BASE_URL': JSON.stringify(process.env.BASE_URL),
+      'process.env.TORUS_VERIFIER_NAME': JSON.stringify(process.env.TORUS_VERIFIER_NAME),
+      'proces.env.DISCORD_CLIENT_ID': JSON.stringify(process.env.DISCORD_CLIENT_ID)
     }),
   ],
   devtool: isProduction && !sourceMapsInProduction ? false : 'source-map',

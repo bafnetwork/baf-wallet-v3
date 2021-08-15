@@ -29,7 +29,7 @@ export async function getTorusPublicAddress(
   assertLoginTypeRegistered(loginType);
   // Configuration from https://github.com/torusresearch/torus-direct-web-sdk/blob/master/src/login.ts
   const nodeManager = new NodeDetailsManager({
-    network: torusConstants.network,
+    network: torusConstants.network as any,
     proxyAddress: torusConstants.proxyAddress,
   });
 

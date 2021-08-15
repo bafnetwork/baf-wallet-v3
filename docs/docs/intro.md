@@ -10,33 +10,25 @@ This project is in early stages of development. **Do not use it on any mainnet w
 
 ## What is BAF Wallet?
 
-BAF Wallet is, first an foremost, a crypto wallet that:
+BAF wallet is a **non-custodial** discord bot that allows community managers to send tokens and NFTs to members of a discord community. This includes things like:
 
-- Can be used across any blockchain
-- Can use any key storage / management system
-- Is at least as easy to get started with as any Web2 app
+- participation badges
+- competition prizes
+- community role tokens
+- reputation tokens, if you're into that sort of thing
+- plain old payments
+- and more!
 
-However, BAF Wallet is quickly becoming a synergestic ecosystem of libraries that make it as easy as possible to perform operations across multiple blockchains, which is something that we foresee being quite useful in a lot of different contexts.
+## Usage
 
-Currently, we do not have a public demo ready yet.
+If you already have a discord community where the BAF wallet bot has been added, do `%help` for instructions on how to use it. 
 
-## Getting Started
+We do not yet support adding our instance of the bot to discords other than the BAF discord. If you want to use it in your community, you currently must deploy your own. This will change soon.
 
-These are the steps to get a working instance running locally
+If you want to deploy your own instance of the bot, please see the [deployment guide](./Deployment.md).
 
-Prerequisites: have `npm` and `near-cli` installed.
+If you're technical, want to know how it works, and/or ensure it's non-custodial, please see [how it works](./how-it-works/Overview.md)
 
-1. `npm i` in the root of this repo
-2. If you're using the API, DM Lev or Sebastien to get the development client secret
-3. make a copy of `.env.example` in `apps/api/src/environments` and rename it `.env.dev`
-4. populate all of the fields in `.env.dev` with non-example values
+## Testnet
 
-- For near keys, find your key json file (any will do really, generate a new one if you like) - typically they are found in a `.near-credentials/default` directory, which is typically located in `$HOME` if you installed `near-cli` globally. Then use the hex part of the private key in that file, excluding the `"ed25519:"`. This must correspond to the account ID given for `NEAR_MASTER_ACCOUNT_ID`.
-- For the `DISCORD_CLIENT_ID`, use `"821890148198776874"` (quotes are important)
-- For `TORUS_VERIFIER_NAME`, use `baf wallet-discord-testnet`
-- For the client-secret, you will need to ask Lev or Sebastien. We still have yet to set up a painless way to manage these environment variables so that everyone can use their own Discord OAuth endpoint.
-
-5. repeat steps 3-4 for `libs/global-contract/env`
-6. `npx nx serve+api frontend`.
-
-For more information about the project, it's code structure / philosophy, it's various libraries and applications, and how to contribute, see the relevant section on the sidebar.
+To get started on testnet, please make sure that you are in the BAF discord and have access to the baf-wallet channel. Then, find go to [the frontend testnet site](https://baf-wallet-deploy-frontend.vercel.app/) to get started.

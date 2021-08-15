@@ -1,7 +1,7 @@
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'BAF Wallet',
-  tagline: 'The antimaximalist wallet people can actually use.',
+  tagline: 'A Non-Custodial Discord UI for web3',
   url: 'https://your-docusaurus-test-site.com',
   baseUrl: '/',
   onBrokenLinks: 'throw',

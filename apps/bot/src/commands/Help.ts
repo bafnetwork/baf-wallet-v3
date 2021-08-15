@@ -21,7 +21,7 @@ export default class Help extends Command {
       + 'Built with ❤️ on NEAR by the Blockchain Acceleration Foundation.\n\n'
       + '**List of commands**:\n\n'
       + '`Ping` - Respond Pong! \n'
-      + `\`${this.client.settings.prefix}sendMoney\` - sends NEAR or NEP-141 tokens on NEAR.\n`
+      + `\`${this.client.settings.prefix}send\` - sends NEAR or NEP-141 tokens on NEAR.\n`
       +  `\`${this.client.settings.prefix}sendNFT\` - sends NEP171 compatible NFTs on NEAR.\n`
       + `\`${this.client.settings.prefix}help\` - lists the available commands and what they do.\n`
       + `\n`

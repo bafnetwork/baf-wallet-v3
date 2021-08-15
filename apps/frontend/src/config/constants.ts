@@ -12,12 +12,10 @@ export const constants = {
   },
   torus: {
     // TODO: have a unifying function for environment
-    network: (environment.env === Env.PROD
-      ? 'mainnet'
-      : 'testnet') as TORUS_NETWORK_TYPE,
+    network: process.env.TORUS_NETWORK ?? "testnet", 
     discord: {
-      verifier: 'baf wallet-discord-testnet',
-      clientId: '821890148198776874',
+      verifier: process.env.TORUS_VERIFIER_NAME,
+      clientId: process.env.DISCORD_CLIENT_ID,
     },
   },
 };
