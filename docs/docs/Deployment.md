@@ -64,7 +64,7 @@ To build the bot, frontend, API, and docs site in one go, run `npm run build-all
 
 ## Deploy 
 
-After building, you can simply copy `dist/apps/api` and `dist/apps/bot` to wherever you want to run them. For the frontend in `dist/apps/frontend`, it's a typical javascript app bundle, so you can take those files and deploy them pretty much wherever you want.
+After building, you can simply copy `dist/apps/api` and `dist/apps/bot` to wherever you want to run them, and make srue to set all of the environment variables above wherever you run them. For the frontend in `dist/apps/frontend`, it's your typical javascript app bundle, so you can take those files and deploy them pretty much wherever you want, no environment variables necessary.
 
 If you're using a managed host like Heroku/Vercel that likes pulling from a github repo, we reccomend setting up a sepearate "deploy repo" for the relevant components (frontend, bot, and/or api) and pushing the contents of their respecitive `dist/apps/` subdirectories to those repos. 
 
