@@ -58,13 +58,20 @@ If you have all of the environment variables set up in `.env.dev`, you can do th
 * `npm run dev` to run the API and frontend
 * `npx nx serve bot` to run bot locally
 
+
 ## Build
 
 To build the bot, frontend, API, and docs site in one go, run `npm run build-all`. The results will be placed in `dist/apps/bot`, `dist/apps/frontend`, and `dist/apps/api` respectively.
 
+### Note about environment variables
+
+When building the frontend, webpack injects the `DISCORD_CLIENT_ID`, `TORUS_VERIFIER_NAME`, and `TORUS_NETWORK` environment variables into the app as hard-coded strings that are not meant to be hidden. However you decide to build the frontend, make sure you have these three environment variables set when you build. All other envirnment variables will not be injected into the build and are thus safe to have set when you build the frontend.
+
+The other components don't require any environment variables set to build properly, and none of them get injected like in the frontend.
+
 ## Deploy 
 
-After building, you can simply copy `dist/apps/api` and `dist/apps/bot` to wherever you want to run them. For the frontend in `dist/apps/frontend`, it's a typical javascript app bundle, so you can take those files and deploy them pretty much wherever you want.
+After building, you can simply copy `dist/apps/api` and `dist/apps/bot` to wherever you want to run them, and make srue to set all of the environment variables above wherever you run them. For the frontend in `dist/apps/frontend`, it's your typical javascript app bundle, so you can take those files and deploy them pretty much wherever you want, no environment variables necessary.
 
 If you're using a managed host like Heroku/Vercel that likes pulling from a github repo, we reccomend setting up a sepearate "deploy repo" for the relevant components (frontend, bot, and/or api) and pushing the contents of their respecitive `dist/apps/` subdirectories to those repos. 
 
@@ -75,7 +82,7 @@ For example, here's ours:
 
 ### Using CI
 
-If you want to do this through through CI, we do, and our github actions workflow is also open source and can be found in the `.github` directory of this repo.
+If you want to do this through through CI, we do, and our github actions workflow is also open source and can be found in the `.github` directory of this repo. Make sure the environment variables are set when you build the frontend.
 
 To adapt this for your usage, find the invocations of `seanmiddleditch/gha-publish-to-git` and change `repository` to the relevant deploy repo you're using for the api, bot, and frontend. Feel free to remove the step for deploying the docs site.
 
