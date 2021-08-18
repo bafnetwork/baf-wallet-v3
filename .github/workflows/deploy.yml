@@ -42,6 +42,7 @@ jobs:
         env:
           DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
           TORUS_VERIFIER_NAME: ${{ secrets.TORUS_VERIFIER_NAME }}
+          TORUS_PROXY_ADDRESS: ${{ secrets.TORUS_PROXY_ADDRESS }}
           TORUS_NETWORK: ${{ secrets.TORUS_NETWORK }}
 
       - uses: seanmiddleditch/gha-publish-to-git@master
