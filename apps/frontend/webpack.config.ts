@@ -60,8 +60,6 @@ function getEnvPath() {
   }
 }
 
-console.log('process.env: ', process.env);
-
 const config: Configuration = {
   mode: isProduction ? 'production' : 'development',
   entry: {
