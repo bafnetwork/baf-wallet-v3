@@ -36,12 +36,18 @@ export const initTorusKeySource: KeySourceInitFn<
   TorusInitArgs
 > = async (params: TorusInitArgs): Promise<TorusKeySource> => {
   const torus = await initTorus(params.sdkArgs);
+  console.log(1);
+
+  console.log(params);
+  console.log(torusConstants);
 
   const userInfo = await torus.triggerLogin({
     typeOfLogin: params.oauthProvider,
     verifier: torusConstants.verifierInfo[params.oauthProvider].verifier,
     clientId: torusConstants.verifierInfo[params.oauthProvider].clientId,
   });
+
+  console.log(2);
 
   if (params.postLoginHook) {
     await params.postLoginHook(userInfo);

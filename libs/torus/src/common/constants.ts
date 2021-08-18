@@ -6,6 +6,7 @@ type VerifierInfo = {
     clientId: string;
   };
 };
+
 export const torusConstants = {
   network: 'ropsten',
   proxyAddress: process.env.TORUS_PROXY_ADDRESS,

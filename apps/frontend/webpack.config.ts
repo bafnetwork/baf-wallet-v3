@@ -188,7 +188,7 @@ const config: Configuration = {
       'process.env.BASE_URL': JSON.stringify(process.env.BASE_URL),
       'process.env.TORUS_VERIFIER_NAME': JSON.stringify(process.env.TORUS_VERIFIER_NAME),
       'process.env.TORUS_PROXY_ADDRESS': JSON.stringify(process.env.TORUS_PROXY_ADDRESS),
-      'proces.env.DISCORD_CLIENT_ID': JSON.stringify(process.env.DISCORD_CLIENT_ID)
+      'process.env.DISCORD_CLIENT_ID': JSON.stringify(process.env.DISCORD_CLIENT_ID)
     }),
   ],
   devtool: isProduction && !sourceMapsInProduction ? false : 'source-map',
