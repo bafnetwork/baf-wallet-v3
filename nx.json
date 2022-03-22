@@ -1,36 +1,43 @@
 {
   "implicitDependencies": {
     "workspace.json": "*",
-    "package.json": { "dependencies": "*", "devDependencies": "*" },
+    "package.json": {
+      "dependencies": "*",
+      "devDependencies": "*"
+    },
     "tsconfig.base.json": "*",
     "tslint.json": "*",
     ".eslintrc.json": "*",
     "nx.json": "*"
   },
-  "affected": { "defaultBase": "master" },
+  "affected": {
+    "defaultBase": "master"
+  },
   "npmScope": "baf-wallet",
   "tasksRunnerOptions": {
     "default": {
       "runner": "@nrwl/workspace/tasks-runners/default",
-      "options": { "cacheableOperations": ["build", "lint", "test", "e2e"] }
+      "options": {
+        "cacheableOperations": [
+          "build",
+          "lint",
+          "test",
+          "e2e"
+        ],
+        "parallel": 1
+      }
     }
   },
-  "projects": {
-    "frontend-e2e": { "tags": [], "implicitDependencies": ["frontend"] },
-    "api": { "tags": ["scope:admin"] },
-    "api-client": { "tags": [] },
-    "bot": { "tags": ["scope:admin"] },
-    "redirect-generator": { "tags": [] },
-    "interfaces": { "tags": [] },
-    "chain-info": { "tags": [] },
-    "frontend": { "tags": [] },
-    "near": { "tags": [] },
-    "utils": { "tags": [] },
-    "torus": { "tags": [] },
-    "crypto": { "tags": [] },
-    "base-components": { "tags": [] },
-    "errors": { "tags": [] },
-    "global-state": { "tags": ["scope:admin"] },
-    "global-contract": { "tags": [] }
-  }
+  "targetDependencies": {
+    "build": [
+      {
+        "target": "build",
+        "projects": "dependencies"
+      }
+    ]
+  },
+  "cli": {
+    "defaultCollection": "@nrwl/express"
+  },
+  "defaultProject": "api"
 }

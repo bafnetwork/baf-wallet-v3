@@ -4,9 +4,6 @@
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "parserOptions": {
-        "project": "apps/frontend-e2e/tsconfig.*?.json"
-      },
       "rules": {}
     },
     {
